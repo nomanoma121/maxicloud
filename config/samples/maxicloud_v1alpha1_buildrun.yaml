@@ -1,0 +1,9 @@
+apiVersion: maxicloud.maximum.vc/v1alpha1
+kind: BuildRun
+metadata:
+  labels:
+    app.kubernetes.io/name: maxicloud
+    app.kubernetes.io/managed-by: kustomize
+  name: buildrun-sample
+spec:
+  # TODO(user): Add fields here

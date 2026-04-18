@@ -1,0 +1,6 @@
+## Append samples of your project ##
+resources:
+- maxicloud_v1alpha1_app.yaml
+- maxicloud_v1alpha1_preview.yaml
+- maxicloud_v1alpha1_buildrun.yaml
+# +kubebuilder:scaffold:manifestskustomizesamples
