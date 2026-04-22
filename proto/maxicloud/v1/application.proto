@@ -1,0 +1,147 @@
+syntax = "proto3";
+
+package maxicloud.v1;
+
+import "maxicloud/v1/common.proto";
+import "google/protobuf/timestamp.proto";
+
+enum ApplicationStatus {
+  APPLICATION_STATUS_UNSPECIFIED = 0;
+  APPLICATION_STATUS_HEALTHY = 1;
+  APPLICATION_STATUS_DEGRADED = 2;
+  APPLICATION_STATUS_UNHEALTHY = 3;
+  APPLICATION_STATUS_SLEEPING = 4;
+}
+
+enum AccessMode {
+  ACCESS_MODE_UNSPECIFIED = 0;
+  ACCESS_MODE_PRIVATE = 2;
+  ACCESS_MODE_MEMBERS_ONLY = 3;
+}
+
+enum BuildStrategy {
+  BUILD_STRATEGY_UNSPECIFIED = 0;
+  BUILD_STRATEGY_DOCKERFILE = 2;
+}
+
+enum DockerfileSource {
+  DOCKERFILE_SOURCE_UNSPECIFIED = 0;
+  DOCKERFILE_SOURCE_PATH = 1;
+  DOCKERFILE_SOURCE_INLINE = 2;
+}
+
+message Application {
+  string id = 1;
+  string project_id = 2;
+  string name = 3;
+  ApplicationSource source = 4;
+  string branch = 5;
+  ApplicationStatus status = 7;
+  string url = 8;
+  string owner_user_id = 12;
+  google.protobuf.Timestamp created_at = 10;
+  google.protobuf.Timestamp updated_at = 11;
+}
+
+message ApplicationSource {
+  string repository_id = 1;
+  string repository_full_name = 2;
+  string branch = 3;
+}
+
+message DockerfileBuildConfig {
+  DockerfileSource source = 1;
+  string dockerfile_path = 2;
+  string dockerfile_inline = 3;
+}
+
+message BuildConfig {
+  BuildStrategy strategy = 1;
+  DockerfileBuildConfig dockerfile = 3;
+}
+
+message AccessConfig {
+  AccessMode mode = 1;
+  string expose_port = 2;
+  string domain_prefix = 3;
+  string domain_suffix = 4;
+}
+
+message Domain {
+  string subdomain = 2;
+  string apex_domain = 3;
+}
+
+message ApplicationSpec {
+  string project_id = 1;
+  string name = 2;
+  ApplicationSource source = 3;
+  BuildConfig build = 4;
+  AccessConfig access = 5;
+  Domain domain = 6;
+  repeated KeyValue environment_variables = 7;
+  repeated SecretEntry secrets = 8;
+}
+
+message CreateApplicationRequest {
+  ApplicationSpec spec = 1;
+}
+
+message CreateApplicationResponse {
+  Application application = 1;
+}
+
+message GetApplicationRequest {
+  string application_id = 1;
+}
+
+message GetApplicationResponse {
+  Application application = 1;
+}
+
+message ListApplicationsRequest {
+  string query = 2;
+  string project_id = 3;
+}
+
+message ListApplicationsResponse {
+  repeated Application applications = 1;
+}
+
+message UpdateApplicationRequest {
+  string application_id = 1;
+  ApplicationSpec spec = 2;
+}
+
+message UpdateApplicationResponse {
+  Application application = 1;
+}
+
+message DeleteApplicationRequest {
+  string application_id = 1;
+}
+
+message DeleteApplicationResponse {}
+
+message GitRepository {
+  string id = 1;
+  string default_branch = 4;
+  repeated string branches = 5;
+  repeated string detected_file = 6;
+  repeated string dockerfile_paths = 8;
+}
+
+message ListGitRepositoriesRequest {}
+
+message ListGitRepositoriesResponse {
+  repeated GitRepository repositories = 1;
+}
+
+service ApplicationService {
+  rpc CreateApplication(CreateApplicationRequest) returns (CreateApplicationResponse);
+  rpc GetApplication(GetApplicationRequest) returns (GetApplicationResponse);
+  rpc ListApplications(ListApplicationsRequest) returns (ListApplicationsResponse);
+  rpc UpdateApplication(UpdateApplicationRequest) returns (UpdateApplicationResponse);
+  rpc DeleteApplication(DeleteApplicationRequest) returns (DeleteApplicationResponse);
+  rpc ListGitRepositories(ListGitRepositoriesRequest) returns (ListGitRepositoriesResponse);
+}
