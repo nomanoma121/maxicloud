@@ -6,8 +6,3 @@ message KeyValue {
   string key = 1;
   string value = 2;
 }
-
-message SecretEntry {
-  string key = 1;
-  string value = 2;
-}

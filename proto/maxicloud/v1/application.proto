@@ -15,13 +15,13 @@ enum ApplicationStatus {
 
 enum AccessMode {
   ACCESS_MODE_UNSPECIFIED = 0;
-  ACCESS_MODE_PRIVATE = 2;
-  ACCESS_MODE_MEMBERS_ONLY = 3;
+  ACCESS_MODE_PRIVATE = 1;
+  ACCESS_MODE_MEMBERS_ONLY = 2;
 }
 
 enum BuildStrategy {
   BUILD_STRATEGY_UNSPECIFIED = 0;
-  BUILD_STRATEGY_DOCKERFILE = 2;
+  BUILD_STRATEGY_DOCKERFILE = 1;
 }
 
 enum DockerfileSource {
@@ -36,11 +36,11 @@ message Application {
   string name = 3;
   ApplicationSource source = 4;
   string branch = 5;
-  ApplicationStatus status = 7;
-  string url = 8;
-  string owner_user_id = 12;
-  google.protobuf.Timestamp created_at = 10;
-  google.protobuf.Timestamp updated_at = 11;
+  ApplicationStatus status = 6;
+  string url = 7;
+  string owner_user_id = 8;
+  google.protobuf.Timestamp created_at = 9;
+  google.protobuf.Timestamp updated_at = 10;
 }
 
 message ApplicationSource {
@@ -57,7 +57,7 @@ message DockerfileBuildConfig {
 
 message BuildConfig {
   BuildStrategy strategy = 1;
-  DockerfileBuildConfig dockerfile = 3;
+  DockerfileBuildConfig dockerfile = 2;
 }
 
 message AccessConfig {
@@ -68,8 +68,8 @@ message AccessConfig {
 }
 
 message Domain {
-  string subdomain = 2;
-  string apex_domain = 3;
+  string subdomain = 1;
+  string root_domain = 2;
 }
 
 message ApplicationSpec {
@@ -80,7 +80,7 @@ message ApplicationSpec {
   AccessConfig access = 5;
   Domain domain = 6;
   repeated KeyValue environment_variables = 7;
-  repeated SecretEntry secrets = 8;
+  repeated KeyValue secrets = 8;
 }
 
 message CreateApplicationRequest {
@@ -100,8 +100,8 @@ message GetApplicationResponse {
 }
 
 message ListApplicationsRequest {
-  string query = 2;
-  string project_id = 3;
+  string query = 1;
+  string project_id = 2;
 }
 
 message ListApplicationsResponse {
@@ -125,10 +125,10 @@ message DeleteApplicationResponse {}
 
 message GitRepository {
   string id = 1;
-  string default_branch = 4;
-  repeated string branches = 5;
-  repeated string detected_file = 6;
-  repeated string dockerfile_paths = 8;
+  string default_branch = 2;
+  repeated string branches = 3;
+  repeated string detected_file = 4;
+  repeated string dockerfile_paths = 5;
 }
 
 message ListGitRepositoriesRequest {}

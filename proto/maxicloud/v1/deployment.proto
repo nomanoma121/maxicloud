@@ -15,23 +15,24 @@ message Commit {
   string sha = 1;
   string message = 2;
   string author_name = 3;
-  string timestamp = 5;
+  string timestamp = 4;
 }
 
 message DeploymentRun {
   string id = 1;
-  string service_id = 2;
+  string application_id = 2;
   string owner_user_id = 3;
-  Commit commit = 5;
-  DeploymentStatus status = 6;
-  string started_at = 7;
-  string duration = 8;
+  Commit commit = 4;
+  DeploymentStatus status = 5;
+  string started_at = 6;
+  string duration = 7;
 }
 
 message CreateDeploymentRequest {
-  string service_id = 1;
+  string application_id = 1;
   string branch = 2;
-  repeated KeyValue environment = 5;
+  repeated KeyValue environment = 3;
+  repeated KeyValue secrets = 4;
 }
 
 message CreateDeploymentResponse {
@@ -47,7 +48,7 @@ message GetDeploymentResponse {
 }
 
 message ListDeploymentsRequest {
-  string service_id = 2;
+  string application_id = 1;
 }
 
 message ListDeploymentsResponse {

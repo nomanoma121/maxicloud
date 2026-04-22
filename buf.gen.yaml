@@ -3,7 +3,7 @@ managed:
   enabled: true
   override:
     - file_option: go_package_prefix
-      value: github.com/bufbuild/buf-examples/gen
+      value: github.com/saitamau-maximum/maxicloud/gen
 plugins:
   - remote: buf.build/protocolbuffers/go
     out: gen

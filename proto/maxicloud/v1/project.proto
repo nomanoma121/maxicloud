@@ -16,7 +16,7 @@ message Project {
 message CreateProjectRequest {
   string name = 1;
   string description = 2;
-  string owner_user_id = 4;
+  string owner_user_id = 3;
 }
 
 message CreateProjectResponse {
@@ -32,8 +32,8 @@ message GetProjectResponse {
 }
 
 message ListProjectsRequest {
-  string query = 2;
-  string owner_user_id = 3;
+  string query = 1;
+  string owner_user_id = 2;
 }
 
 message ListProjectsResponse {
@@ -44,7 +44,7 @@ message UpdateProjectRequest {
   string project_id = 1;
   string name = 2;
   string description = 3;
-  string owner_user_id = 5;
+  string owner_user_id = 4;
 }
 
 message UpdateProjectResponse {
