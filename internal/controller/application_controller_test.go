@@ -30,7 +30,7 @@ import (
 	maxicloudv1alpha1 "github.com/saitamau-maximum/maxicloud/api/v1alpha1"
 )
 
-var _ = Describe("Preview Controller", func() {
+var _ = Describe("App Controller", func() {
 	Context("When reconciling a resource", func() {
 		const resourceName = "test-resource"
 
@@ -40,18 +40,20 @@ var _ = Describe("Preview Controller", func() {
 			Name:      resourceName,
 			Namespace: "default", // TODO(user):Modify as needed
 		}
-		preview := &maxicloudv1alpha1.Preview{}
+		app := &maxicloudv1alpha1.Application{}
 
 		BeforeEach(func() {
-			By("creating the custom resource for the Kind Preview")
-			err := k8sClient.Get(ctx, typeNamespacedName, preview)
+			By("creating the custom resource for the Kind Application")
+			err := k8sClient.Get(ctx, typeNamespacedName, app)
 			if err != nil && errors.IsNotFound(err) {
-				resource := &maxicloudv1alpha1.Preview{
+				resource := &maxicloudv1alpha1.Application{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      resourceName,
 						Namespace: "default",
 					},
-					// TODO(user): Specify other spec details if needed.
+					Spec: maxicloudv1alpha1.ApplicationSpec{
+						Image: "ghcr.io/saitamau-maximum/maxicloud:test",
+					},
 				}
 				Expect(k8sClient.Create(ctx, resource)).To(Succeed())
 			}
@@ -59,16 +61,16 @@ var _ = Describe("Preview Controller", func() {
 
 		AfterEach(func() {
 			// TODO(user): Cleanup logic after each test, like removing the resource instance.
-			resource := &maxicloudv1alpha1.Preview{}
+			resource := &maxicloudv1alpha1.Application{}
 			err := k8sClient.Get(ctx, typeNamespacedName, resource)
 			Expect(err).NotTo(HaveOccurred())
 
-			By("Cleanup the specific resource instance Preview")
+			By("Cleanup the specific resource instance Application")
 			Expect(k8sClient.Delete(ctx, resource)).To(Succeed())
 		})
 		It("should successfully reconcile the resource", func() {
 			By("Reconciling the created resource")
-			controllerReconciler := &PreviewReconciler{
+			controllerReconciler := &ApplicationReconciler{
 				Client: k8sClient,
 				Scheme: k8sClient.Scheme(),
 			}

@@ -203,19 +203,20 @@ spec:
                   - name
                   type: object
                 type: array
-              sha:
-                description: SHA is the commit SHA to build. If empty, the latest
-                  branch commit is used.
-                type: string
               source:
                 description: Source is the build source snapshot.
                 properties:
-                  branch:
-                    default: main
-                    description: Branch is the branch to build.
+                  dockerfilePath:
+                    default: ./Dockerfile
+                    description: DockerfilePath is the path to the Dockerfile in the
+                      repository.
                     type: string
                   repo:
                     description: Repo is the URL of the Git repository.
+                    type: string
+                  sha:
+                    description: SHA is the commit SHA to build. If empty, the latest
+                      branch commit is used.
                     type: string
                 required:
                 - repo

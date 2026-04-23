@@ -25,12 +25,16 @@ import (
 type BuildSource struct {
 	// Repo is the URL of the Git repository.
 	// +required
-	Repo string `json:"repo"`
+	RepoURL string `json:"repo"`
 
-	// Branch is the branch to build.
+	// SHA is the commit SHA to build. If empty, the latest branch commit is used.
 	// +optional
-	// +kubebuilder:default=main
-	Branch string `json:"branch,omitempty"`
+	SHA string `json:"sha,omitempty"`
+
+	// DockerfilePath is the path to the Dockerfile in the repository.
+	// +optional
+	// +kubebuilder:default=./Dockerfile
+	DockerfilePath string `json:"dockerfilePath,omitempty"`
 }
 
 // BuildRunSpec defines the desired state of BuildRun.
@@ -39,10 +43,6 @@ type BuildRunSpec struct {
 	// Source is the build source snapshot.
 	// +required
 	Source BuildSource `json:"source"`
-
-	// SHA is the commit SHA to build. If empty, the latest branch commit is used.
-	// +optional
-	SHA string `json:"sha,omitempty"`
 
 	// Env is a list of build-time environment variables.
 	// +optional
