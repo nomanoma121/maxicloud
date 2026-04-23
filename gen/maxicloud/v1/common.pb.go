@@ -73,67 +73,12 @@ func (x *KeyValue) GetValue() string {
 	return ""
 }
 
-type SecretEntry struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Key           string                 `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
-	Value         string                 `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *SecretEntry) Reset() {
-	*x = SecretEntry{}
-	mi := &file_maxicloud_v1_common_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *SecretEntry) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*SecretEntry) ProtoMessage() {}
-
-func (x *SecretEntry) ProtoReflect() protoreflect.Message {
-	mi := &file_maxicloud_v1_common_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use SecretEntry.ProtoReflect.Descriptor instead.
-func (*SecretEntry) Descriptor() ([]byte, []int) {
-	return file_maxicloud_v1_common_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *SecretEntry) GetKey() string {
-	if x != nil {
-		return x.Key
-	}
-	return ""
-}
-
-func (x *SecretEntry) GetValue() string {
-	if x != nil {
-		return x.Value
-	}
-	return ""
-}
-
 var File_maxicloud_v1_common_proto protoreflect.FileDescriptor
 
 const file_maxicloud_v1_common_proto_rawDesc = "" +
 	"\n" +
 	"\x19maxicloud/v1/common.proto\x12\fmaxicloud.v1\"2\n" +
 	"\bKeyValue\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value\"5\n" +
-	"\vSecretEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05valueB\xb4\x01\n" +
 	"\x10com.maxicloud.v1B\vCommonProtoP\x01ZBgithub.com/saitamau-maximum/maxicloud/gen/maxicloud/v1;maxicloudv1\xa2\x02\x03MXX\xaa\x02\fMaxicloud.V1\xca\x02\fMaxicloud\\V1\xe2\x02\x18Maxicloud\\V1\\GPBMetadata\xea\x02\rMaxicloud::V1b\x06proto3"
@@ -150,10 +95,9 @@ func file_maxicloud_v1_common_proto_rawDescGZIP() []byte {
 	return file_maxicloud_v1_common_proto_rawDescData
 }
 
-var file_maxicloud_v1_common_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_maxicloud_v1_common_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_maxicloud_v1_common_proto_goTypes = []any{
-	(*KeyValue)(nil),    // 0: maxicloud.v1.KeyValue
-	(*SecretEntry)(nil), // 1: maxicloud.v1.SecretEntry
+	(*KeyValue)(nil), // 0: maxicloud.v1.KeyValue
 }
 var file_maxicloud_v1_common_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -174,7 +118,7 @@ func file_maxicloud_v1_common_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_maxicloud_v1_common_proto_rawDesc), len(file_maxicloud_v1_common_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   1,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

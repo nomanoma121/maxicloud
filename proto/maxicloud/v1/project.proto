@@ -32,8 +32,6 @@ message GetProjectResponse {
 }
 
 message ListProjectsRequest {
-  string query = 1;
-  string owner_user_id = 2;
 }
 
 message ListProjectsResponse {

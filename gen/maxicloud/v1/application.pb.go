@@ -81,21 +81,21 @@ type AccessMode int32
 
 const (
 	AccessMode_ACCESS_MODE_UNSPECIFIED  AccessMode = 0
-	AccessMode_ACCESS_MODE_PRIVATE      AccessMode = 2
-	AccessMode_ACCESS_MODE_MEMBERS_ONLY AccessMode = 3
+	AccessMode_ACCESS_MODE_PRIVATE      AccessMode = 1
+	AccessMode_ACCESS_MODE_MEMBERS_ONLY AccessMode = 2
 )
 
 // Enum value maps for AccessMode.
 var (
 	AccessMode_name = map[int32]string{
 		0: "ACCESS_MODE_UNSPECIFIED",
-		2: "ACCESS_MODE_PRIVATE",
-		3: "ACCESS_MODE_MEMBERS_ONLY",
+		1: "ACCESS_MODE_PRIVATE",
+		2: "ACCESS_MODE_MEMBERS_ONLY",
 	}
 	AccessMode_value = map[string]int32{
 		"ACCESS_MODE_UNSPECIFIED":  0,
-		"ACCESS_MODE_PRIVATE":      2,
-		"ACCESS_MODE_MEMBERS_ONLY": 3,
+		"ACCESS_MODE_PRIVATE":      1,
+		"ACCESS_MODE_MEMBERS_ONLY": 2,
 	}
 )
 
@@ -130,18 +130,18 @@ type BuildStrategy int32
 
 const (
 	BuildStrategy_BUILD_STRATEGY_UNSPECIFIED BuildStrategy = 0
-	BuildStrategy_BUILD_STRATEGY_DOCKERFILE  BuildStrategy = 2
+	BuildStrategy_BUILD_STRATEGY_DOCKERFILE  BuildStrategy = 1
 )
 
 // Enum value maps for BuildStrategy.
 var (
 	BuildStrategy_name = map[int32]string{
 		0: "BUILD_STRATEGY_UNSPECIFIED",
-		2: "BUILD_STRATEGY_DOCKERFILE",
+		1: "BUILD_STRATEGY_DOCKERFILE",
 	}
 	BuildStrategy_value = map[string]int32{
 		"BUILD_STRATEGY_UNSPECIFIED": 0,
-		"BUILD_STRATEGY_DOCKERFILE":  2,
+		"BUILD_STRATEGY_DOCKERFILE":  1,
 	}
 )
 
@@ -228,11 +228,11 @@ type Application struct {
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
 	Source        *ApplicationSource     `protobuf:"bytes,4,opt,name=source,proto3" json:"source,omitempty"`
 	Branch        string                 `protobuf:"bytes,5,opt,name=branch,proto3" json:"branch,omitempty"`
-	Status        ApplicationStatus      `protobuf:"varint,7,opt,name=status,proto3,enum=maxicloud.v1.ApplicationStatus" json:"status,omitempty"`
-	Url           string                 `protobuf:"bytes,8,opt,name=url,proto3" json:"url,omitempty"`
-	OwnerUserId   string                 `protobuf:"bytes,12,opt,name=owner_user_id,json=ownerUserId,proto3" json:"owner_user_id,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	Status        ApplicationStatus      `protobuf:"varint,6,opt,name=status,proto3,enum=maxicloud.v1.ApplicationStatus" json:"status,omitempty"`
+	Url           string                 `protobuf:"bytes,7,opt,name=url,proto3" json:"url,omitempty"`
+	OwnerUserId   string                 `protobuf:"bytes,8,opt,name=owner_user_id,json=ownerUserId,proto3" json:"owner_user_id,omitempty"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -460,7 +460,7 @@ func (x *DockerfileBuildConfig) GetDockerfileInline() string {
 type BuildConfig struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Strategy      BuildStrategy          `protobuf:"varint,1,opt,name=strategy,proto3,enum=maxicloud.v1.BuildStrategy" json:"strategy,omitempty"`
-	Dockerfile    *DockerfileBuildConfig `protobuf:"bytes,3,opt,name=dockerfile,proto3" json:"dockerfile,omitempty"`
+	Dockerfile    *DockerfileBuildConfig `protobuf:"bytes,2,opt,name=dockerfile,proto3" json:"dockerfile,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -579,8 +579,8 @@ func (x *AccessConfig) GetDomainSuffix() string {
 
 type Domain struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Subdomain     string                 `protobuf:"bytes,2,opt,name=subdomain,proto3" json:"subdomain,omitempty"`
-	ApexDomain    string                 `protobuf:"bytes,3,opt,name=apex_domain,json=apexDomain,proto3" json:"apex_domain,omitempty"`
+	Subdomain     string                 `protobuf:"bytes,1,opt,name=subdomain,proto3" json:"subdomain,omitempty"`
+	RootDomain    string                 `protobuf:"bytes,2,opt,name=root_domain,json=rootDomain,proto3" json:"root_domain,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -622,9 +622,9 @@ func (x *Domain) GetSubdomain() string {
 	return ""
 }
 
-func (x *Domain) GetApexDomain() string {
+func (x *Domain) GetRootDomain() string {
 	if x != nil {
-		return x.ApexDomain
+		return x.RootDomain
 	}
 	return ""
 }
@@ -638,7 +638,7 @@ type ApplicationSpec struct {
 	Access               *AccessConfig          `protobuf:"bytes,5,opt,name=access,proto3" json:"access,omitempty"`
 	Domain               *Domain                `protobuf:"bytes,6,opt,name=domain,proto3" json:"domain,omitempty"`
 	EnvironmentVariables []*KeyValue            `protobuf:"bytes,7,rep,name=environment_variables,json=environmentVariables,proto3" json:"environment_variables,omitempty"`
-	Secrets              []*SecretEntry         `protobuf:"bytes,8,rep,name=secrets,proto3" json:"secrets,omitempty"`
+	Secrets              []*KeyValue            `protobuf:"bytes,8,rep,name=secrets,proto3" json:"secrets,omitempty"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -722,7 +722,7 @@ func (x *ApplicationSpec) GetEnvironmentVariables() []*KeyValue {
 	return nil
 }
 
-func (x *ApplicationSpec) GetSecrets() []*SecretEntry {
+func (x *ApplicationSpec) GetSecrets() []*KeyValue {
 	if x != nil {
 		return x.Secrets
 	}
@@ -907,8 +907,8 @@ func (x *GetApplicationResponse) GetApplication() *Application {
 
 type ListApplicationsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Query         string                 `protobuf:"bytes,2,opt,name=query,proto3" json:"query,omitempty"`
-	ProjectId     string                 `protobuf:"bytes,3,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	Query         string                 `protobuf:"bytes,1,opt,name=query,proto3" json:"query,omitempty"`
+	ProjectId     string                 `protobuf:"bytes,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1180,10 +1180,10 @@ func (*DeleteApplicationResponse) Descriptor() ([]byte, []int) {
 type GitRepository struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	Id              string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	DefaultBranch   string                 `protobuf:"bytes,4,opt,name=default_branch,json=defaultBranch,proto3" json:"default_branch,omitempty"`
-	Branches        []string               `protobuf:"bytes,5,rep,name=branches,proto3" json:"branches,omitempty"`
-	DetectedFile    []string               `protobuf:"bytes,6,rep,name=detected_file,json=detectedFile,proto3" json:"detected_file,omitempty"`
-	DockerfilePaths []string               `protobuf:"bytes,8,rep,name=dockerfile_paths,json=dockerfilePaths,proto3" json:"dockerfile_paths,omitempty"`
+	DefaultBranch   string                 `protobuf:"bytes,2,opt,name=default_branch,json=defaultBranch,proto3" json:"default_branch,omitempty"`
+	Branches        []string               `protobuf:"bytes,3,rep,name=branches,proto3" json:"branches,omitempty"`
+	DetectedFile    []string               `protobuf:"bytes,4,rep,name=detected_file,json=detectedFile,proto3" json:"detected_file,omitempty"`
+	DockerfilePaths []string               `protobuf:"bytes,5,rep,name=dockerfile_paths,json=dockerfilePaths,proto3" json:"dockerfile_paths,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -1345,14 +1345,14 @@ const file_maxicloud_v1_application_proto_rawDesc = "" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x127\n" +
 	"\x06source\x18\x04 \x01(\v2\x1f.maxicloud.v1.ApplicationSourceR\x06source\x12\x16\n" +
 	"\x06branch\x18\x05 \x01(\tR\x06branch\x127\n" +
-	"\x06status\x18\a \x01(\x0e2\x1f.maxicloud.v1.ApplicationStatusR\x06status\x12\x10\n" +
-	"\x03url\x18\b \x01(\tR\x03url\x12\"\n" +
-	"\rowner_user_id\x18\f \x01(\tR\vownerUserId\x129\n" +
+	"\x06status\x18\x06 \x01(\x0e2\x1f.maxicloud.v1.ApplicationStatusR\x06status\x12\x10\n" +
+	"\x03url\x18\a \x01(\tR\x03url\x12\"\n" +
+	"\rowner_user_id\x18\b \x01(\tR\vownerUserId\x129\n" +
 	"\n" +
-	"created_at\x18\n" +
-	" \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"created_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\x82\x01\n" +
+	"updated_at\x18\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\x82\x01\n" +
 	"\x11ApplicationSource\x12#\n" +
 	"\rrepository_id\x18\x01 \x01(\tR\frepositoryId\x120\n" +
 	"\x14repository_full_name\x18\x02 \x01(\tR\x12repositoryFullName\x12\x16\n" +
@@ -1364,7 +1364,7 @@ const file_maxicloud_v1_application_proto_rawDesc = "" +
 	"\vBuildConfig\x127\n" +
 	"\bstrategy\x18\x01 \x01(\x0e2\x1b.maxicloud.v1.BuildStrategyR\bstrategy\x12C\n" +
 	"\n" +
-	"dockerfile\x18\x03 \x01(\v2#.maxicloud.v1.DockerfileBuildConfigR\n" +
+	"dockerfile\x18\x02 \x01(\v2#.maxicloud.v1.DockerfileBuildConfigR\n" +
 	"dockerfile\"\xa7\x01\n" +
 	"\fAccessConfig\x12,\n" +
 	"\x04mode\x18\x01 \x01(\x0e2\x18.maxicloud.v1.AccessModeR\x04mode\x12\x1f\n" +
@@ -1373,9 +1373,9 @@ const file_maxicloud_v1_application_proto_rawDesc = "" +
 	"\rdomain_prefix\x18\x03 \x01(\tR\fdomainPrefix\x12#\n" +
 	"\rdomain_suffix\x18\x04 \x01(\tR\fdomainSuffix\"G\n" +
 	"\x06Domain\x12\x1c\n" +
-	"\tsubdomain\x18\x02 \x01(\tR\tsubdomain\x12\x1f\n" +
-	"\vapex_domain\x18\x03 \x01(\tR\n" +
-	"apexDomain\"\x92\x03\n" +
+	"\tsubdomain\x18\x01 \x01(\tR\tsubdomain\x12\x1f\n" +
+	"\vroot_domain\x18\x02 \x01(\tR\n" +
+	"rootDomain\"\x8f\x03\n" +
 	"\x0fApplicationSpec\x12\x1d\n" +
 	"\n" +
 	"project_id\x18\x01 \x01(\tR\tprojectId\x12\x12\n" +
@@ -1384,8 +1384,8 @@ const file_maxicloud_v1_application_proto_rawDesc = "" +
 	"\x05build\x18\x04 \x01(\v2\x19.maxicloud.v1.BuildConfigR\x05build\x122\n" +
 	"\x06access\x18\x05 \x01(\v2\x1a.maxicloud.v1.AccessConfigR\x06access\x12,\n" +
 	"\x06domain\x18\x06 \x01(\v2\x14.maxicloud.v1.DomainR\x06domain\x12K\n" +
-	"\x15environment_variables\x18\a \x03(\v2\x16.maxicloud.v1.KeyValueR\x14environmentVariables\x123\n" +
-	"\asecrets\x18\b \x03(\v2\x19.maxicloud.v1.SecretEntryR\asecrets\"M\n" +
+	"\x15environment_variables\x18\a \x03(\v2\x16.maxicloud.v1.KeyValueR\x14environmentVariables\x120\n" +
+	"\asecrets\x18\b \x03(\v2\x16.maxicloud.v1.KeyValueR\asecrets\"M\n" +
 	"\x18CreateApplicationRequest\x121\n" +
 	"\x04spec\x18\x01 \x01(\v2\x1d.maxicloud.v1.ApplicationSpecR\x04spec\"X\n" +
 	"\x19CreateApplicationResponse\x12;\n" +
@@ -1395,9 +1395,9 @@ const file_maxicloud_v1_application_proto_rawDesc = "" +
 	"\x16GetApplicationResponse\x12;\n" +
 	"\vapplication\x18\x01 \x01(\v2\x19.maxicloud.v1.ApplicationR\vapplication\"N\n" +
 	"\x17ListApplicationsRequest\x12\x14\n" +
-	"\x05query\x18\x02 \x01(\tR\x05query\x12\x1d\n" +
+	"\x05query\x18\x01 \x01(\tR\x05query\x12\x1d\n" +
 	"\n" +
-	"project_id\x18\x03 \x01(\tR\tprojectId\"Y\n" +
+	"project_id\x18\x02 \x01(\tR\tprojectId\"Y\n" +
 	"\x18ListApplicationsResponse\x12=\n" +
 	"\fapplications\x18\x01 \x03(\v2\x19.maxicloud.v1.ApplicationR\fapplications\"t\n" +
 	"\x18UpdateApplicationRequest\x12%\n" +
@@ -1410,10 +1410,10 @@ const file_maxicloud_v1_application_proto_rawDesc = "" +
 	"\x19DeleteApplicationResponse\"\xb2\x01\n" +
 	"\rGitRepository\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12%\n" +
-	"\x0edefault_branch\x18\x04 \x01(\tR\rdefaultBranch\x12\x1a\n" +
-	"\bbranches\x18\x05 \x03(\tR\bbranches\x12#\n" +
-	"\rdetected_file\x18\x06 \x03(\tR\fdetectedFile\x12)\n" +
-	"\x10dockerfile_paths\x18\b \x03(\tR\x0fdockerfilePaths\"\x1c\n" +
+	"\x0edefault_branch\x18\x02 \x01(\tR\rdefaultBranch\x12\x1a\n" +
+	"\bbranches\x18\x03 \x03(\tR\bbranches\x12#\n" +
+	"\rdetected_file\x18\x04 \x03(\tR\fdetectedFile\x12)\n" +
+	"\x10dockerfile_paths\x18\x05 \x03(\tR\x0fdockerfilePaths\"\x1c\n" +
 	"\x1aListGitRepositoriesRequest\"^\n" +
 	"\x1bListGitRepositoriesResponse\x12?\n" +
 	"\frepositories\x18\x01 \x03(\v2\x1b.maxicloud.v1.GitRepositoryR\frepositories*\xbb\x01\n" +
@@ -1426,11 +1426,11 @@ const file_maxicloud_v1_application_proto_rawDesc = "" +
 	"\n" +
 	"AccessMode\x12\x1b\n" +
 	"\x17ACCESS_MODE_UNSPECIFIED\x10\x00\x12\x17\n" +
-	"\x13ACCESS_MODE_PRIVATE\x10\x02\x12\x1c\n" +
-	"\x18ACCESS_MODE_MEMBERS_ONLY\x10\x03*N\n" +
+	"\x13ACCESS_MODE_PRIVATE\x10\x01\x12\x1c\n" +
+	"\x18ACCESS_MODE_MEMBERS_ONLY\x10\x02*N\n" +
 	"\rBuildStrategy\x12\x1e\n" +
 	"\x1aBUILD_STRATEGY_UNSPECIFIED\x10\x00\x12\x1d\n" +
-	"\x19BUILD_STRATEGY_DOCKERFILE\x10\x02*o\n" +
+	"\x19BUILD_STRATEGY_DOCKERFILE\x10\x01*o\n" +
 	"\x10DockerfileSource\x12!\n" +
 	"\x1dDOCKERFILE_SOURCE_UNSPECIFIED\x10\x00\x12\x1a\n" +
 	"\x16DOCKERFILE_SOURCE_PATH\x10\x01\x12\x1c\n" +
@@ -1485,7 +1485,6 @@ var file_maxicloud_v1_application_proto_goTypes = []any{
 	(*ListGitRepositoriesResponse)(nil), // 23: maxicloud.v1.ListGitRepositoriesResponse
 	(*timestamppb.Timestamp)(nil),       // 24: google.protobuf.Timestamp
 	(*KeyValue)(nil),                    // 25: maxicloud.v1.KeyValue
-	(*SecretEntry)(nil),                 // 26: maxicloud.v1.SecretEntry
 }
 var file_maxicloud_v1_application_proto_depIdxs = []int32{
 	5,  // 0: maxicloud.v1.Application.source:type_name -> maxicloud.v1.ApplicationSource
@@ -1501,7 +1500,7 @@ var file_maxicloud_v1_application_proto_depIdxs = []int32{
 	8,  // 10: maxicloud.v1.ApplicationSpec.access:type_name -> maxicloud.v1.AccessConfig
 	9,  // 11: maxicloud.v1.ApplicationSpec.domain:type_name -> maxicloud.v1.Domain
 	25, // 12: maxicloud.v1.ApplicationSpec.environment_variables:type_name -> maxicloud.v1.KeyValue
-	26, // 13: maxicloud.v1.ApplicationSpec.secrets:type_name -> maxicloud.v1.SecretEntry
+	25, // 13: maxicloud.v1.ApplicationSpec.secrets:type_name -> maxicloud.v1.KeyValue
 	10, // 14: maxicloud.v1.CreateApplicationRequest.spec:type_name -> maxicloud.v1.ApplicationSpec
 	4,  // 15: maxicloud.v1.CreateApplicationResponse.application:type_name -> maxicloud.v1.Application
 	4,  // 16: maxicloud.v1.GetApplicationResponse.application:type_name -> maxicloud.v1.Application

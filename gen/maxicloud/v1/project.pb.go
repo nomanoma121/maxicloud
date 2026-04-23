@@ -110,7 +110,7 @@ type CreateProjectRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	Description   string                 `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
-	OwnerUserId   string                 `protobuf:"bytes,4,opt,name=owner_user_id,json=ownerUserId,proto3" json:"owner_user_id,omitempty"`
+	OwnerUserId   string                 `protobuf:"bytes,3,opt,name=owner_user_id,json=ownerUserId,proto3" json:"owner_user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -300,8 +300,6 @@ func (x *GetProjectResponse) GetProject() *Project {
 
 type ListProjectsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Query         string                 `protobuf:"bytes,2,opt,name=query,proto3" json:"query,omitempty"`
-	OwnerUserId   string                 `protobuf:"bytes,3,opt,name=owner_user_id,json=ownerUserId,proto3" json:"owner_user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -334,20 +332,6 @@ func (x *ListProjectsRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use ListProjectsRequest.ProtoReflect.Descriptor instead.
 func (*ListProjectsRequest) Descriptor() ([]byte, []int) {
 	return file_maxicloud_v1_project_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *ListProjectsRequest) GetQuery() string {
-	if x != nil {
-		return x.Query
-	}
-	return ""
-}
-
-func (x *ListProjectsRequest) GetOwnerUserId() string {
-	if x != nil {
-		return x.OwnerUserId
-	}
-	return ""
 }
 
 type ListProjectsResponse struct {
@@ -399,7 +383,7 @@ type UpdateProjectRequest struct {
 	ProjectId     string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
-	OwnerUserId   string                 `protobuf:"bytes,5,opt,name=owner_user_id,json=ownerUserId,proto3" json:"owner_user_id,omitempty"`
+	OwnerUserId   string                 `protobuf:"bytes,4,opt,name=owner_user_id,json=ownerUserId,proto3" json:"owner_user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -603,17 +587,15 @@ const file_maxicloud_v1_project_proto_rawDesc = "" +
 	"\x14CreateProjectRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x02 \x01(\tR\vdescription\x12\"\n" +
-	"\rowner_user_id\x18\x04 \x01(\tR\vownerUserId\"H\n" +
+	"\rowner_user_id\x18\x03 \x01(\tR\vownerUserId\"H\n" +
 	"\x15CreateProjectResponse\x12/\n" +
 	"\aproject\x18\x01 \x01(\v2\x15.maxicloud.v1.ProjectR\aproject\"2\n" +
 	"\x11GetProjectRequest\x12\x1d\n" +
 	"\n" +
 	"project_id\x18\x01 \x01(\tR\tprojectId\"E\n" +
 	"\x12GetProjectResponse\x12/\n" +
-	"\aproject\x18\x01 \x01(\v2\x15.maxicloud.v1.ProjectR\aproject\"O\n" +
-	"\x13ListProjectsRequest\x12\x14\n" +
-	"\x05query\x18\x02 \x01(\tR\x05query\x12\"\n" +
-	"\rowner_user_id\x18\x03 \x01(\tR\vownerUserId\"I\n" +
+	"\aproject\x18\x01 \x01(\v2\x15.maxicloud.v1.ProjectR\aproject\"\x15\n" +
+	"\x13ListProjectsRequest\"I\n" +
 	"\x14ListProjectsResponse\x121\n" +
 	"\bprojects\x18\x01 \x03(\v2\x15.maxicloud.v1.ProjectR\bprojects\"\x8f\x01\n" +
 	"\x14UpdateProjectRequest\x12\x1d\n" +
@@ -621,7 +603,7 @@ const file_maxicloud_v1_project_proto_rawDesc = "" +
 	"project_id\x18\x01 \x01(\tR\tprojectId\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\"\n" +
-	"\rowner_user_id\x18\x05 \x01(\tR\vownerUserId\"H\n" +
+	"\rowner_user_id\x18\x04 \x01(\tR\vownerUserId\"H\n" +
 	"\x15UpdateProjectResponse\x12/\n" +
 	"\aproject\x18\x01 \x01(\v2\x15.maxicloud.v1.ProjectR\aproject\"5\n" +
 	"\x14DeleteProjectRequest\x12\x1d\n" +

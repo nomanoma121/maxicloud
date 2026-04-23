@@ -14,6 +14,7 @@ type Project struct {
 type ProjectRepository interface {
 	CreateProject(ctx context.Context, project Project) (string, error)
 	GetProject(ctx context.Context, id string) (*Project, error)
+	ListProjects(ctx context.Context) ([]*Project, error)
 	UpdateProject(ctx context.Context, project Project) error
 	DeleteProject(ctx context.Context, id string) error
 }
