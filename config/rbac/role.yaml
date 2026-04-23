@@ -9,7 +9,6 @@ rules:
   resources:
   - applications
   - buildruns
-  - previews
   verbs:
   - create
   - delete
@@ -23,7 +22,6 @@ rules:
   resources:
   - applications/finalizers
   - buildruns/finalizers
-  - previews/finalizers
   verbs:
   - update
 - apiGroups:
@@ -31,7 +29,6 @@ rules:
   resources:
   - applications/status
   - buildruns/status
-  - previews/status
   verbs:
   - get
   - patch

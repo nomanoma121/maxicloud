@@ -6,4 +6,9 @@ metadata:
     app.kubernetes.io/managed-by: kustomize
   name: buildrun-sample
 spec:
-  # TODO(user): Add fields here
+  applicationName: application-sample
+  applicationNamespace: default
+  source:
+    repo: https://github.com/saitamau-maximum/maxicloud
+    branch: main
+  trigger: Manual

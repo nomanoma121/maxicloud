@@ -17,13 +17,44 @@ limitations under the License.
 package v1alpha1
 
 import (
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+// ExposeConfig defines public access settings for the application.
+type ExposeConfig struct {
+	// Port is the container port to expose.
+	// +required
+	Port int32 `json:"port"`
+
+	// IngressClassName overrides the default ingress class.
+	// +optional
+	IngressClassName *string `json:"ingressClassName,omitempty"`
+
+	// Domain is the hostname to expose (e.g. app.example.com).
+	// +optional
+	Domain string `json:"domain,omitempty"`
+}
+
 // ApplicationSpec defines the desired state of Application
 type ApplicationSpec struct {
+	// Image is the container image to deploy (e.g. ghcr.io/org/app:tag).
+	// +required
+	Image string `json:"image"`
+
+	// Replicas is the desired number of replicas.
 	// +optional
-	Foo *string `json:"foo,omitempty"`
+	// +kubebuilder:default=1
+	// +kubebuilder:validation:Minimum=0
+	Replicas *int32 `json:"replicas,omitempty"`
+
+	// Env is a list of environment variables for the runtime container.
+	// +optional
+	Env []corev1.EnvVar `json:"env,omitempty"`
+
+	// Expose defines public access settings.
+	// +optional
+	Expose *ExposeConfig `json:"expose,omitempty"`
 }
 
 // ApplicationStatus defines the observed state of Application.

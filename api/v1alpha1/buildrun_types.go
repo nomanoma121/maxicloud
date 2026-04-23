@@ -17,41 +17,58 @@ limitations under the License.
 package v1alpha1
 
 import (
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
+// BuildSource defines Git source information used for a build.
+type BuildSource struct {
+	// Repo is the URL of the Git repository.
+	// +required
+	Repo string `json:"repo"`
 
-// BuildRunSpec defines the desired state of BuildRun
-type BuildRunSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
-	// The following markers will use OpenAPI v3 schema to validate the value
-	// More info: https://book.kubebuilder.io/reference/markers/crd-validation.html
-
-	// foo is an example field of BuildRun. Edit buildrun_types.go to remove/update
+	// Branch is the branch to build.
 	// +optional
-	Foo *string `json:"foo,omitempty"`
+	// +kubebuilder:default=main
+	Branch string `json:"branch,omitempty"`
+}
+
+// BuildRunSpec defines the desired state of BuildRun.
+// BuildRun is expected to be created by the API server or controllers, not directly by end users.
+type BuildRunSpec struct {
+	// Source is the build source snapshot.
+	// +required
+	Source BuildSource `json:"source"`
+
+	// SHA is the commit SHA to build. If empty, the latest branch commit is used.
+	// +optional
+	SHA string `json:"sha,omitempty"`
+
+	// Env is a list of build-time environment variables.
+	// +optional
+	Env []corev1.EnvVar `json:"env,omitempty"`
 }
 
 // BuildRunStatus defines the observed state of BuildRun.
 type BuildRunStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	// Phase represents the current lifecycle phase.
+	// +kubebuilder:validation:Enum=Queued;Building;Pushing;Succeeded;Failed;Canceled
+	// +optional
+	Phase string `json:"phase,omitempty"`
 
-	// For Kubernetes API conventions, see:
-	// https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#typical-status-properties
+	// Image is the resulting image reference on success.
+	// +optional
+	Image string `json:"image,omitempty"`
 
-	// conditions represent the current state of the BuildRun resource.
-	// Each condition has a unique type and reflects the status of a specific aspect of the resource.
-	//
-	// Standard condition types include:
-	// - "Available": the resource is fully functional
-	// - "Progressing": the resource is being created or updated
-	// - "Degraded": the resource failed to reach or maintain its desired state
-	//
-	// The status of each condition is one of True, False, or Unknown.
+	// StartedAt is when the build execution started.
+	// +optional
+	StartedAt *metav1.Time `json:"startedAt,omitempty"`
+
+	// FinishedAt is when the build execution completed.
+	// +optional
+	FinishedAt *metav1.Time `json:"finishedAt,omitempty"`
+
+	// Conditions represent the current state of the BuildRun resource.
 	// +listType=map
 	// +listMapKey=type
 	// +optional
@@ -60,6 +77,8 @@ type BuildRunStatus struct {
 
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
+// +kubebuilder:printcolumn:name="Phase",type="string",JSONPath=".status.phase"
+// +kubebuilder:printcolumn:name="Image",type="string",JSONPath=".status.image"
 
 // BuildRun is the Schema for the buildruns API
 type BuildRun struct {
