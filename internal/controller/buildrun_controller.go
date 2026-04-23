@@ -78,7 +78,6 @@ func (r *BuildRunReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	return ctrl.Result{}, nil
 }
 
-// Jobで必要になるSecretを作成または更新する
 func (r *BuildRunReconciler) reconcileSecret(ctx context.Context, buildRun *maxicloudv1alpha1.BuildRun) error {
 	log := logf.FromContext(ctx)
 
@@ -96,7 +95,7 @@ func (r *BuildRunReconciler) reconcileSecret(ctx context.Context, buildRun *maxi
 	key := types.NamespacedName{Name: config.SecretName, Namespace: buildRun.Namespace}
 	err = r.Get(ctx, key, secret)
 	if errors.IsNotFound(err) {
-		return r.Create(ctx, newBuildJobSecret(buildRun, r.Registry.DockerConfig(), token))
+		return r.Create(ctx, newBuildRunSecret(buildRun, r.Registry.DockerConfig(), token))
 	}
 	if err != nil {
 		log.Error(err, "failed to get repo secret", "secret", config.SecretName)
@@ -171,5 +170,6 @@ func (r *BuildRunReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		For(&maxicloudv1alpha1.BuildRun{}).
 		Named("buildrun").
 		Owns(&corev1.Secret{}).
+		Owns(&batchv1.Job{}).
 		Complete(r)
 }

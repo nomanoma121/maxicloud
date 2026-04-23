@@ -218,12 +218,6 @@ spec:
               image:
                 description: Image is the container image to deploy (e.g. ghcr.io/org/app:tag).
                 type: string
-              replicas:
-                default: 1
-                description: Replicas is the desired number of replicas.
-                format: int32
-                minimum: 0
-                type: integer
             required:
             - image
             type: object
@@ -289,6 +283,10 @@ spec:
                 x-kubernetes-list-map-keys:
                 - type
                 x-kubernetes-list-type: map
+              image:
+                type: string
+              url:
+                type: string
             type: object
         required:
         - spec

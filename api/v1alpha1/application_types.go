@@ -42,12 +42,6 @@ type ApplicationSpec struct {
 	// +required
 	Image string `json:"image"`
 
-	// Replicas is the desired number of replicas.
-	// +optional
-	// +kubebuilder:default=1
-	// +kubebuilder:validation:Minimum=0
-	Replicas *int32 `json:"replicas,omitempty"`
-
 	// Env is a list of environment variables for the runtime container.
 	// +optional
 	Env []corev1.EnvVar `json:"env,omitempty"`
@@ -63,6 +57,12 @@ type ApplicationStatus struct {
 	// +listMapKey=type
 	// +optional
 	Conditions []metav1.Condition `json:"conditions,omitempty"`
+
+	// +optional
+	Image string `json:"image,omitempty"`
+
+	// +optional
+	URL string `json:"url,omitempty"`
 }
 
 // +kubebuilder:object:root=true

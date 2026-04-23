@@ -5,18 +5,142 @@ import (
 
 	maxicloudv1alpha1 "github.com/saitamau-maximum/maxicloud/api/v1alpha1"
 	"github.com/saitamau-maximum/maxicloud/internal/config"
+	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
+	networkingv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
-func newBuildJobSecret(buildRun *maxicloudv1alpha1.BuildRun, dockerConfig, installationAccessToken string) *corev1.Secret {
+const (
+	ApplicationCRKind = "Application"
+	BuildRunCRKind    = "BuildRun"
+)
+
+func newAppRegistrySecret(app *maxicloudv1alpha1.Application, dockerConfig string) *corev1.Secret {
+	return &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      config.AppRegistrySecretName(app.Name),
+			Namespace: app.Namespace,
+			OwnerReferences: []metav1.OwnerReference{
+				*metav1.NewControllerRef(app, maxicloudv1alpha1.GroupVersion.WithKind(ApplicationCRKind)),
+			},
+		},
+		Data: map[string][]byte{
+			corev1.DockerConfigJsonKey: []byte(dockerConfig),
+		},
+		Type: corev1.SecretTypeOpaque,
+	}
+}
+
+func newDeployment(app *maxicloudv1alpha1.Application, image string) *appsv1.Deployment {
+	return &appsv1.Deployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      app.Name,
+			Namespace: app.Namespace,
+			OwnerReferences: []metav1.OwnerReference{
+				*metav1.NewControllerRef(app, maxicloudv1alpha1.GroupVersion.WithKind(ApplicationCRKind)),
+			},
+		},
+		Spec: appsv1.DeploymentSpec{
+			Selector: &metav1.LabelSelector{
+				MatchLabels: map[string]string{"app.kubernetes.io/name": app.Name},
+			},
+			Template: corev1.PodTemplateSpec{
+				ObjectMeta: metav1.ObjectMeta{
+					Labels: map[string]string{"app.kubernetes.io/name": app.Name},
+				},
+				Spec: corev1.PodSpec{
+					ImagePullSecrets: []corev1.LocalObjectReference{
+						{Name: config.AppRegistrySecretName(app.Name)},
+					},
+					Containers: []corev1.Container{
+						{
+							Name:  "app",
+							Image: image,
+							Env:   app.Spec.Env,
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func newService(app *maxicloudv1alpha1.Application) *corev1.Service {
+	port := app.Spec.Expose.Port
+	return &corev1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      app.Name,
+			Namespace: app.Namespace,
+			OwnerReferences: []metav1.OwnerReference{
+				*metav1.NewControllerRef(app, maxicloudv1alpha1.GroupVersion.WithKind(ApplicationCRKind)),
+			},
+		},
+		Spec: corev1.ServiceSpec{
+			Selector: map[string]string{"app.kubernetes.io/name": app.Name},
+			Ports: []corev1.ServicePort{
+				{
+					Port:       port,
+					TargetPort: intstr.FromInt32(port),
+				},
+			},
+		},
+	}
+}
+
+func newIngress(app *maxicloudv1alpha1.Application, domain, ingressClassName string) *networkingv1.Ingress {
+	pathType := networkingv1.PathTypePrefix
+	port := app.Spec.Expose.Port
+	className := app.Spec.Expose.IngressClassName
+	if className == nil && ingressClassName != "" {
+		className = &ingressClassName
+	}
+	return &networkingv1.Ingress{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      app.Name,
+			Namespace: app.Namespace,
+			OwnerReferences: []metav1.OwnerReference{
+				*metav1.NewControllerRef(app, maxicloudv1alpha1.GroupVersion.WithKind("App")),
+			},
+		},
+		Spec: networkingv1.IngressSpec{
+			IngressClassName: className,
+			Rules: []networkingv1.IngressRule{
+				{
+					Host: domain,
+					IngressRuleValue: networkingv1.IngressRuleValue{
+						HTTP: &networkingv1.HTTPIngressRuleValue{
+							Paths: []networkingv1.HTTPIngressPath{
+								{
+									Path:     "/",
+									PathType: &pathType,
+									Backend: networkingv1.IngressBackend{
+										Service: &networkingv1.IngressServiceBackend{
+											Name: app.Name,
+											Port: networkingv1.ServiceBackendPort{
+												Number: port,
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func newBuildRunSecret(buildRun *maxicloudv1alpha1.BuildRun, dockerConfig, installationAccessToken string) *corev1.Secret {
 	return &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      buildRun.Name,
 			Namespace: buildRun.Namespace,
 			OwnerReferences: []metav1.OwnerReference{
-				*metav1.NewControllerRef(buildRun, maxicloudv1alpha1.GroupVersion.WithKind("BuildRun")),
+				*metav1.NewControllerRef(buildRun, maxicloudv1alpha1.GroupVersion.WithKind(BuildRunCRKind)),
 			},
 		},
 		Data: map[string][]byte{
@@ -43,7 +167,7 @@ func newBuildJob(params BuildJobParams) *batchv1.Job {
 			Name:      params.jobName,
 			Namespace: params.buildRun.Namespace,
 			OwnerReferences: []metav1.OwnerReference{
-				*metav1.NewControllerRef(params.buildRun, maxicloudv1alpha1.GroupVersion.WithKind("BuildRun")),
+				*metav1.NewControllerRef(params.buildRun, maxicloudv1alpha1.GroupVersion.WithKind(BuildRunCRKind)),
 			},
 			Labels: params.buildRun.Labels,
 		},
