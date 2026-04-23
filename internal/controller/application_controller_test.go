@@ -21,66 +21,145 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"k8s.io/apimachinery/pkg/api/errors"
+	appsv1 "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
+	networkingv1 "k8s.io/api/networking/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
 	maxicloudv1alpha1 "github.com/saitamau-maximum/maxicloud/api/v1alpha1"
+	"github.com/saitamau-maximum/maxicloud/internal/config"
 )
 
-var _ = Describe("App Controller", func() {
-	Context("When reconciling a resource", func() {
-		const resourceName = "test-resource"
+func newTestAppReconciler() *ApplicationReconciler {
+	return &ApplicationReconciler{
+		Client:   k8sClient,
+		Scheme:   k8sClient.Scheme(),
+		Registry: &fakeRegistry{},
+		Config: ReconcilerConfig{
+			IngressClass: "nginx",
+			BaseDomain:   "example.com",
+		},
+	}
+}
 
-		ctx := context.Background()
+func newTestApplication(name, namespace, image string, expose *maxicloudv1alpha1.ExposeConfig) *maxicloudv1alpha1.Application {
+	return &maxicloudv1alpha1.Application{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      name,
+			Namespace: namespace,
+		},
+		Spec: maxicloudv1alpha1.ApplicationSpec{
+			Image:  image,
+			Expose: expose,
+		},
+	}
+}
 
-		typeNamespacedName := types.NamespacedName{
-			Name:      resourceName,
-			Namespace: "default", // TODO(user):Modify as needed
-		}
-		app := &maxicloudv1alpha1.Application{}
+var _ = Describe("Application Controller", func() {
+	ctx := context.Background()
+	const ns = "default"
+
+	Context("Expose未設定", func() {
+		const name = "app-no-expose"
 
 		BeforeEach(func() {
-			By("creating the custom resource for the Kind Application")
-			err := k8sClient.Get(ctx, typeNamespacedName, app)
-			if err != nil && errors.IsNotFound(err) {
-				resource := &maxicloudv1alpha1.Application{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      resourceName,
-						Namespace: "default",
-					},
-					Spec: maxicloudv1alpha1.ApplicationSpec{
-						Image: "ghcr.io/saitamau-maximum/maxicloud:test",
-					},
-				}
-				Expect(k8sClient.Create(ctx, resource)).To(Succeed())
-			}
+			Expect(k8sClient.Create(ctx, newTestApplication(name, ns, "ghcr.io/test/app:latest", nil))).To(Succeed())
 		})
 
 		AfterEach(func() {
-			// TODO(user): Cleanup logic after each test, like removing the resource instance.
-			resource := &maxicloudv1alpha1.Application{}
-			err := k8sClient.Get(ctx, typeNamespacedName, resource)
-			Expect(err).NotTo(HaveOccurred())
-
-			By("Cleanup the specific resource instance Application")
-			Expect(k8sClient.Delete(ctx, resource)).To(Succeed())
+			_ = k8sClient.Delete(ctx, &maxicloudv1alpha1.Application{
+				ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: ns},
+			})
+			_ = k8sClient.Delete(ctx, &corev1.Secret{
+				ObjectMeta: metav1.ObjectMeta{Name: config.AppRegistrySecretName(name), Namespace: ns},
+			})
 		})
-		It("should successfully reconcile the resource", func() {
-			By("Reconciling the created resource")
-			controllerReconciler := &ApplicationReconciler{
-				Client: k8sClient,
-				Scheme: k8sClient.Scheme(),
-			}
 
-			_, err := controllerReconciler.Reconcile(ctx, reconcile.Request{
-				NamespacedName: typeNamespacedName,
+		It("ReconcileでDeploymentが作成される", func() {
+			r := newTestAppReconciler()
+			_, err := r.Reconcile(ctx, reconcile.Request{
+				NamespacedName: types.NamespacedName{Name: name, Namespace: ns},
 			})
 			Expect(err).NotTo(HaveOccurred())
-			// TODO(user): Add more specific assertions depending on your controller's reconciliation logic.
-			// Example: If you expect a certain status condition after reconciliation, verify it here.
+
+			var deploy appsv1.Deployment
+			Expect(k8sClient.Get(ctx, types.NamespacedName{Name: name, Namespace: ns}, &deploy)).To(Succeed())
+			Expect(deploy.Spec.Template.Spec.Containers[0].Image).To(Equal("ghcr.io/test/app:latest"))
+		})
+
+		It("ReconcileでRegistry Secretが作成される", func() {
+			r := newTestAppReconciler()
+			_, err := r.Reconcile(ctx, reconcile.Request{
+				NamespacedName: types.NamespacedName{Name: name, Namespace: ns},
+			})
+			Expect(err).NotTo(HaveOccurred())
+
+			var secret corev1.Secret
+			Expect(k8sClient.Get(ctx, types.NamespacedName{Name: config.AppRegistrySecretName(name), Namespace: ns}, &secret)).To(Succeed())
+			Expect(secret.Data).To(HaveKey(corev1.DockerConfigJsonKey))
+		})
+
+		It("ServiceとIngressが作成されない", func() {
+			r := newTestAppReconciler()
+			_, err := r.Reconcile(ctx, reconcile.Request{
+				NamespacedName: types.NamespacedName{Name: name, Namespace: ns},
+			})
+			Expect(err).NotTo(HaveOccurred())
+
+			var svc corev1.Service
+			Expect(k8sClient.Get(ctx, types.NamespacedName{Name: name, Namespace: ns}, &svc)).NotTo(Succeed())
+
+			var ingress networkingv1.Ingress
+			Expect(k8sClient.Get(ctx, types.NamespacedName{Name: name, Namespace: ns}, &ingress)).NotTo(Succeed())
+		})
+	})
+
+	Context("Expose設定あり", func() {
+		const name = "app-with-expose"
+		expose := &maxicloudv1alpha1.ExposeConfig{
+			Port:   8080,
+			Domain: "app.example.com",
+		}
+
+		BeforeEach(func() {
+			Expect(k8sClient.Create(ctx, newTestApplication(name, ns, "ghcr.io/test/app:latest", expose))).To(Succeed())
+		})
+
+		AfterEach(func() {
+			_ = k8sClient.Delete(ctx, &maxicloudv1alpha1.Application{
+				ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: ns},
+			})
+			_ = k8sClient.Delete(ctx, &corev1.Secret{
+				ObjectMeta: metav1.ObjectMeta{Name: config.AppRegistrySecretName(name), Namespace: ns},
+			})
+		})
+
+		It("ServiceとIngressが作成される", func() {
+			r := newTestAppReconciler()
+			_, err := r.Reconcile(ctx, reconcile.Request{
+				NamespacedName: types.NamespacedName{Name: name, Namespace: ns},
+			})
+			Expect(err).NotTo(HaveOccurred())
+
+			var svc corev1.Service
+			Expect(k8sClient.Get(ctx, types.NamespacedName{Name: name, Namespace: ns}, &svc)).To(Succeed())
+			Expect(svc.Spec.Ports[0].Port).To(Equal(int32(8080)))
+
+			var ingress networkingv1.Ingress
+			Expect(k8sClient.Get(ctx, types.NamespacedName{Name: name, Namespace: ns}, &ingress)).To(Succeed())
+			Expect(ingress.Spec.Rules[0].Host).To(Equal("app.example.com"))
+		})
+	})
+
+	Context("Applicationが存在しない場合", func() {
+		It("NotFoundは無視してエラーにならない", func() {
+			r := newTestAppReconciler()
+			_, err := r.Reconcile(ctx, reconcile.Request{
+				NamespacedName: types.NamespacedName{Name: "nonexistent", Namespace: ns},
+			})
+			Expect(err).NotTo(HaveOccurred())
 		})
 	})
 })

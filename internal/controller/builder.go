@@ -90,12 +90,16 @@ func newService(app *maxicloudv1alpha1.Application) *corev1.Service {
 	}
 }
 
-func newIngress(app *maxicloudv1alpha1.Application, domain, ingressClassName string) *networkingv1.Ingress {
+func newIngress(app *maxicloudv1alpha1.Application, baseDomain, ingressClassName string) *networkingv1.Ingress {
 	pathType := networkingv1.PathTypePrefix
 	port := app.Spec.Expose.Port
 	className := app.Spec.Expose.IngressClassName
 	if className == nil && ingressClassName != "" {
 		className = &ingressClassName
+	}
+	host := app.Spec.Expose.Domain
+	if host == "" {
+		host = baseDomain
 	}
 	return &networkingv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
@@ -109,7 +113,7 @@ func newIngress(app *maxicloudv1alpha1.Application, domain, ingressClassName str
 			IngressClassName: className,
 			Rules: []networkingv1.IngressRule{
 				{
-					Host: domain,
+					Host: host,
 					IngressRuleValue: networkingv1.IngressRuleValue{
 						HTTP: &networkingv1.HTTPIngressRuleValue{
 							Paths: []networkingv1.HTTPIngressPath{

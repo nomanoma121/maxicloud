@@ -20,7 +20,6 @@ import (
 	"context"
 
 	"github.com/saitamau-maximum/maxicloud/internal/config"
-	"github.com/saitamau-maximum/maxicloud/internal/github"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
@@ -35,7 +34,6 @@ import (
 )
 
 type ReconcilerConfig struct {
-	Namespace    string
 	IngressClass string
 	BaseDomain   string
 }
@@ -43,10 +41,9 @@ type ReconcilerConfig struct {
 // ApplicationReconciler reconciles a Application object
 type ApplicationReconciler struct {
 	client.Client
-	Scheme       *runtime.Scheme
-	Registry     Registry
-	GitHubClient github.Client
-	Config       ReconcilerConfig
+	Scheme   *runtime.Scheme
+	Registry Registry
+	Config   ReconcilerConfig
 }
 
 // +kubebuilder:rbac:groups=maxicloud.maximum.vc,resources=applications,verbs=get;list;watch;create;update;patch;delete
@@ -67,22 +64,21 @@ func (r *ApplicationReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 	}
 
 	if err := r.reconcileDeployment(ctx, &application); err != nil {
-		log.Error(err, "Failed to reconcile Deployments")
+		log.Error(err, "Failed to reconcile Deployment")
 		return ctrl.Result{}, err
 	}
 
-	// Exposeがnilなら非公開とみなしてServiceやIngressは作成しない
 	if application.Spec.Expose == nil {
 		return ctrl.Result{}, nil
 	}
 
 	if err := r.reconcileService(ctx, &application); err != nil {
-		log.Error(err, "Failed to reconcile Services")
+		log.Error(err, "Failed to reconcile Service")
 		return ctrl.Result{}, err
 	}
 
 	if err := r.reconcileIngress(ctx, &application); err != nil {
-		log.Error(err, "Failed to reconcile Ingresses")
+		log.Error(err, "Failed to reconcile Ingress")
 		return ctrl.Result{}, err
 	}
 
@@ -92,80 +88,63 @@ func (r *ApplicationReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 func (r *ApplicationReconciler) reconcileSecret(ctx context.Context, application *maxicloudv1alpha1.Application) error {
 	log := logf.FromContext(ctx)
 
-	secret := &corev1.Secret{}
-	key := types.NamespacedName{Name: config.SecretName, Namespace: application.Namespace}
-
-	if err := r.Get(ctx, key, secret); err != nil {
-		if errors.IsNotFound(err) {
-			log.Info("Secret not found, creating new one")
-			r.Client.Create(ctx, newAppRegistrySecret(application, r.Registry.DockerConfig()))
-		}
+	secretName := config.AppRegistrySecretName(application.Name)
+	var secret corev1.Secret
+	err := r.Get(ctx, types.NamespacedName{Name: secretName, Namespace: application.Namespace}, &secret)
+	if errors.IsNotFound(err) {
+		return r.Create(ctx, newAppRegistrySecret(application, r.Registry.DockerConfig()))
+	}
+	if err != nil {
+		log.Error(err, "failed to get registry secret", "secret", secretName)
+		return err
 	}
 
 	secret.Data[corev1.DockerConfigJsonKey] = []byte(r.Registry.DockerConfig())
-	return r.Update(ctx, secret)
+	return r.Update(ctx, &secret)
 }
 
 func (r *ApplicationReconciler) reconcileDeployment(ctx context.Context, application *maxicloudv1alpha1.Application) error {
-	log := logf.FromContext(ctx)
-
 	var deploy appsv1.Deployment
-	if err := r.Get(ctx, types.NamespacedName{Name: application.Name, Namespace: application.Namespace}, &deploy); err != nil {
-		if client.IgnoreNotFound(err) != nil {
-			return err
-		}
-		log.Info("Deployment not found, creating new one")
-		if err := r.Create(ctx, newDeployment(application, application.Spec.Image)); err != nil {
-			return err
-		}
-		log.Info("Deployment created successfully")
+	err := r.Get(ctx, types.NamespacedName{Name: application.Name, Namespace: application.Namespace}, &deploy)
+	if errors.IsNotFound(err) {
+		return r.Create(ctx, newDeployment(application, application.Spec.Image))
+	}
+	if err != nil {
+		return err
 	}
 
 	deploy.Spec.Template.Spec.Containers[0].Image = application.Spec.Image
 	deploy.Spec.Template.Spec.Containers[0].Env = application.Spec.Env
-
 	return r.Update(ctx, &deploy)
 }
 
 func (r *ApplicationReconciler) reconcileService(ctx context.Context, application *maxicloudv1alpha1.Application) error {
-	log := logf.FromContext(ctx)
-
 	var svc corev1.Service
-	if err := r.Get(ctx, types.NamespacedName{Name: application.Name, Namespace: application.Namespace}, &svc); err != nil {
-		if client.IgnoreNotFound(err) != nil {
-			return err
-		}
-		log.Info("Service not found, creating new one")
-		if err := r.Create(ctx, newService(application)); err != nil {
-			return err
-		}
-		log.Info("Service created successfully")
+	err := r.Get(ctx, types.NamespacedName{Name: application.Name, Namespace: application.Namespace}, &svc)
+	if errors.IsNotFound(err) {
+		return r.Create(ctx, newService(application))
+	}
+	if err != nil {
+		return err
 	}
 
 	svc.Spec.Ports[0].Port = application.Spec.Expose.Port
-	
 	return r.Update(ctx, &svc)
 }
 
 func (r *ApplicationReconciler) reconcileIngress(ctx context.Context, application *maxicloudv1alpha1.Application) error {
-	log := logf.FromContext(ctx)
-
 	var ingress networkingv1.Ingress
-	if err := r.Get(ctx, types.NamespacedName{Name: application.Name, Namespace: application.Namespace}, &ingress); err != nil {
-		if client.IgnoreNotFound(err) != nil {
-			return err
-		}
-		log.Info("Ingress not found, creating new one")
-		if err := r.Create(ctx, newIngress(application, r.Config.IngressClass, r.Config.BaseDomain)); err != nil {
-			return err
-		}
-		log.Info("Ingress created successfully")
+	err := r.Get(ctx, types.NamespacedName{Name: application.Name, Namespace: application.Namespace}, &ingress)
+	if errors.IsNotFound(err) {
+		return r.Create(ctx, newIngress(application, r.Config.BaseDomain, r.Config.IngressClass))
+	}
+	if err != nil {
+		return err
 	}
 
+	ingress.Spec.Rules[0].Host = application.Spec.Expose.Domain
 	ingress.Spec.Rules[0].HTTP.Paths[0].Backend.Service.Port.Number = application.Spec.Expose.Port
 	ingress.Spec.IngressClassName = application.Spec.Expose.IngressClassName
-	ingress.Spec.Rules[0].Host = application.Spec.Expose.Domain
-
 	return r.Update(ctx, &ingress)
 }
 
