@@ -13,7 +13,7 @@ const (
 	CheckConclusionFailure CheckConclusion = "failure"
 )
 
-type CreateCheckRunOptions struct {
+type CreateStatusOptions struct {
 	Name    string
 	HeadSHA string
 	Status  CheckStatus
@@ -22,14 +22,14 @@ type CreateCheckRunOptions struct {
 	Text    string
 }
 
-type CreateCheckRunParams struct {
+type CreateStatusParams struct {
 	InstallationID        int64
 	Owner                 string
 	Repo                  string
-	CreateCheckRunOptions CreateCheckRunOptions
+	CreateStatusOptions CreateStatusOptions
 }
 
-type UpdateCheckRunOptions struct {
+type UpdateStatusOptions struct {
 	Name       string
 	Status     CheckStatus
 	Conclusion CheckConclusion
@@ -38,12 +38,12 @@ type UpdateCheckRunOptions struct {
 	Text       string
 }
 
-type UpdateCheckRunParams struct {
+type UpdateStatusParams struct {
 	InstallationID        int64
 	Owner                 string
 	Repo                  string
 	CheckRunID            int64
-	UpdateCheckRunOptions UpdateCheckRunOptions
+	UpdateStatusOptions UpdateStatusOptions
 }
 
 type IssueComment struct {
@@ -51,7 +51,7 @@ type IssueComment struct {
 	Body string
 }
 
-type CreateIssueCommentParams struct {
+type CreateCommentParams struct {
 	InstallationID int64
 	Owner          string
 	Repo           string
@@ -59,7 +59,7 @@ type CreateIssueCommentParams struct {
 	Comment        string
 }
 
-type UpdateIssueCommentParams struct {
+type UpdateCommentParams struct {
 	InstallationID int64
 	Owner          string
 	Repo           string
@@ -68,9 +68,9 @@ type UpdateIssueCommentParams struct {
 }
 
 type DeploymentNotifier interface {
-	CreateStatus(ctx context.Context, params CreateCheckRunParams) (int64, error)
-	UpdateStatus(ctx context.Context, params UpdateCheckRunParams) error
+	CreateStatus(ctx context.Context, params CreateStatusParams) (int64, error)
+	UpdateStatus(ctx context.Context, params UpdateStatusParams) error
 	GetComment(ctx context.Context, installationID int64, owner, repo string, commentID int64) (*IssueComment, error)
-	CreateComment(ctx context.Context, params CreateIssueCommentParams) (int64, error)
-	UpdateComment(ctx context.Context, params UpdateIssueCommentParams) error
+	CreateComment(ctx context.Context, params CreateCommentParams) (int64, error)
+	UpdateComment(ctx context.Context, params UpdateCommentParams) error
 }

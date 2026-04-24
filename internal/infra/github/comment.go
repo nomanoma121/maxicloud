@@ -23,7 +23,7 @@ func (c *client) GetComment(ctx context.Context, installationID int64, owner, re
 	}, nil
 }
 
-func (c *client) CreateComment(ctx context.Context, params domain.CreateIssueCommentParams) (int64, error) {
+func (c *client) CreateComment(ctx context.Context, params domain.CreateCommentParams) (int64, error) {
 	ghClient, err := c.newGHClient(params.InstallationID)
 	if err != nil {
 		return 0, err
@@ -38,7 +38,7 @@ func (c *client) CreateComment(ctx context.Context, params domain.CreateIssueCom
 	return result.GetID(), nil
 }
 
-func (c *client) UpdateComment(ctx context.Context, params domain.UpdateIssueCommentParams) error {
+func (c *client) UpdateComment(ctx context.Context, params domain.UpdateCommentParams) error {
 	ghClient, err := c.newGHClient(params.InstallationID)
 	if err != nil {
 		return err

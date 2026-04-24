@@ -8,20 +8,20 @@ import (
 	"github.com/saitamau-maximum/maxicloud/internal/domain"
 )
 
-func (c *client) CreateStatus(ctx context.Context, params domain.CreateCheckRunParams) (int64, error) {
+func (c *client) CreateStatus(ctx context.Context, params domain.CreateStatusParams) (int64, error) {
 	ghClient, err := c.newGHClient(params.InstallationID)
 	if err != nil {
 		return 0, err
 	}
 
 	run, _, err := ghClient.Checks.CreateCheckRun(ctx, params.Owner, params.Repo, gh.CreateCheckRunOptions{
-		Name:    params.CreateCheckRunOptions.Name,
-		HeadSHA: params.CreateCheckRunOptions.HeadSHA,
-		Status:  gh.Ptr(string(params.CreateCheckRunOptions.Status)),
+		Name:    params.CreateStatusOptions.Name,
+		HeadSHA: params.CreateStatusOptions.HeadSHA,
+		Status:  gh.Ptr(string(params.CreateStatusOptions.Status)),
 		Output: &gh.CheckRunOutput{
-			Title:   gh.Ptr(params.CreateCheckRunOptions.Title),
-			Summary: gh.Ptr(params.CreateCheckRunOptions.Summary),
-			Text:    gh.Ptr(params.CreateCheckRunOptions.Text),
+			Title:   gh.Ptr(params.CreateStatusOptions.Title),
+			Summary: gh.Ptr(params.CreateStatusOptions.Summary),
+			Text:    gh.Ptr(params.CreateStatusOptions.Text),
 		},
 	})
 	if err != nil {
@@ -31,22 +31,22 @@ func (c *client) CreateStatus(ctx context.Context, params domain.CreateCheckRunP
 	return run.GetID(), nil
 }
 
-func (c *client) UpdateStatus(ctx context.Context, params domain.UpdateCheckRunParams) error {
+func (c *client) UpdateStatus(ctx context.Context, params domain.UpdateStatusParams) error {
 	ghClient, err := c.newGHClient(params.InstallationID)
 	if err != nil {
 		return err
 	}
 
 	_, _, err = ghClient.Checks.UpdateCheckRun(ctx, params.Owner, params.Repo, params.CheckRunID, gh.UpdateCheckRunOptions{
-		Name:       params.UpdateCheckRunOptions.Name,
-		Status:     gh.Ptr(string(params.UpdateCheckRunOptions.Status)),
-		Conclusion: gh.Ptr(string(params.UpdateCheckRunOptions.Conclusion)),
+		Name:       params.UpdateStatusOptions.Name,
+		Status:     gh.Ptr(string(params.UpdateStatusOptions.Status)),
+		Conclusion: gh.Ptr(string(params.UpdateStatusOptions.Conclusion)),
 		Output: &gh.CheckRunOutput{
-			Title:   gh.Ptr(params.UpdateCheckRunOptions.Title),
-			Summary: gh.Ptr(params.UpdateCheckRunOptions.Summary),
-			Text:    gh.Ptr(params.UpdateCheckRunOptions.Text),
+			Title:   gh.Ptr(params.UpdateStatusOptions.Title),
+			Summary: gh.Ptr(params.UpdateStatusOptions.Summary),
+			Text:    gh.Ptr(params.UpdateStatusOptions.Text),
 		},
 	})
-	log.Printf("updated check run with ID: %d, conclusion: %s", params.CheckRunID, params.UpdateCheckRunOptions.Conclusion)
+	log.Printf("updated check run with ID: %d, conclusion: %s", params.CheckRunID, params.UpdateStatusOptions.Conclusion)
 	return err
 }

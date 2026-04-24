@@ -31,9 +31,7 @@ import (
 
 	maxicloudv1alpha1 "github.com/saitamau-maximum/maxicloud/api/v1alpha1"
 	"github.com/saitamau-maximum/maxicloud/internal/config"
-
-	gh "github.com/google/go-github/v72/github"
-	githubpkg "github.com/saitamau-maximum/maxicloud/internal/github"
+	"github.com/saitamau-maximum/maxicloud/internal/domain"
 )
 
 type fakeRegistry struct{}
@@ -44,22 +42,24 @@ func (f *fakeRegistry) Token() string        { return "token" }
 
 type fakeGitHubClient struct{}
 
+var _ domain.DeploymentNotifier = (*fakeGitHubClient)(nil)
+
 func (f *fakeGitHubClient) GetInstallationAccessToken(_ context.Context, _ int64) (string, error) {
 	return "fake-token", nil
 }
-func (f *fakeGitHubClient) CreateCheckRun(_ context.Context, _ githubpkg.CreateCheckRunParams) (int64, error) {
+func (f *fakeGitHubClient) CreateStatus(_ context.Context, _ domain.CreateStatusParams) (int64, error) {
 	return 0, nil
 }
-func (f *fakeGitHubClient) UpdateCheckRun(_ context.Context, _ githubpkg.UpdateCheckRunParams) error {
+func (f *fakeGitHubClient) UpdateStatus(_ context.Context, _ domain.UpdateStatusParams) error {
 	return nil
 }
-func (f *fakeGitHubClient) GetIssueComment(_ context.Context, _ int64, _, _ string, _ int64) (*gh.IssueComment, error) {
+func (f *fakeGitHubClient) GetComment(_ context.Context, _ int64, _, _ string, _ int64) (*domain.IssueComment, error) {
 	return nil, nil
 }
-func (f *fakeGitHubClient) CreateIssueComment(_ context.Context, _ githubpkg.CreateIssueCommentParams) (int64, error) {
+func (f *fakeGitHubClient) CreateComment(_ context.Context, _ domain.CreateCommentParams) (int64, error) {
 	return 0, nil
 }
-func (f *fakeGitHubClient) UpdateIssueComment(_ context.Context, _ githubpkg.UpdateIssueCommentParams) error {
+func (f *fakeGitHubClient) UpdateComment(_ context.Context, _ domain.UpdateCommentParams) error {
 	return nil
 }
 
