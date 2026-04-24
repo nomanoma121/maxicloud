@@ -4,15 +4,15 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/saitamau-maximum/maxicloud/internal/gateway/domain"
+	"github.com/saitamau-maximum/maxicloud/internal/domain"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-const projectLabelKey = "maxicloud.saitamau-maximum.github.io/project"
-
 const (
+	projectLabelKey = "maxicloud.saitamau-maximum.github.io/project"
+
 	OwnerUserIDLabelKey = "owner-user-id"
 	ProjectNameLabelKey = "project-name"
 
@@ -36,10 +36,9 @@ func (r *projectRepository) CreateProject(ctx context.Context, project domain.Pr
 		ObjectMeta: metav1.ObjectMeta{
 			Name: project.ID,
 			Labels: map[string]string{
-				projectLabelKey: "true",
-				// OwnerUserID, ProjectNameは検索のためにラベルにする
+				projectLabelKey:     "true",
 				OwnerUserIDLabelKey: project.OwnerUserID,
-				ProjectNameLabelKey:  project.Name,
+				ProjectNameLabelKey: project.Name,
 			},
 			Annotations: map[string]string{
 				ProjectDescriptionAnnotationKey: project.Description,
@@ -98,8 +97,8 @@ func nsToProject(ns *corev1.Namespace) *domain.Project {
 	return &domain.Project{
 		ID:          ns.Name,
 		Name:        ns.Labels[ProjectNameLabelKey],
-		Description: ns.Annotations[ProjectDescriptionAnnotationKey],
 		OwnerUserID: ns.Labels[OwnerUserIDLabelKey],
+		Description: ns.Annotations[ProjectDescriptionAnnotationKey],
 		CreatedAt:   ns.Annotations[CreatedAtAnnotationKey],
 		UpdatedAt:   ns.Annotations[UpdatedAtAnnotationKey],
 	}

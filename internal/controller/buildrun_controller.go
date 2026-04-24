@@ -31,9 +31,13 @@ import (
 
 	maxicloudv1alpha1 "github.com/saitamau-maximum/maxicloud/api/v1alpha1"
 	"github.com/saitamau-maximum/maxicloud/internal/config"
-	"github.com/saitamau-maximum/maxicloud/internal/github"
+	infragithub "github.com/saitamau-maximum/maxicloud/internal/infra/github"
 	batchv1 "k8s.io/api/batch/v1"
 )
+
+type gitHubClient interface {
+	GetInstallationAccessToken(ctx context.Context, installationID int64) (string, error)
+}
 
 type BuildRunReconcilerConfig struct {
 	// Applicattionごとに保持するBuildRunの履歴の最大数
@@ -44,7 +48,7 @@ type BuildRunReconciler struct {
 	client.Client
 	Scheme       *runtime.Scheme
 	Registry     Registry
-	GitHubClient github.Client
+	GitHubClient gitHubClient
 	Config       BuildRunReconcilerConfig
 }
 
@@ -108,11 +112,11 @@ func (r *BuildRunReconciler) reconcileSecret(ctx context.Context, buildRun *maxi
 }
 
 func (r *BuildRunReconciler) reconcileJob(ctx context.Context, buildRun *maxicloudv1alpha1.BuildRun) error {
-	owner, repo, err := github.ParseRepoURL(buildRun.Spec.Source.RepoURL)
+	owner, repo, err := infragithub.ParseRepoURL(buildRun.Spec.Source.RepoURL)
 	if err != nil {
 		return fmt.Errorf("failed to parse repository URL: %w", err)
 	}
-	destination := fmt.Sprintf("%s/%s:%s", r.Registry.Host(), repo, github.ShortSHA(buildRun.Spec.Source.SHA))
+	destination := fmt.Sprintf("%s/%s:%s", r.Registry.Host(), repo, infragithub.ShortSHA(buildRun.Spec.Source.SHA))
 
 	var job batchv1.Job
 	if err := r.Get(ctx, types.NamespacedName{Name: buildRun.Name, Namespace: buildRun.Namespace}, &job); err != nil {

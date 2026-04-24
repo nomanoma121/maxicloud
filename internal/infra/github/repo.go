@@ -6,14 +6,12 @@ import (
 	"strings"
 )
 
-// ParseRepoURL extracts owner and repo from a GitHub URL.
-// e.g. "https://github.com/owner/repo" -> ("owner", "repo")
 func ParseRepoURL(repoURL string) (owner, repo string, err error) {
-	url, err := url.Parse(repoURL)
+	u, err := url.Parse(repoURL)
 	if err != nil {
 		return "", "", err
 	}
-	path := strings.TrimPrefix(url.Path, "/")
+	path := strings.TrimPrefix(u.Path, "/")
 	parts := strings.Split(path, "/")
 	if len(parts) < 2 {
 		return "", "", errors.New("invalid GitHub repository URL")

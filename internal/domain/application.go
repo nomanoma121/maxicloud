@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"context"
 	"errors"
 	"time"
 )
@@ -27,7 +28,7 @@ type Application struct {
 
 type ApplicationSource struct {
 	RepositoryID       string
-	RepositoryFullName string // e.g. "saitamau-maximum/maxicloud"
+	RepositoryFullName string
 	Branch             string
 }
 
@@ -75,18 +76,16 @@ func (s ApplicationSpec) Validate() error {
 	if s.Source.Branch == "" {
 		return ErrInvalidBranch
 	}
-
-	// AccessModeがMembersOnlyの場合、Domainは必須
 	if s.AccessMode == AccessModeMembersOnly && s.Domain == nil {
 		return ErrDomainRequiredForMembersOnly
 	}
-
 	return nil
 }
 
 type ApplicationRepository interface {
-	CreateApplication(app Application) (string, error)
-	GetApplication(id string) (*Application, error)
-	UpdateApplication(app Application) error
-	DeleteApplication(id string) error
+	CreateApplication(ctx context.Context, app Application) (*Application, error)
+	GetApplication(ctx context.Context, id string) (*Application, error)
+	ListApplications(ctx context.Context, projectID string) ([]Application, error)
+	UpdateApplication(ctx context.Context, app Application) error
+	DeleteApplication(ctx context.Context, id string) error
 }

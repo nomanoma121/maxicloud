@@ -1,5 +1,11 @@
 package domain
 
+type BuildRun struct {
+	ID            string
+	ApplicationID string
+	Repo          string
+}
+
 type DockerfileSource interface {
 	dockerfileSource()
 }

@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/saitamau-maximum/maxicloud/internal/gateway/domain"
+	"github.com/saitamau-maximum/maxicloud/internal/domain"
 )
 
 type ProjectUsecase interface {
@@ -30,8 +30,8 @@ func (u *projectUsecase) CreateProject(ctx context.Context, name, description, o
 		Name:        name,
 		Description: description,
 		OwnerUserID: ownerUserID,
-		CreatedAt:   time.Now().String(),
-		UpdatedAt:   time.Now().String(),
+		CreatedAt:   time.Now().UTC().Format(time.RFC3339),
+		UpdatedAt:   time.Now().UTC().Format(time.RFC3339),
 	})
 	if err != nil {
 		return nil, err
@@ -53,6 +53,7 @@ func (u *projectUsecase) UpdateProject(ctx context.Context, id, name, descriptio
 		Name:        name,
 		Description: description,
 		OwnerUserID: ownerUserID,
+		UpdatedAt:   time.Now().UTC().Format(time.RFC3339),
 	}); err != nil {
 		return nil, err
 	}

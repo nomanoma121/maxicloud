@@ -1,0 +1,51 @@
+package github
+
+import (
+	"context"
+
+	gh "github.com/google/go-github/v72/github"
+	"github.com/saitamau-maximum/maxicloud/internal/domain"
+)
+
+func (c *client) GetComment(ctx context.Context, installationID int64, owner, repo string, commentID int64) (*domain.IssueComment, error) {
+	ghClient, err := c.newGHClient(installationID)
+	if err != nil {
+		return nil, err
+	}
+
+	comment, _, err := ghClient.Issues.GetComment(ctx, owner, repo, commentID)
+	if err != nil {
+		return nil, err
+	}
+	return &domain.IssueComment{
+		ID:   comment.GetID(),
+		Body: comment.GetBody(),
+	}, nil
+}
+
+func (c *client) CreateComment(ctx context.Context, params domain.CreateIssueCommentParams) (int64, error) {
+	ghClient, err := c.newGHClient(params.InstallationID)
+	if err != nil {
+		return 0, err
+	}
+
+	result, _, err := ghClient.Issues.CreateComment(ctx, params.Owner, params.Repo, params.PrNumber, &gh.IssueComment{
+		Body: gh.Ptr(params.Comment),
+	})
+	if err != nil {
+		return 0, err
+	}
+	return result.GetID(), nil
+}
+
+func (c *client) UpdateComment(ctx context.Context, params domain.UpdateIssueCommentParams) error {
+	ghClient, err := c.newGHClient(params.InstallationID)
+	if err != nil {
+		return err
+	}
+
+	_, _, err = ghClient.Issues.EditComment(ctx, params.Owner, params.Repo, params.CommentID, &gh.IssueComment{
+		Body: gh.Ptr(params.Comment),
+	})
+	return err
+}
