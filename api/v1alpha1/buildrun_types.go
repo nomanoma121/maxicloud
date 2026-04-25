@@ -49,12 +49,23 @@ type BuildRunSpec struct {
 	Env []corev1.EnvVar `json:"env,omitempty"`
 }
 
+type BuildRunPhase string
+
+const (
+	BuildRunPhaseQueued    BuildRunPhase = "Queued"
+	BuildRunPhaseBuilding  BuildRunPhase = "Building"
+	BuildRunPhasePushing   BuildRunPhase = "Pushing"
+	BuildRunPhaseSucceeded BuildRunPhase = "Succeeded"
+	BuildRunPhaseFailed    BuildRunPhase = "Failed"
+	BuildRunPhaseCanceled  BuildRunPhase = "Canceled"
+)
+
 // BuildRunStatus defines the observed state of BuildRun.
 type BuildRunStatus struct {
 	// Phase represents the current lifecycle phase.
 	// +kubebuilder:validation:Enum=Queued;Building;Pushing;Succeeded;Failed;Canceled
 	// +optional
-	Phase string `json:"phase,omitempty"`
+	Phase BuildRunPhase `json:"phase,omitempty"`
 
 	// Image is the resulting image reference on success.
 	// +optional

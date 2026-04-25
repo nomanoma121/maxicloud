@@ -79,6 +79,12 @@ type DeploymentPipelineStatus struct {
 	// FinishedAt is when the pipeline completed.
 	// +optional
 	FinishedAt *metav1.Time `json:"finishedAt,omitempty"`
+
+	// Conditions contains the conditions for the DeploymentPipeline.
+	// +listType=map
+	// +listMapKey=type
+	// +optional
+	Conditions []metav1.Condition `json:"conditions,omitempty"`
 }
 
 // +kubebuilder:object:root=true
