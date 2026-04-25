@@ -1,10 +1,13 @@
 package domain
 
-import "time"
+import (
+	"time"
+)
 
 type DeploymentStatus string
 
 const (
+	DeploymentStatusQueued    DeploymentStatus = "QUEUED"
 	DeploymentStatusRunning   DeploymentStatus = "RUNNING"
 	DeploymentStatusSucceeded DeploymentStatus = "SUCCESS"
 	DeploymentStatusFailed    DeploymentStatus = "FAILED"
@@ -17,7 +20,7 @@ type Commit struct {
 	Timestamp  time.Time
 }
 
-type DeploymentRun struct {
+type Deployment struct {
 	ID            string
 	ApplicationID string
 	OwnerUserID   string
@@ -28,9 +31,28 @@ type DeploymentRun struct {
 }
 
 type DeploymentRepository interface {
-	CreateDeploymentRun(run DeploymentRun) (string, error)
-	GetDeploymentRun(id string) (*DeploymentRun, error)
-	UpdateDeploymentRun(run DeploymentRun) error
-	DeleteDeploymentRun(id string) error
-	ListDeploymentRunsByApplication(applicationID string) ([]DeploymentRun, error)
+	CreateDeployment(deployment Deployment) (string, error)
+	GetDeployment(id string) (*Deployment, error)
+	UpdateDeployment(deployment Deployment) error
+	DeleteDeployment(id string) error
+	ListDeploymentsByApplication(applicationID string) ([]Deployment, error)
+}
+
+type DeploymentPipeline struct {
+	ID            string
+	ApplicationID string
+	OwnerUserID   string
+	Commit        Commit
+	Status        DeploymentStatus
+	StartedAt     time.Time
+	FinishedAt    *time.Time
+	Image         string
+}
+
+type DeploymentPipelineRepository interface {
+	CreatePipeline(pipeline DeploymentPipeline) (string, error)
+	GetPipeline(id string) (*DeploymentPipeline, error)
+	UpdatePipeline(pipeline DeploymentPipeline) error
+	DeletePipeline(id string) error
+	ListPipelinesByApplication(applicationID string) ([]DeploymentPipeline, error)
 }

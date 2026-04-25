@@ -42,28 +42,26 @@ func (f *fakeRegistry) Token() string        { return "token" }
 
 type fakeGitHubClient struct{}
 
-var _ domain.DeploymentNotifier = (*fakeGitHubClient)(nil)
+var _ domain.DeploymentReporter = (*fakeGitHubClient)(nil)
 
 func (f *fakeGitHubClient) GetInstallationAccessToken(_ context.Context, _ int64) (string, error) {
 	return "fake-token", nil
 }
-func (f *fakeGitHubClient) CreateStatus(_ context.Context, _ domain.CreateStatusParams) (int64, error) {
+func (f *fakeGitHubClient) CreateCommitStatus(_ context.Context, _ domain.CreateCommitStatusParams) (int64, error) {
 	return 0, nil
 }
-func (f *fakeGitHubClient) UpdateStatus(_ context.Context, _ domain.UpdateStatusParams) error {
+func (f *fakeGitHubClient) UpdateCommitStatus(_ context.Context, _ domain.UpdateCommitStatusParams) error {
 	return nil
 }
-func (f *fakeGitHubClient) GetComment(_ context.Context, _ int64, _, _ string, _ int64) (*domain.IssueComment, error) {
+func (f *fakeGitHubClient) GetDeploymentSummary(_ context.Context, _ int64, _, _ string, _ int64) (*domain.DeploymentSummary, error) {
 	return nil, nil
 }
-func (f *fakeGitHubClient) CreateComment(_ context.Context, _ domain.CreateCommentParams) (int64, error) {
+func (f *fakeGitHubClient) CreateDeploymentSummary(_ context.Context, _ domain.CreateDeploymentSummaryParams) (int64, error) {
 	return 0, nil
 }
-func (f *fakeGitHubClient) UpdateComment(_ context.Context, _ domain.UpdateCommentParams) error {
+func (f *fakeGitHubClient) UpdateDeploymentSummary(_ context.Context, _ domain.UpdateDeploymentSummaryParams) error {
 	return nil
 }
-
-// helpers
 
 func newTestReconciler(maxHistory int) *BuildRunReconciler {
 	return &BuildRunReconciler{

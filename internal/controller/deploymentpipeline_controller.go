@@ -35,11 +35,15 @@ import (
 	infragithub "github.com/saitamau-maximum/maxicloud/internal/infra/github"
 )
 
+const (
+	RequeueInterval = 10 * time.Second
+)
+
 // DeploymentPipelineReconciler reconciles a DeploymentPipeline object
 type DeploymentPipelineReconciler struct {
 	client.Client
 	Scheme   *runtime.Scheme
-	Notifier domain.DeploymentNotifier
+	Notifier domain.DeploymentReporter
 }
 
 // +kubebuilder:rbac:groups=maxicloud.maximum.vc,resources=deploymentpipelines,verbs=get;list;watch;create;update;patch;delete
@@ -72,7 +76,6 @@ func (r *DeploymentPipelineReconciler) Reconcile(ctx context.Context, req ctrl.R
 }
 
 func (r *DeploymentPipelineReconciler) handlePhaseQueued(ctx context.Context, pipeline *maxicloudv1alpha1.DeploymentPipeline) (ctrl.Result, error) {
-	// notifyDeploymentStarted persists CheckRunID immediately to avoid duplicate on re-reconcile
 	if err := r.notifyDeploymentStarted(ctx, pipeline); err != nil {
 		return ctrl.Result{}, err
 	}
@@ -82,12 +85,12 @@ func (r *DeploymentPipelineReconciler) handlePhaseQueued(ctx context.Context, pi
 
 	now := metav1.Now()
 	base := pipeline.DeepCopy()
-	pipeline.Status.BuildRunRef = pipeline.Name
+	pipeline.Status.BuildRunRef = pipeline.Name // Pipeline名とBuildRun名は同じにする
 	pipeline.Status.Phase = maxicloudv1alpha1.DeploymentPipelinePhaseBuilding
 	if pipeline.Status.StartedAt == nil {
 		pipeline.Status.StartedAt = &now
 	}
-	return ctrl.Result{}, r.Status().Patch(ctx, pipeline, client.MergeFrom(base))
+	return ctrl.Result{RequeueAfter: RequeueInterval}, r.Status().Patch(ctx, pipeline, client.MergeFrom(base))
 }
 
 func (r *DeploymentPipelineReconciler) notifyDeploymentStarted(ctx context.Context, pipeline *maxicloudv1alpha1.DeploymentPipeline) error {
@@ -101,7 +104,7 @@ func (r *DeploymentPipelineReconciler) notifyDeploymentStarted(ctx context.Conte
 		log.Error(err, "failed to get installation ID")
 		return err
 	}
-	checkRunID, err := r.Notifier.CreateStatus(ctx, domain.CreateStatusParams{
+	checkRunID, err := r.Notifier.CreateCommitStatus(ctx, domain.CreateCommitStatusParams{
 		InstallationID: installationID,
 		Owner:          pipeline.Spec.Owner,
 		Repo:           pipeline.Spec.Repo,
@@ -120,7 +123,6 @@ func (r *DeploymentPipelineReconciler) notifyDeploymentStarted(ctx context.Conte
 
 	base := pipeline.DeepCopy()
 	pipeline.Status.CheckRunID = checkRunID
-	// Persist immediately so a mid-flight failure doesn't recreate the check run
 	return r.Status().Patch(ctx, pipeline, client.MergeFrom(base))
 }
 
@@ -155,7 +157,7 @@ func (r *DeploymentPipelineReconciler) handlePhaseBuilding(ctx context.Context, 
 	if err := r.Get(ctx, types.NamespacedName{Name: pipeline.Status.BuildRunRef, Namespace: pipeline.Namespace}, &buildRun); err != nil {
 		log.Error(err, "failed to get BuildRun", "name", pipeline.Status.BuildRunRef)
 		if errors.IsNotFound(err) {
-			return ctrl.Result{RequeueAfter: 10 * time.Second}, nil
+			return ctrl.Result{RequeueAfter: RequeueInterval}, nil
 		}
 		return ctrl.Result{}, err
 	}
@@ -166,7 +168,7 @@ func (r *DeploymentPipelineReconciler) handlePhaseBuilding(ctx context.Context, 
 	case maxicloudv1alpha1.BuildRunPhaseFailed, maxicloudv1alpha1.BuildRunPhaseCanceled:
 		return r.handleBuildFailedOrCanceled(ctx, pipeline)
 	default:
-		return ctrl.Result{RequeueAfter: 10 * time.Second}, nil
+		return ctrl.Result{RequeueAfter: RequeueInterval}, nil
 	}
 }
 
@@ -202,12 +204,12 @@ func (r *DeploymentPipelineReconciler) handleBuildFailedOrCanceled(ctx context.C
 		log.Error(err, "failed to get installation ID")
 		return ctrl.Result{}, err
 	}
-	if err := r.Notifier.UpdateStatus(ctx, domain.UpdateStatusParams{
+	if err := r.Notifier.UpdateCommitStatus(ctx, domain.UpdateCommitStatusParams{
 		InstallationID: installationID,
 		Owner:          pipeline.Spec.Owner,
 		Repo:           pipeline.Spec.Repo,
 		CheckRunID:     pipeline.Status.CheckRunID,
-		UpdateStatusOptions: domain.UpdateStatusOptions{
+		UpdateStatusOptions: domain.UpdateCommitStatusOptions{
 			Name:       "MaxiCloud Deploy",
 			Status:     domain.CheckStatusCompleted,
 			Conclusion: domain.CheckConclusionFailure,
@@ -223,7 +225,7 @@ func (r *DeploymentPipelineReconciler) handleBuildFailedOrCanceled(ctx context.C
 	base := pipeline.DeepCopy()
 	pipeline.Status.FinishedAt = &now
 	pipeline.Status.Phase = maxicloudv1alpha1.DeploymentPipelinePhaseFailed
-	return ctrl.Result{}, r.Status().Patch(ctx, pipeline, client.MergeFrom(base))
+	return ctrl.Result{RequeueAfter: RequeueInterval}, r.Status().Patch(ctx, pipeline, client.MergeFrom(base))
 }
 
 func (r *DeploymentPipelineReconciler) handlePhaseDeploying(ctx context.Context, pipeline *maxicloudv1alpha1.DeploymentPipeline) (ctrl.Result, error) {
@@ -234,12 +236,12 @@ func (r *DeploymentPipelineReconciler) handlePhaseDeploying(ctx context.Context,
 		log.Error(err, "failed to get installation ID")
 		return ctrl.Result{}, err
 	}
-	if err := r.Notifier.UpdateStatus(ctx, domain.UpdateStatusParams{
+	if err := r.Notifier.UpdateCommitStatus(ctx, domain.UpdateCommitStatusParams{
 		InstallationID: installationID,
 		Owner:          pipeline.Spec.Owner,
 		Repo:           pipeline.Spec.Repo,
 		CheckRunID:     pipeline.Status.CheckRunID,
-		UpdateStatusOptions: domain.UpdateStatusOptions{
+		UpdateStatusOptions: domain.UpdateCommitStatusOptions{
 			Name:       "MaxiCloud Deploy",
 			Status:     domain.CheckStatusCompleted,
 			Conclusion: domain.CheckConclusionSuccess,

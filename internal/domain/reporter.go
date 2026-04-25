@@ -22,14 +22,14 @@ type CreateStatusOptions struct {
 	Text    string
 }
 
-type CreateStatusParams struct {
+type CreateCommitStatusParams struct {
 	InstallationID        int64
 	Owner                 string
 	Repo                  string
 	CreateStatusOptions CreateStatusOptions
 }
 
-type UpdateStatusOptions struct {
+type UpdateCommitStatusOptions struct {
 	Name       string
 	Status     CheckStatus
 	Conclusion CheckConclusion
@@ -38,20 +38,20 @@ type UpdateStatusOptions struct {
 	Text       string
 }
 
-type UpdateStatusParams struct {
+type UpdateCommitStatusParams struct {
 	InstallationID        int64
 	Owner                 string
 	Repo                  string
 	CheckRunID            int64
-	UpdateStatusOptions UpdateStatusOptions
+	UpdateStatusOptions UpdateCommitStatusOptions
 }
 
-type IssueComment struct {
+type DeploymentSummary struct {
 	ID   int64
 	Body string
 }
 
-type CreateCommentParams struct {
+type CreateDeploymentSummaryParams struct {
 	InstallationID int64
 	Owner          string
 	Repo           string
@@ -59,7 +59,7 @@ type CreateCommentParams struct {
 	Comment        string
 }
 
-type UpdateCommentParams struct {
+type UpdateDeploymentSummaryParams struct {
 	InstallationID int64
 	Owner          string
 	Repo           string
@@ -67,10 +67,11 @@ type UpdateCommentParams struct {
 	Comment        string
 }
 
-type DeploymentNotifier interface {
-	CreateStatus(ctx context.Context, params CreateStatusParams) (int64, error)
-	UpdateStatus(ctx context.Context, params UpdateStatusParams) error
-	GetComment(ctx context.Context, installationID int64, owner, repo string, commentID int64) (*IssueComment, error)
-	CreateComment(ctx context.Context, params CreateCommentParams) (int64, error)
-	UpdateComment(ctx context.Context, params UpdateCommentParams) error
+// もしかしたらGitHub以外使う予定ないだろうから抽象化する必要ないかも
+type DeploymentReporter interface {
+	CreateCommitStatus(ctx context.Context, params CreateCommitStatusParams) (int64, error)
+	UpdateCommitStatus(ctx context.Context, params UpdateCommitStatusParams) error
+	GetDeploymentSummary(ctx context.Context, installationID int64, owner, repo string, commentID int64) (*DeploymentSummary, error)
+	CreateDeploymentSummary(ctx context.Context, params CreateDeploymentSummaryParams) (int64, error)
+	UpdateDeploymentSummary(ctx context.Context, params UpdateDeploymentSummaryParams) error
 }

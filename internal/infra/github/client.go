@@ -18,7 +18,7 @@ type client struct {
 	transports map[int64]*ghinstallation.Transport
 }
 
-var _ domain.DeploymentNotifier = (*client)(nil)
+var _ domain.DeploymentReporter = (*client)(nil)
 
 func NewGitHubClient(appID int64, privateKey []byte) *client {
 	return &client{

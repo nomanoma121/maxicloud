@@ -7,7 +7,7 @@ import (
 	"github.com/saitamau-maximum/maxicloud/internal/domain"
 )
 
-func (c *client) GetComment(ctx context.Context, installationID int64, owner, repo string, commentID int64) (*domain.IssueComment, error) {
+func (c *client) GetDeploymentSummary(ctx context.Context, installationID int64, owner, repo string, commentID int64) (*domain.DeploymentSummary, error) {
 	ghClient, err := c.newGHClient(installationID)
 	if err != nil {
 		return nil, err
@@ -17,13 +17,13 @@ func (c *client) GetComment(ctx context.Context, installationID int64, owner, re
 	if err != nil {
 		return nil, err
 	}
-	return &domain.IssueComment{
+	return &domain.DeploymentSummary{
 		ID:   comment.GetID(),
 		Body: comment.GetBody(),
 	}, nil
 }
 
-func (c *client) CreateComment(ctx context.Context, params domain.CreateCommentParams) (int64, error) {
+func (c *client) CreateDeploymentSummary(ctx context.Context, params domain.CreateDeploymentSummaryParams) (int64, error) {
 	ghClient, err := c.newGHClient(params.InstallationID)
 	if err != nil {
 		return 0, err
@@ -38,7 +38,7 @@ func (c *client) CreateComment(ctx context.Context, params domain.CreateCommentP
 	return result.GetID(), nil
 }
 
-func (c *client) UpdateComment(ctx context.Context, params domain.UpdateCommentParams) error {
+func (c *client) UpdateDeploymentSummary(ctx context.Context, params domain.UpdateDeploymentSummaryParams) error {
 	ghClient, err := c.newGHClient(params.InstallationID)
 	if err != nil {
 		return err

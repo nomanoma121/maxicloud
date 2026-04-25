@@ -8,7 +8,7 @@ import (
 	"github.com/saitamau-maximum/maxicloud/internal/domain"
 )
 
-func (c *client) CreateStatus(ctx context.Context, params domain.CreateStatusParams) (int64, error) {
+func (c *client) CreateCommitStatus(ctx context.Context, params domain.CreateCommitStatusParams) (int64, error) {
 	ghClient, err := c.newGHClient(params.InstallationID)
 	if err != nil {
 		return 0, err
@@ -31,7 +31,7 @@ func (c *client) CreateStatus(ctx context.Context, params domain.CreateStatusPar
 	return run.GetID(), nil
 }
 
-func (c *client) UpdateStatus(ctx context.Context, params domain.UpdateStatusParams) error {
+func (c *client) UpdateCommitStatus(ctx context.Context, params domain.UpdateCommitStatusParams) error {
 	ghClient, err := c.newGHClient(params.InstallationID)
 	if err != nil {
 		return err
