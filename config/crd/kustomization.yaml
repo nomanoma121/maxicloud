@@ -4,6 +4,7 @@
 resources:
 - bases/maxicloud.maximum.vc_applications.yaml
 - bases/maxicloud.maximum.vc_buildruns.yaml
+- bases/maxicloud.maximum.vc_deploymentpipelines.yaml
 # +kubebuilder:scaffold:crdkustomizeresource
 
 patches:

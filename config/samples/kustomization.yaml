@@ -2,4 +2,5 @@
 resources:
 - maxicloud_v1alpha1_app.yaml
 - maxicloud_v1alpha1_buildrun.yaml
+- maxicloud_v1alpha1_deploymentpipeline.yaml
 # +kubebuilder:scaffold:manifestskustomizesamples
