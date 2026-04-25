@@ -207,7 +207,7 @@ func main() {
 	if err := (&controller.DeploymentPipelineReconciler{
 		Client:   mgr.GetClient(),
 		Scheme:   mgr.GetScheme(),
-		Notifier: ghClient,
+		Reporter: ghClient,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "Failed to create controller", "controller", "DeploymentPipeline")
 		os.Exit(1)

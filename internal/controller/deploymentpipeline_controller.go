@@ -43,7 +43,7 @@ const (
 type DeploymentPipelineReconciler struct {
 	client.Client
 	Scheme   *runtime.Scheme
-	Notifier domain.DeploymentReporter
+	Reporter domain.DeploymentReporter
 }
 
 // +kubebuilder:rbac:groups=maxicloud.maximum.vc,resources=deploymentpipelines,verbs=get;list;watch;create;update;patch;delete
@@ -104,7 +104,7 @@ func (r *DeploymentPipelineReconciler) notifyDeploymentStarted(ctx context.Conte
 		log.Error(err, "failed to get installation ID")
 		return err
 	}
-	checkRunID, err := r.Notifier.CreateCommitStatus(ctx, domain.CreateCommitStatusParams{
+	checkRunID, err := r.Reporter.CreateCommitStatus(ctx, domain.CreateCommitStatusParams{
 		InstallationID: installationID,
 		Owner:          pipeline.Spec.Owner,
 		Repo:           pipeline.Spec.Repo,
@@ -204,7 +204,7 @@ func (r *DeploymentPipelineReconciler) handleBuildFailedOrCanceled(ctx context.C
 		log.Error(err, "failed to get installation ID")
 		return ctrl.Result{}, err
 	}
-	if err := r.Notifier.UpdateCommitStatus(ctx, domain.UpdateCommitStatusParams{
+	if err := r.Reporter.UpdateCommitStatus(ctx, domain.UpdateCommitStatusParams{
 		InstallationID: installationID,
 		Owner:          pipeline.Spec.Owner,
 		Repo:           pipeline.Spec.Repo,
@@ -236,7 +236,7 @@ func (r *DeploymentPipelineReconciler) handlePhaseDeploying(ctx context.Context,
 		log.Error(err, "failed to get installation ID")
 		return ctrl.Result{}, err
 	}
-	if err := r.Notifier.UpdateCommitStatus(ctx, domain.UpdateCommitStatusParams{
+	if err := r.Reporter.UpdateCommitStatus(ctx, domain.UpdateCommitStatusParams{
 		InstallationID: installationID,
 		Owner:          pipeline.Spec.Owner,
 		Repo:           pipeline.Spec.Repo,
