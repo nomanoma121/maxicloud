@@ -2,6 +2,7 @@ package domain
 
 import (
 	"context"
+	"fmt"
 	"time"
 )
 
@@ -23,15 +24,46 @@ type Deployment struct {
 	PRNumber      *int // Previewの時に使う
 	Status        DeploymentStatus
 	StartedAt     time.Time
-	Duration      time.Duration
+	FinishedAt    *time.Time
+}
+
+func (d Deployment) Duration() time.Duration {
+	if d.FinishedAt == nil {
+		return time.Since(d.StartedAt)
+	}
+	return d.FinishedAt.Sub(d.StartedAt)
+}
+
+// StatusがFAILEDかSUCCEEDEDのときFinishedAtは必須、QUEUEDかRUNNINGのときFinishedAtはnilでなければならない
+type RecordDeploymentStatusParams struct {
+	ID         string
+	Status     DeploymentStatus
+	FinishedAt *time.Time
+}
+
+func (d RecordDeploymentStatusParams) Validate() error {
+	switch d.Status {
+	case DeploymentStatusRunning, DeploymentStatusQueued:
+		if d.FinishedAt != nil {
+			return fmt.Errorf("finishedAt must be nil when status is %s", d.Status)
+		}
+	case DeploymentStatusSucceeded, DeploymentStatusFailed:
+		if d.FinishedAt == nil {
+			return fmt.Errorf("finishedAt must be set when status is %s", d.Status)
+		}
+	default:
+		return fmt.Errorf("invalid status: %s", d.Status)
+	}
+	return nil
 }
 
 type DeploymentRepository interface {
-	CreateDeployment(deployment Deployment) (string, error)
-	GetDeployment(id string) (*Deployment, error)
-	UpdateDeployment(deployment Deployment) error
-	DeleteDeployment(id string) error
-	ListDeploymentsByApplication(applicationID string) ([]Deployment, error)
+	CreateDeployment(ctx context.Context, deployment Deployment) (string, error)
+	GetDeployment(ctx context.Context, id string) (*Deployment, error)
+	UpdateDeployment(ctx context.Context, deployment Deployment) error
+	RecordDeploymentStatus(ctx context.Context, params RecordDeploymentStatusParams) error
+	DeleteDeployment(ctx context.Context, id string) error
+	ListDeploymentsByApplication(ctx context.Context, applicationID string) ([]Deployment, error)
 }
 
 type DeploymentPipeline struct {
@@ -49,7 +81,5 @@ type DeploymentPipeline struct {
 type DeploymentPipelineRepository interface {
 	CreatePipeline(ctx context.Context, pipeline DeploymentPipeline) (string, error)
 	GetPipeline(ctx context.Context, id string) (*DeploymentPipeline, error)
-	UpdatePipeline(ctx context.Context, pipeline DeploymentPipeline) error
-	DeletePipeline(ctx context.Context, id string) error
-	ListPipelinesByApplication(ctx context.Context, applicationID string) ([]DeploymentPipeline, error)
+	DeleteOldPipelines(ctx context.Context, applicationID string, maxHistory int, isPreview bool) error
 }

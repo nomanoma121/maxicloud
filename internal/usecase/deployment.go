@@ -2,10 +2,16 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/saitamau-maximum/maxicloud/internal/domain"
+)
+
+const (
+	MaxPreviewPipelineHistory    = 1
+	MaxProductionPipelineHistory = 3
 )
 
 type DeploymentService struct {
@@ -31,17 +37,17 @@ type CreateDeploymentParams struct {
 	OwnerUserID   string
 	Repo          domain.Repository
 	Commit        domain.Commit
-	PrNumber      *int
+	PRNumber      *int
 }
 
 func (s *DeploymentService) CreateDeployment(ctx context.Context, params CreateDeploymentParams) (string, error) {
-	deployID, err := s.deployRepo.CreateDeployment(domain.Deployment{
+	deployID, err := s.deployRepo.CreateDeployment(ctx, domain.Deployment{
 		ID:            uuid.New().String(),
 		ApplicationID: params.ApplicationID,
 		OwnerUserID:   params.OwnerUserID,
 		Repo:          params.Repo,
 		Commit:        params.Commit,
-		PRNumber:      params.PrNumber,
+		PRNumber:      params.PRNumber,
 		Status:        domain.DeploymentStatusQueued,
 	})
 	if err != nil {
@@ -54,10 +60,22 @@ func (s *DeploymentService) CreateDeployment(ctx context.Context, params CreateD
 		OwnerUserID:   params.OwnerUserID,
 		Repo:          params.Repo,
 		Commit:        params.Commit,
-		PRNumber:      params.PrNumber,
+		PRNumber:      params.PRNumber,
 		Status:        domain.DeploymentStatusQueued,
 		StartedAt:     time.Now(),
 	})
+
+	// PRNumberがある場合はPreview環境
+	isPreview := params.PRNumber != nil
+	maxHistory := MaxProductionPipelineHistory
+	if isPreview {
+		maxHistory = MaxPreviewPipelineHistory
+	}
+
+	err = s.pipelineRepo.DeleteOldPipelines(ctx, params.ApplicationID, maxHistory, isPreview)
+	if err != nil {
+		return "", fmt.Errorf("failed to delete old pipelines: %w", err)
+	}
 
 	return deployID, nil
 }

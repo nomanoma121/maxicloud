@@ -42,8 +42,10 @@ const (
 // DeploymentPipelineReconciler reconciles a DeploymentPipeline object
 type DeploymentPipelineReconciler struct {
 	client.Client
-	Scheme   *runtime.Scheme
-	Reporter domain.DeploymentReporter
+	Scheme *runtime.Scheme
+
+	DeployRepo domain.DeploymentRepository
+	Reporter   domain.DeploymentReporter
 }
 
 // +kubebuilder:rbac:groups=maxicloud.maximum.vc,resources=deploymentpipelines,verbs=get;list;watch;create;update;patch;delete

@@ -39,17 +39,11 @@ type gitHubClient interface {
 	GetInstallationAccessToken(ctx context.Context, installationID int64) (string, error)
 }
 
-type BuildRunReconcilerConfig struct {
-	// Applicattionごとに保持するBuildRunの履歴の最大数
-	MaxHistory int
-}
-
 type BuildRunReconciler struct {
 	client.Client
 	Scheme       *runtime.Scheme
 	Registry     Registry
 	GitHubClient gitHubClient
-	Config       BuildRunReconcilerConfig
 }
 
 // +kubebuilder:rbac:groups=maxicloud.maximum.vc,resources=buildruns,verbs=get;list;watch;create;update;patch;delete
@@ -71,11 +65,6 @@ func (r *BuildRunReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 
 	if err := r.reconcileJob(ctx, &buildRun); err != nil {
 		log.Error(err, "failed to reconcile job")
-		return ctrl.Result{}, err
-	}
-
-	if err := r.cleanupOldJobs(ctx, &buildRun); err != nil {
-		log.Error(err, "failed to cleanup old jobs")
 		return ctrl.Result{}, err
 	}
 
@@ -132,30 +121,6 @@ func (r *BuildRunReconciler) reconcileJob(ctx context.Context, buildRun *maxiclo
 			}))
 		}
 		return err
-	}
-	return nil
-}
-
-func (r *BuildRunReconciler) cleanupOldJobs(ctx context.Context, buildRun *maxicloudv1alpha1.BuildRun) error {
-	appName, ok := buildRun.Labels[config.ApplicationLabelKey]
-	if !ok {
-		return nil
-	}
-
-	var jobList batchv1.JobList
-	if err := r.List(ctx, &jobList, client.InNamespace(buildRun.Namespace), client.MatchingLabels{config.ApplicationLabelKey: appName}); err != nil {
-		return fmt.Errorf("failed to list jobs: %w", err)
-	}
-
-	if len(jobList.Items) <= r.Config.MaxHistory {
-		return nil
-	}
-
-	for i := 0; i < len(jobList.Items)-r.Config.MaxHistory; i++ {
-		job := jobList.Items[i]
-		if err := r.Delete(ctx, &job); err != nil {
-			return fmt.Errorf("failed to delete old job %s: %w", job.Name, err)
-		}
 	}
 	return nil
 }
