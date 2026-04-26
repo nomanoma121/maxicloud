@@ -20,26 +20,26 @@ func NewProjectHandler(uc usecase.ProjectUsecase) *ProjectHandler {
 	return &ProjectHandler{uc: uc}
 }
 
-func (h *ProjectHandler) CreateProject(ctx context.Context, req *connect.Request[v1.CreateProjectRequest]) (*connect.Response[v1.CreateProjectResponse], error) {
-	project, err := h.uc.CreateProject(ctx, req.Msg.Name, req.Msg.Description, req.Msg.OwnerUserId)
+func (h *ProjectHandler) CreateProject(ctx context.Context, req *v1.CreateProjectRequest) (*v1.CreateProjectResponse, error) {
+	project, err := h.uc.CreateProject(ctx, req.Name, req.Description, req.OwnerUserId)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
-	return connect.NewResponse(&v1.CreateProjectResponse{Project: toProtoProject(project)}), nil
+	return &v1.CreateProjectResponse{Project: toProtoProject(project)}, nil
 }
 
-func (h *ProjectHandler) GetProject(ctx context.Context, req *connect.Request[v1.GetProjectRequest]) (*connect.Response[v1.GetProjectResponse], error) {
-	project, err := h.uc.GetProject(ctx, req.Msg.ProjectId)
+func (h *ProjectHandler) GetProject(ctx context.Context, req *v1.GetProjectRequest) (*v1.GetProjectResponse, error) {
+	project, err := h.uc.GetProject(ctx, req.ProjectId)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if project == nil {
 		return nil, connect.NewError(connect.CodeNotFound, nil)
 	}
-	return connect.NewResponse(&v1.GetProjectResponse{Project: toProtoProject(project)}), nil
+	return &v1.GetProjectResponse{Project: toProtoProject(project)}, nil
 }
 
-func (h *ProjectHandler) ListProjects(ctx context.Context, req *connect.Request[v1.ListProjectsRequest]) (*connect.Response[v1.ListProjectsResponse], error) {
+func (h *ProjectHandler) ListProjects(ctx context.Context, req *v1.ListProjectsRequest) (*v1.ListProjectsResponse, error) {
 	projects, err := h.uc.ListProjects(ctx)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
@@ -48,22 +48,22 @@ func (h *ProjectHandler) ListProjects(ctx context.Context, req *connect.Request[
 	for _, p := range projects {
 		protoProjects = append(protoProjects, toProtoProject(p))
 	}
-	return connect.NewResponse(&v1.ListProjectsResponse{Projects: protoProjects}), nil
+	return &v1.ListProjectsResponse{Projects: protoProjects}, nil
 }
 
-func (h *ProjectHandler) UpdateProject(ctx context.Context, req *connect.Request[v1.UpdateProjectRequest]) (*connect.Response[v1.UpdateProjectResponse], error) {
-	project, err := h.uc.UpdateProject(ctx, req.Msg.ProjectId, req.Msg.Name, req.Msg.Description, req.Msg.OwnerUserId)
+func (h *ProjectHandler) UpdateProject(ctx context.Context, req *v1.UpdateProjectRequest) (*v1.UpdateProjectResponse, error) {
+	project, err := h.uc.UpdateProject(ctx, req.ProjectId, req.Name, req.Description, req.OwnerUserId)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
-	return connect.NewResponse(&v1.UpdateProjectResponse{Project: toProtoProject(project)}), nil
+	return &v1.UpdateProjectResponse{Project: toProtoProject(project)}, nil
 }
 
-func (h *ProjectHandler) DeleteProject(ctx context.Context, req *connect.Request[v1.DeleteProjectRequest]) (*connect.Response[v1.DeleteProjectResponse], error) {
-	if err := h.uc.DeleteProject(ctx, req.Msg.ProjectId); err != nil {
+func (h *ProjectHandler) DeleteProject(ctx context.Context, req *v1.DeleteProjectRequest) (*v1.DeleteProjectResponse, error) {
+	if err := h.uc.DeleteProject(ctx, req.ProjectId); err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
-	return connect.NewResponse(&v1.DeleteProjectResponse{}), nil
+	return &v1.DeleteProjectResponse{}, nil
 }
 
 func toProtoProject(p *domain.Project) *v1.Project {

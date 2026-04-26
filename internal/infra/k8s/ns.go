@@ -28,7 +28,7 @@ type projectRepository struct {
 
 var _ domain.ProjectRepository = (*projectRepository)(nil)
 
-func NewProjectRepository(c client.Client) *projectRepository {
+func NewProjectRepository(c client.Client) domain.ProjectRepository {
 	return &projectRepository{Client: c}
 }
 

@@ -26,7 +26,7 @@ type deploymentPipelineRepository struct {
 
 var _ domain.DeploymentPipelineRepository = (*deploymentPipelineRepository)(nil)
 
-func NewDeploymentPipelineRepository(c client.Client) *deploymentPipelineRepository {
+func NewDeploymentPipelineRepository(c client.Client) domain.DeploymentPipelineRepository {
 	return &deploymentPipelineRepository{client: c}
 }
 

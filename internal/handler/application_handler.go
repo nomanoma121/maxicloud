@@ -20,28 +20,28 @@ func NewApplicationHandler(uc usecase.ApplicationService) *ApplicationHandler {
 	return &ApplicationHandler{uc: uc}
 }
 
-func (h *ApplicationHandler) CreateApplication(ctx context.Context, req *connect.Request[v1.CreateApplicationRequest]) (*connect.Response[v1.CreateApplicationResponse], error) {
-	spec := protoToApplicationSpec(req.Msg.Spec)
+func (h *ApplicationHandler) CreateApplication(ctx context.Context, req *v1.CreateApplicationRequest) (*v1.CreateApplicationResponse, error) {
+	spec := protoToApplicationSpec(req.Spec)
 	app, err := h.uc.CreateApplication(ctx, spec, "")
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
-	return connect.NewResponse(&v1.CreateApplicationResponse{Application: toProtoApplication(app)}), nil
+	return &v1.CreateApplicationResponse{Application: toProtoApplication(app)}, nil
 }
 
-func (h *ApplicationHandler) GetApplication(ctx context.Context, req *connect.Request[v1.GetApplicationRequest]) (*connect.Response[v1.GetApplicationResponse], error) {
-	app, err := h.uc.GetApplication(ctx, req.Msg.ApplicationId)
+func (h *ApplicationHandler) GetApplication(ctx context.Context, req *v1.GetApplicationRequest) (*v1.GetApplicationResponse, error) {
+	app, err := h.uc.GetApplication(ctx, req.ApplicationId)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 	if app == nil {
 		return nil, connect.NewError(connect.CodeNotFound, nil)
 	}
-	return connect.NewResponse(&v1.GetApplicationResponse{Application: toProtoApplication(app)}), nil
+	return &v1.GetApplicationResponse{Application: toProtoApplication(app)}, nil
 }
 
-func (h *ApplicationHandler) ListApplications(ctx context.Context, req *connect.Request[v1.ListApplicationsRequest]) (*connect.Response[v1.ListApplicationsResponse], error) {
-	apps, err := h.uc.ListApplications(ctx, req.Msg.ProjectId)
+func (h *ApplicationHandler) ListApplications(ctx context.Context, req *v1.ListApplicationsRequest) (*v1.ListApplicationsResponse, error) {
+	apps, err := h.uc.ListApplications(ctx, req.ProjectId)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
@@ -49,23 +49,23 @@ func (h *ApplicationHandler) ListApplications(ctx context.Context, req *connect.
 	for i := range apps {
 		protoApps = append(protoApps, toProtoApplication(&apps[i]))
 	}
-	return connect.NewResponse(&v1.ListApplicationsResponse{Applications: protoApps}), nil
+	return &v1.ListApplicationsResponse{Applications: protoApps}, nil
 }
 
-func (h *ApplicationHandler) UpdateApplication(ctx context.Context, req *connect.Request[v1.UpdateApplicationRequest]) (*connect.Response[v1.UpdateApplicationResponse], error) {
-	spec := protoToApplicationSpec(req.Msg.Spec)
-	app, err := h.uc.UpdateApplication(ctx, req.Msg.ApplicationId, spec)
+func (h *ApplicationHandler) UpdateApplication(ctx context.Context, req *v1.UpdateApplicationRequest) (*v1.UpdateApplicationResponse, error) {
+	spec := protoToApplicationSpec(req.Spec)
+	app, err := h.uc.UpdateApplication(ctx, req.ApplicationId, spec)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
-	return connect.NewResponse(&v1.UpdateApplicationResponse{Application: toProtoApplication(app)}), nil
+	return &v1.UpdateApplicationResponse{Application: toProtoApplication(app)}, nil
 }
 
-func (h *ApplicationHandler) DeleteApplication(ctx context.Context, req *connect.Request[v1.DeleteApplicationRequest]) (*connect.Response[v1.DeleteApplicationResponse], error) {
-	if err := h.uc.DeleteApplication(ctx, req.Msg.ApplicationId); err != nil {
+func (h *ApplicationHandler) DeleteApplication(ctx context.Context, req *v1.DeleteApplicationRequest) (*v1.DeleteApplicationResponse, error) {
+	if err := h.uc.DeleteApplication(ctx, req.ApplicationId); err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
-	return connect.NewResponse(&v1.DeleteApplicationResponse{}), nil
+	return &v1.DeleteApplicationResponse{}, nil
 }
 
 func toProtoApplication(a *domain.Application) *v1.Application {
@@ -80,7 +80,7 @@ func toProtoApplication(a *domain.Application) *v1.Application {
 				Name:  a.Source.Repo.Name,
 				Owner: a.Source.Repo.Owner,
 			},
-			Branch:             a.Source.Branch,
+			Branch: a.Source.Branch,
 		},
 		CreatedAt: timestamppb.New(a.CreatedAt),
 		UpdatedAt: timestamppb.New(a.UpdatedAt),

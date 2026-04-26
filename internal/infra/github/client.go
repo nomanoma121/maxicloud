@@ -20,7 +20,7 @@ type client struct {
 
 var _ domain.DeploymentReporter = (*client)(nil)
 
-func NewGitHubClient(appID int64, privateKey []byte) *client {
+func NewClient(appID int64, privateKey []byte) *client {
 	return &client{
 		appID:      appID,
 		privateKey: privateKey,

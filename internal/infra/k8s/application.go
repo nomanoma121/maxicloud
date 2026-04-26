@@ -15,7 +15,7 @@ type applicationRepository struct {
 
 var _ domain.ApplicationRepository = (*applicationRepository)(nil)
 
-func NewApplicationRepository(c client.Client) *applicationRepository {
+func NewApplicationRepository(c client.Client) domain.ApplicationRepository {
 	return &applicationRepository{Client: c}
 }
 

@@ -14,18 +14,18 @@ const (
 	MaxProductionPipelineHistory = 3
 )
 
-type DeploymentService struct {
+type deploymentService struct {
 	deployRepo   domain.DeploymentRepository
 	pipelineRepo domain.DeploymentPipelineRepository
 	appRepo      domain.ApplicationRepository
 }
 
-type DeploymentServiceInterface interface {
+type DeploymentService interface {
 	CreateDeployment(ctx context.Context, params CreateDeploymentParams) (string, error)
 }
 
-func NewDeploymentService(deployRepo domain.DeploymentRepository, pipelineRepo domain.DeploymentPipelineRepository, appRepo domain.ApplicationRepository) *DeploymentService {
-	return &DeploymentService{
+func NewDeploymentService(deployRepo domain.DeploymentRepository, pipelineRepo domain.DeploymentPipelineRepository, appRepo domain.ApplicationRepository) *deploymentService {
+	return &deploymentService{
 		deployRepo:   deployRepo,
 		pipelineRepo: pipelineRepo,
 		appRepo:      appRepo,
@@ -40,7 +40,7 @@ type CreateDeploymentParams struct {
 	PRNumber      *int
 }
 
-func (s *DeploymentService) CreateDeployment(ctx context.Context, params CreateDeploymentParams) (string, error) {
+func (s *deploymentService) CreateDeployment(ctx context.Context, params CreateDeploymentParams) (string, error) {
 	deployID, err := s.deployRepo.CreateDeployment(ctx, domain.Deployment{
 		ID:            uuid.New().String(),
 		ApplicationID: params.ApplicationID,

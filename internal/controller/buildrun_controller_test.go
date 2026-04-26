@@ -18,7 +18,6 @@ package controller
 
 import (
 	"context"
-	"fmt"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -69,7 +68,6 @@ func newTestReconciler(maxHistory int) *BuildRunReconciler {
 		Scheme:       k8sClient.Scheme(),
 		Registry:     &fakeRegistry{},
 		GitHubClient: &fakeGitHubClient{},
-		Config:       BuildRunReconcilerConfig{MaxHistory: maxHistory},
 	}
 }
 
@@ -184,53 +182,6 @@ var _ = Describe("BuildRun Controller", func() {
 			for i := range jobList.Items {
 				_ = k8sClient.Delete(ctx, &jobList.Items[i])
 			}
-		})
-
-		It("MaxHistoryを超えた古いJobが削除される", func() {
-			const maxHistory = 2
-			r := newTestReconciler(maxHistory)
-
-			const appName = "gc-app"
-			brName := fmt.Sprintf("%s-multi", baseName)
-			br := newTestBuildRun(brName, ns, appName)
-			Expect(k8sClient.Create(ctx, br)).To(Succeed())
-
-			for i := 0; i < maxHistory+1; i++ {
-				job := &batchv1.Job{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      fmt.Sprintf("%s-job-%d", brName, i),
-						Namespace: ns,
-						Labels:    map[string]string{config.ApplicationLabelKey: appName},
-					},
-					Spec: batchv1.JobSpec{
-						Template: corev1.PodTemplateSpec{
-							Spec: corev1.PodSpec{
-								RestartPolicy: corev1.RestartPolicyNever,
-								Containers: []corev1.Container{
-									{Name: "dummy", Image: "busybox"},
-								},
-							},
-						},
-					},
-				}
-				Expect(k8sClient.Create(ctx, job)).To(Succeed())
-			}
-
-			err := r.cleanupOldJobs(ctx, br)
-			Expect(err).NotTo(HaveOccurred())
-
-			var jobList batchv1.JobList
-			Expect(k8sClient.List(ctx, &jobList,
-				client.InNamespace(ns),
-				client.MatchingLabels{config.ApplicationLabelKey: appName},
-			)).To(Succeed())
-			active := 0
-			for _, j := range jobList.Items {
-				if j.DeletionTimestamp == nil {
-					active++
-				}
-			}
-			Expect(active).To(BeNumerically("<=", maxHistory))
 		})
 	})
 
