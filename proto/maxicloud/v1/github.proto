@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package maxicloud.v1;
+
+message GetGitHubAppInstallURLRequest {}
+
+message GetGitHubAppInstallURLResponse {
+  string redirect_url = 1;
+}
+
+service GitHubService {
+    rpc GetGitHubAppInstallURL(GetGitHubAppInstallURLRequest) returns (GetGitHubAppInstallURLResponse);
+}

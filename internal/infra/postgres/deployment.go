@@ -9,6 +9,7 @@ import (
 	"github.com/saitamau-maximum/maxicloud/internal/domain"
 )
 
+// TODO: あとでちゃんとなんかしらのDBにする
 type deploymentRepository struct {
 	mu   sync.RWMutex
 	data map[string]domain.Deployment
