@@ -2,7 +2,6 @@ package handler
 
 import (
 	"context"
-	"time"
 
 	"connectrpc.com/connect"
 	v1 "github.com/saitamau-maximum/maxicloud/gen/maxicloud/v1"
@@ -68,17 +67,12 @@ func (h *ProjectHandler) DeleteProject(ctx context.Context, req *connect.Request
 }
 
 func toProtoProject(p *domain.Project) *v1.Project {
-	proj := &v1.Project{
+	return &v1.Project{
 		Id:          p.ID,
 		Name:        p.Name,
 		Description: p.Description,
 		OwnerUserId: p.OwnerUserID,
+		CreatedAt:   timestamppb.New(p.CreatedAt),
+		UpdatedAt:   timestamppb.New(p.UpdatedAt),
 	}
-	if t, err := time.Parse(time.RFC3339, p.CreatedAt); err == nil {
-		proj.CreatedAt = timestamppb.New(t)
-	}
-	if t, err := time.Parse(time.RFC3339, p.UpdatedAt); err == nil {
-		proj.UpdatedAt = timestamppb.New(t)
-	}
-	return proj
 }

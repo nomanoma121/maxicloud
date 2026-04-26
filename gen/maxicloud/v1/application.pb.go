@@ -338,12 +338,11 @@ func (x *Application) GetUpdatedAt() *timestamppb.Timestamp {
 }
 
 type ApplicationSource struct {
-	state              protoimpl.MessageState `protogen:"open.v1"`
-	RepositoryId       string                 `protobuf:"bytes,1,opt,name=repository_id,json=repositoryId,proto3" json:"repository_id,omitempty"`
-	RepositoryFullName string                 `protobuf:"bytes,2,opt,name=repository_full_name,json=repositoryFullName,proto3" json:"repository_full_name,omitempty"`
-	Branch             string                 `protobuf:"bytes,3,opt,name=branch,proto3" json:"branch,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Repository    *Repository            `protobuf:"bytes,1,opt,name=repository,proto3" json:"repository,omitempty"`
+	Branch        string                 `protobuf:"bytes,3,opt,name=branch,proto3" json:"branch,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ApplicationSource) Reset() {
@@ -376,18 +375,11 @@ func (*ApplicationSource) Descriptor() ([]byte, []int) {
 	return file_maxicloud_v1_application_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ApplicationSource) GetRepositoryId() string {
+func (x *ApplicationSource) GetRepository() *Repository {
 	if x != nil {
-		return x.RepositoryId
+		return x.Repository
 	}
-	return ""
-}
-
-func (x *ApplicationSource) GetRepositoryFullName() string {
-	if x != nil {
-		return x.RepositoryFullName
-	}
-	return ""
+	return nil
 }
 
 func (x *ApplicationSource) GetBranch() string {
@@ -1337,7 +1329,7 @@ var File_maxicloud_v1_application_proto protoreflect.FileDescriptor
 
 const file_maxicloud_v1_application_proto_rawDesc = "" +
 	"\n" +
-	"\x1emaxicloud/v1/application.proto\x12\fmaxicloud.v1\x1a\x19maxicloud/v1/common.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x86\x03\n" +
+	"\x1emaxicloud/v1/application.proto\x12\fmaxicloud.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x19maxicloud/v1/common.proto\"\x86\x03\n" +
 	"\vApplication\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
 	"\n" +
@@ -1352,10 +1344,11 @@ const file_maxicloud_v1_application_proto_rawDesc = "" +
 	"created_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
 	"updated_at\x18\n" +
-	" \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\x82\x01\n" +
-	"\x11ApplicationSource\x12#\n" +
-	"\rrepository_id\x18\x01 \x01(\tR\frepositoryId\x120\n" +
-	"\x14repository_full_name\x18\x02 \x01(\tR\x12repositoryFullName\x12\x16\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"e\n" +
+	"\x11ApplicationSource\x128\n" +
+	"\n" +
+	"repository\x18\x01 \x01(\v2\x18.maxicloud.v1.RepositoryR\n" +
+	"repository\x12\x16\n" +
 	"\x06branch\x18\x03 \x01(\tR\x06branch\"\xa5\x01\n" +
 	"\x15DockerfileBuildConfig\x126\n" +
 	"\x06source\x18\x01 \x01(\x0e2\x1e.maxicloud.v1.DockerfileSourceR\x06source\x12'\n" +
@@ -1484,47 +1477,49 @@ var file_maxicloud_v1_application_proto_goTypes = []any{
 	(*ListGitRepositoriesRequest)(nil),  // 22: maxicloud.v1.ListGitRepositoriesRequest
 	(*ListGitRepositoriesResponse)(nil), // 23: maxicloud.v1.ListGitRepositoriesResponse
 	(*timestamppb.Timestamp)(nil),       // 24: google.protobuf.Timestamp
-	(*KeyValue)(nil),                    // 25: maxicloud.v1.KeyValue
+	(*Repository)(nil),                  // 25: maxicloud.v1.Repository
+	(*KeyValue)(nil),                    // 26: maxicloud.v1.KeyValue
 }
 var file_maxicloud_v1_application_proto_depIdxs = []int32{
 	5,  // 0: maxicloud.v1.Application.source:type_name -> maxicloud.v1.ApplicationSource
 	0,  // 1: maxicloud.v1.Application.status:type_name -> maxicloud.v1.ApplicationStatus
 	24, // 2: maxicloud.v1.Application.created_at:type_name -> google.protobuf.Timestamp
 	24, // 3: maxicloud.v1.Application.updated_at:type_name -> google.protobuf.Timestamp
-	3,  // 4: maxicloud.v1.DockerfileBuildConfig.source:type_name -> maxicloud.v1.DockerfileSource
-	2,  // 5: maxicloud.v1.BuildConfig.strategy:type_name -> maxicloud.v1.BuildStrategy
-	6,  // 6: maxicloud.v1.BuildConfig.dockerfile:type_name -> maxicloud.v1.DockerfileBuildConfig
-	1,  // 7: maxicloud.v1.AccessConfig.mode:type_name -> maxicloud.v1.AccessMode
-	5,  // 8: maxicloud.v1.ApplicationSpec.source:type_name -> maxicloud.v1.ApplicationSource
-	7,  // 9: maxicloud.v1.ApplicationSpec.build:type_name -> maxicloud.v1.BuildConfig
-	8,  // 10: maxicloud.v1.ApplicationSpec.access:type_name -> maxicloud.v1.AccessConfig
-	9,  // 11: maxicloud.v1.ApplicationSpec.domain:type_name -> maxicloud.v1.Domain
-	25, // 12: maxicloud.v1.ApplicationSpec.environment_variables:type_name -> maxicloud.v1.KeyValue
-	25, // 13: maxicloud.v1.ApplicationSpec.secrets:type_name -> maxicloud.v1.KeyValue
-	10, // 14: maxicloud.v1.CreateApplicationRequest.spec:type_name -> maxicloud.v1.ApplicationSpec
-	4,  // 15: maxicloud.v1.CreateApplicationResponse.application:type_name -> maxicloud.v1.Application
-	4,  // 16: maxicloud.v1.GetApplicationResponse.application:type_name -> maxicloud.v1.Application
-	4,  // 17: maxicloud.v1.ListApplicationsResponse.applications:type_name -> maxicloud.v1.Application
-	10, // 18: maxicloud.v1.UpdateApplicationRequest.spec:type_name -> maxicloud.v1.ApplicationSpec
-	4,  // 19: maxicloud.v1.UpdateApplicationResponse.application:type_name -> maxicloud.v1.Application
-	21, // 20: maxicloud.v1.ListGitRepositoriesResponse.repositories:type_name -> maxicloud.v1.GitRepository
-	11, // 21: maxicloud.v1.ApplicationService.CreateApplication:input_type -> maxicloud.v1.CreateApplicationRequest
-	13, // 22: maxicloud.v1.ApplicationService.GetApplication:input_type -> maxicloud.v1.GetApplicationRequest
-	15, // 23: maxicloud.v1.ApplicationService.ListApplications:input_type -> maxicloud.v1.ListApplicationsRequest
-	17, // 24: maxicloud.v1.ApplicationService.UpdateApplication:input_type -> maxicloud.v1.UpdateApplicationRequest
-	19, // 25: maxicloud.v1.ApplicationService.DeleteApplication:input_type -> maxicloud.v1.DeleteApplicationRequest
-	22, // 26: maxicloud.v1.ApplicationService.ListGitRepositories:input_type -> maxicloud.v1.ListGitRepositoriesRequest
-	12, // 27: maxicloud.v1.ApplicationService.CreateApplication:output_type -> maxicloud.v1.CreateApplicationResponse
-	14, // 28: maxicloud.v1.ApplicationService.GetApplication:output_type -> maxicloud.v1.GetApplicationResponse
-	16, // 29: maxicloud.v1.ApplicationService.ListApplications:output_type -> maxicloud.v1.ListApplicationsResponse
-	18, // 30: maxicloud.v1.ApplicationService.UpdateApplication:output_type -> maxicloud.v1.UpdateApplicationResponse
-	20, // 31: maxicloud.v1.ApplicationService.DeleteApplication:output_type -> maxicloud.v1.DeleteApplicationResponse
-	23, // 32: maxicloud.v1.ApplicationService.ListGitRepositories:output_type -> maxicloud.v1.ListGitRepositoriesResponse
-	27, // [27:33] is the sub-list for method output_type
-	21, // [21:27] is the sub-list for method input_type
-	21, // [21:21] is the sub-list for extension type_name
-	21, // [21:21] is the sub-list for extension extendee
-	0,  // [0:21] is the sub-list for field type_name
+	25, // 4: maxicloud.v1.ApplicationSource.repository:type_name -> maxicloud.v1.Repository
+	3,  // 5: maxicloud.v1.DockerfileBuildConfig.source:type_name -> maxicloud.v1.DockerfileSource
+	2,  // 6: maxicloud.v1.BuildConfig.strategy:type_name -> maxicloud.v1.BuildStrategy
+	6,  // 7: maxicloud.v1.BuildConfig.dockerfile:type_name -> maxicloud.v1.DockerfileBuildConfig
+	1,  // 8: maxicloud.v1.AccessConfig.mode:type_name -> maxicloud.v1.AccessMode
+	5,  // 9: maxicloud.v1.ApplicationSpec.source:type_name -> maxicloud.v1.ApplicationSource
+	7,  // 10: maxicloud.v1.ApplicationSpec.build:type_name -> maxicloud.v1.BuildConfig
+	8,  // 11: maxicloud.v1.ApplicationSpec.access:type_name -> maxicloud.v1.AccessConfig
+	9,  // 12: maxicloud.v1.ApplicationSpec.domain:type_name -> maxicloud.v1.Domain
+	26, // 13: maxicloud.v1.ApplicationSpec.environment_variables:type_name -> maxicloud.v1.KeyValue
+	26, // 14: maxicloud.v1.ApplicationSpec.secrets:type_name -> maxicloud.v1.KeyValue
+	10, // 15: maxicloud.v1.CreateApplicationRequest.spec:type_name -> maxicloud.v1.ApplicationSpec
+	4,  // 16: maxicloud.v1.CreateApplicationResponse.application:type_name -> maxicloud.v1.Application
+	4,  // 17: maxicloud.v1.GetApplicationResponse.application:type_name -> maxicloud.v1.Application
+	4,  // 18: maxicloud.v1.ListApplicationsResponse.applications:type_name -> maxicloud.v1.Application
+	10, // 19: maxicloud.v1.UpdateApplicationRequest.spec:type_name -> maxicloud.v1.ApplicationSpec
+	4,  // 20: maxicloud.v1.UpdateApplicationResponse.application:type_name -> maxicloud.v1.Application
+	21, // 21: maxicloud.v1.ListGitRepositoriesResponse.repositories:type_name -> maxicloud.v1.GitRepository
+	11, // 22: maxicloud.v1.ApplicationService.CreateApplication:input_type -> maxicloud.v1.CreateApplicationRequest
+	13, // 23: maxicloud.v1.ApplicationService.GetApplication:input_type -> maxicloud.v1.GetApplicationRequest
+	15, // 24: maxicloud.v1.ApplicationService.ListApplications:input_type -> maxicloud.v1.ListApplicationsRequest
+	17, // 25: maxicloud.v1.ApplicationService.UpdateApplication:input_type -> maxicloud.v1.UpdateApplicationRequest
+	19, // 26: maxicloud.v1.ApplicationService.DeleteApplication:input_type -> maxicloud.v1.DeleteApplicationRequest
+	22, // 27: maxicloud.v1.ApplicationService.ListGitRepositories:input_type -> maxicloud.v1.ListGitRepositoriesRequest
+	12, // 28: maxicloud.v1.ApplicationService.CreateApplication:output_type -> maxicloud.v1.CreateApplicationResponse
+	14, // 29: maxicloud.v1.ApplicationService.GetApplication:output_type -> maxicloud.v1.GetApplicationResponse
+	16, // 30: maxicloud.v1.ApplicationService.ListApplications:output_type -> maxicloud.v1.ListApplicationsResponse
+	18, // 31: maxicloud.v1.ApplicationService.UpdateApplication:output_type -> maxicloud.v1.UpdateApplicationResponse
+	20, // 32: maxicloud.v1.ApplicationService.DeleteApplication:output_type -> maxicloud.v1.DeleteApplicationResponse
+	23, // 33: maxicloud.v1.ApplicationService.ListGitRepositories:output_type -> maxicloud.v1.ListGitRepositoriesResponse
+	28, // [28:34] is the sub-list for method output_type
+	22, // [22:28] is the sub-list for method input_type
+	22, // [22:22] is the sub-list for extension type_name
+	22, // [22:22] is the sub-list for extension extendee
+	0,  // [0:22] is the sub-list for field type_name
 }
 
 func init() { file_maxicloud_v1_application_proto_init() }

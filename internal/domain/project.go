@@ -1,14 +1,17 @@
 package domain
 
-import "context"
+import (
+	"context"
+	"time"
+)
 
 type Project struct {
 	ID          string
 	Name        string
 	Description string
 	OwnerUserID string
-	CreatedAt   string
-	UpdatedAt   string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
 type ProjectRepository interface {

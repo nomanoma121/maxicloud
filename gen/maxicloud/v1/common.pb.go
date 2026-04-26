@@ -73,6 +73,58 @@ func (x *KeyValue) GetValue() string {
 	return ""
 }
 
+type Repository struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Owner         string                 `protobuf:"bytes,2,opt,name=owner,proto3" json:"owner,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Repository) Reset() {
+	*x = Repository{}
+	mi := &file_maxicloud_v1_common_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Repository) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Repository) ProtoMessage() {}
+
+func (x *Repository) ProtoReflect() protoreflect.Message {
+	mi := &file_maxicloud_v1_common_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Repository.ProtoReflect.Descriptor instead.
+func (*Repository) Descriptor() ([]byte, []int) {
+	return file_maxicloud_v1_common_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *Repository) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *Repository) GetOwner() string {
+	if x != nil {
+		return x.Owner
+	}
+	return ""
+}
+
 var File_maxicloud_v1_common_proto protoreflect.FileDescriptor
 
 const file_maxicloud_v1_common_proto_rawDesc = "" +
@@ -80,7 +132,11 @@ const file_maxicloud_v1_common_proto_rawDesc = "" +
 	"\x19maxicloud/v1/common.proto\x12\fmaxicloud.v1\"2\n" +
 	"\bKeyValue\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05valueB\xb4\x01\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value\"6\n" +
+	"\n" +
+	"Repository\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
+	"\x05owner\x18\x02 \x01(\tR\x05ownerB\xb4\x01\n" +
 	"\x10com.maxicloud.v1B\vCommonProtoP\x01ZBgithub.com/saitamau-maximum/maxicloud/gen/maxicloud/v1;maxicloudv1\xa2\x02\x03MXX\xaa\x02\fMaxicloud.V1\xca\x02\fMaxicloud\\V1\xe2\x02\x18Maxicloud\\V1\\GPBMetadata\xea\x02\rMaxicloud::V1b\x06proto3"
 
 var (
@@ -95,9 +151,10 @@ func file_maxicloud_v1_common_proto_rawDescGZIP() []byte {
 	return file_maxicloud_v1_common_proto_rawDescData
 }
 
-var file_maxicloud_v1_common_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_maxicloud_v1_common_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_maxicloud_v1_common_proto_goTypes = []any{
-	(*KeyValue)(nil), // 0: maxicloud.v1.KeyValue
+	(*KeyValue)(nil),   // 0: maxicloud.v1.KeyValue
+	(*Repository)(nil), // 1: maxicloud.v1.Repository
 }
 var file_maxicloud_v1_common_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -118,7 +175,7 @@ func file_maxicloud_v1_common_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_maxicloud_v1_common_proto_rawDesc), len(file_maxicloud_v1_common_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   1,
+			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -27,9 +27,8 @@ type Application struct {
 }
 
 type ApplicationSource struct {
-	RepositoryID       string
-	RepositoryFullName string
-	Branch             string
+	Repo   Repository
+	Branch string
 }
 
 type AccessMode string
@@ -66,12 +65,6 @@ func (s ApplicationSpec) Validate() error {
 	}
 	if s.Name == "" {
 		return ErrInvalidApplicationName
-	}
-	if s.Source.RepositoryID == "" {
-		return ErrInvalidRepositoryID
-	}
-	if s.Source.RepositoryFullName == "" {
-		return ErrInvalidRepositoryFullName
 	}
 	if s.Source.Branch == "" {
 		return ErrInvalidBranch

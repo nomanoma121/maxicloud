@@ -30,8 +30,8 @@ func (u *projectUsecase) CreateProject(ctx context.Context, name, description, o
 		Name:        name,
 		Description: description,
 		OwnerUserID: ownerUserID,
-		CreatedAt:   time.Now().UTC().Format(time.RFC3339),
-		UpdatedAt:   time.Now().UTC().Format(time.RFC3339),
+		CreatedAt:   time.Now(),	
+		UpdatedAt:   time.Now(),
 	})
 	if err != nil {
 		return nil, err
@@ -53,7 +53,7 @@ func (u *projectUsecase) UpdateProject(ctx context.Context, id, name, descriptio
 		Name:        name,
 		Description: description,
 		OwnerUserID: ownerUserID,
-		UpdatedAt:   time.Now().UTC().Format(time.RFC3339),
+		UpdatedAt:   time.Now(),
 	}); err != nil {
 		return nil, err
 	}

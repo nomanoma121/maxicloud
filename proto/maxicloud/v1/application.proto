@@ -2,8 +2,8 @@ syntax = "proto3";
 
 package maxicloud.v1;
 
-import "maxicloud/v1/common.proto";
 import "google/protobuf/timestamp.proto";
+import "maxicloud/v1/common.proto";
 
 enum ApplicationStatus {
   APPLICATION_STATUS_UNSPECIFIED = 0;
@@ -44,8 +44,7 @@ message Application {
 }
 
 message ApplicationSource {
-  string repository_id = 1;
-  string repository_full_name = 2;
+  Repository repository = 1;
   string branch = 3;
 }
 

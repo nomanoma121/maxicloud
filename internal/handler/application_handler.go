@@ -76,8 +76,10 @@ func toProtoApplication(a *domain.Application) *v1.Application {
 		OwnerUserId: a.OwnerID,
 		Url:         a.URL,
 		Source: &v1.ApplicationSource{
-			RepositoryId:       a.Source.RepositoryID,
-			RepositoryFullName: a.Source.RepositoryFullName,
+			Repository: &v1.Repository{
+				Name:  a.Source.Repo.Name,
+				Owner: a.Source.Repo.Owner,
+			},
 			Branch:             a.Source.Branch,
 		},
 		CreatedAt: timestamppb.New(a.CreatedAt),
@@ -95,9 +97,11 @@ func protoToApplicationSpec(s *v1.ApplicationSpec) domain.ApplicationSpec {
 	}
 	if s.Source != nil {
 		spec.Source = domain.ApplicationSource{
-			RepositoryID:       s.Source.RepositoryId,
-			RepositoryFullName: s.Source.RepositoryFullName,
-			Branch:             s.Source.Branch,
+			Repo: domain.Repository{
+				Owner: s.Source.Repository.Owner,
+				Name:  s.Source.Repository.Name,
+			},
+			Branch: s.Source.Branch,
 		}
 	}
 	for _, kv := range s.EnvironmentVariables {

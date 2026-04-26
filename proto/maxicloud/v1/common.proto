@@ -6,3 +6,8 @@ message KeyValue {
   string key = 1;
   string value = 2;
 }
+
+message Repository {
+  string name = 1;
+  string owner = 2;
+}

@@ -3,6 +3,7 @@ package k8s
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/saitamau-maximum/maxicloud/internal/domain"
 	corev1 "k8s.io/api/core/v1"
@@ -42,8 +43,8 @@ func (r *projectRepository) CreateProject(ctx context.Context, project domain.Pr
 			},
 			Annotations: map[string]string{
 				ProjectDescriptionAnnotationKey: project.Description,
-				CreatedAtAnnotationKey:          project.CreatedAt,
-				UpdatedAtAnnotationKey:          project.UpdatedAt,
+				CreatedAtAnnotationKey:          project.CreatedAt.Format(time.RFC3339),
+				UpdatedAtAnnotationKey:          project.UpdatedAt.Format(time.RFC3339),
 			},
 		},
 	}
@@ -58,7 +59,7 @@ func (r *projectRepository) GetProject(ctx context.Context, id string) (*domain.
 	if err := r.Get(ctx, client.ObjectKey{Name: id}, &ns); err != nil {
 		return nil, client.IgnoreNotFound(err)
 	}
-	return nsToProject(&ns), nil
+	return nsToProject(&ns)
 }
 
 func (r *projectRepository) ListProjects(ctx context.Context) ([]*domain.Project, error) {
@@ -68,7 +69,11 @@ func (r *projectRepository) ListProjects(ctx context.Context) ([]*domain.Project
 	}
 	projects := make([]*domain.Project, 0, len(nsList.Items))
 	for i := range nsList.Items {
-		projects = append(projects, nsToProject(&nsList.Items[i]))
+		project, err := nsToProject(&nsList.Items[i])
+		if err != nil {
+			return nil, fmt.Errorf("convert namespace to project: %w", err)
+		}
+		projects = append(projects, project)
 	}
 	return projects, nil
 }
@@ -84,7 +89,7 @@ func (r *projectRepository) UpdateProject(ctx context.Context, project domain.Pr
 		ns.Annotations = make(map[string]string)
 	}
 	ns.Annotations[ProjectDescriptionAnnotationKey] = project.Description
-	ns.Annotations[UpdatedAtAnnotationKey] = project.UpdatedAt
+	ns.Annotations[UpdatedAtAnnotationKey] = project.UpdatedAt.Format(time.RFC3339)
 	return r.Update(ctx, &ns)
 }
 
@@ -93,13 +98,21 @@ func (r *projectRepository) DeleteProject(ctx context.Context, id string) error 
 	return client.IgnoreNotFound(r.Delete(ctx, ns))
 }
 
-func nsToProject(ns *corev1.Namespace) *domain.Project {
+func nsToProject(ns *corev1.Namespace) (*domain.Project, error) {
+	createdAt, err := time.Parse(time.RFC3339, ns.Annotations[CreatedAtAnnotationKey])
+	if err != nil {
+		return nil, fmt.Errorf("parse createdAt: %w", err)
+	}
+	updatedAt, err := time.Parse(time.RFC3339, ns.Annotations[UpdatedAtAnnotationKey])
+	if err != nil {
+		return nil, fmt.Errorf("parse updatedAt: %w", err)
+	}
 	return &domain.Project{
 		ID:          ns.Name,
 		Name:        ns.Labels[ProjectNameLabelKey],
 		OwnerUserID: ns.Labels[OwnerUserIDLabelKey],
 		Description: ns.Annotations[ProjectDescriptionAnnotationKey],
-		CreatedAt:   ns.Annotations[CreatedAtAnnotationKey],
-		UpdatedAt:   ns.Annotations[UpdatedAtAnnotationKey],
-	}
+		CreatedAt:   createdAt,
+		UpdatedAt:   updatedAt,
+	}, nil
 }
