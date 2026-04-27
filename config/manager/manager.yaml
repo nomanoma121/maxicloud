@@ -60,11 +60,18 @@ spec:
       containers:
       - command:
         - /manager
-        args:
-          - --leader-elect
-          - --health-probe-bind-address=:8081
+        - controller
         image: controller:latest
         name: manager
+        envFrom:
+          - configMapRef:
+              name: maxicloud-base-config
+          - secretRef:
+              name: maxicloud-base-secret
+          - configMapRef:
+              name: maxicloud-manager-config
+          - secretRef:
+              name: maxicloud-manager-secret
         ports: []
         securityContext:
           readOnlyRootFilesystem: true

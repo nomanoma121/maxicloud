@@ -1,2 +1,5 @@
 resources:
-- manager.yaml
+  - ../config/base
+  - manager.yaml
+  - configmap.yaml
+  - secret.yaml
