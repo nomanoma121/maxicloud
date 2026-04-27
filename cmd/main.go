@@ -41,7 +41,7 @@ func init() {
 func main() {
 	root := &cobra.Command{
 		Use:   "maxicloud",
-		Short: "MaxiCloud operator and gateway",
+		Short: "MaxiCloud controller and gateway",
 	}
 	root.AddCommand(controllerCmd)
 	root.AddCommand(gatewayCmd)

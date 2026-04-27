@@ -10,13 +10,18 @@ import (
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 
 	"github.com/saitamau-maximum/maxicloud/internal/controller"
-	infragithub "github.com/saitamau-maximum/maxicloud/internal/infra/github"
+	"github.com/saitamau-maximum/maxicloud/internal/infra/github"
+	"github.com/saitamau-maximum/maxicloud/internal/infra/registry"
 )
 
 var (
 	probeAddr            string
 	githubAppID          int64
 	githubPrivateKeyPath string
+	ghcrHost             string
+	ghcrToken            string
+	ingressClass         string
+	baseDomain           string
 )
 
 var controllerCmd = &cobra.Command{
@@ -29,6 +34,10 @@ func init() {
 	controllerCmd.Flags().StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
 	controllerCmd.Flags().Int64Var(&githubAppID, "github-app-id", 0, "GitHub App ID")
 	controllerCmd.Flags().StringVar(&githubPrivateKeyPath, "github-private-key-path", "", "Path to the GitHub App private key PEM file")
+	controllerCmd.Flags().StringVar(&ghcrHost, "ghcr-host", "", "GHCR host")
+	controllerCmd.Flags().StringVar(&ghcrToken, "ghcr-token", "", "GitHub token for GHCR authentication")
+	controllerCmd.Flags().StringVar(&ingressClass, "ingress-class", "", "Ingress class")
+	controllerCmd.Flags().StringVar(&baseDomain, "base-domain", "", "Base domain for Ingress resources")
 }
 
 func runController(cmd *cobra.Command, args []string) error {
@@ -39,7 +48,7 @@ func runController(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	ghClient := infragithub.NewClient(githubAppID, privateKey)
+	ghClient := github.NewClient(githubAppID, privateKey)
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                 scheme,
@@ -51,14 +60,21 @@ func runController(cmd *cobra.Command, args []string) error {
 	}
 
 	if err := (&controller.ApplicationReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
+		Client:   mgr.GetClient(),
+		Scheme:   mgr.GetScheme(),
+		Registry: registry.NewGHCR(ghcrHost, ghcrToken),
+		Config: controller.ReconcilerConfig{
+			IngressClass: ingressClass,
+			BaseDomain:   baseDomain,
+		},
 	}).SetupWithManager(mgr); err != nil {
 		return err
 	}
 	if err := (&controller.BuildRunReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
+		Client:       mgr.GetClient(),
+		Scheme:       mgr.GetScheme(),
+		Registry:     registry.NewGHCR(ghcrHost, ghcrToken),
+		GitHubClient: ghClient,
 	}).SetupWithManager(mgr); err != nil {
 		return err
 	}

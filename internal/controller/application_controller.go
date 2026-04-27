@@ -28,6 +28,7 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 
 	maxicloudv1alpha1 "github.com/saitamau-maximum/maxicloud/api/v1alpha1"
+	"github.com/saitamau-maximum/maxicloud/internal/infra/registry"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
@@ -42,7 +43,7 @@ type ReconcilerConfig struct {
 type ApplicationReconciler struct {
 	client.Client
 	Scheme   *runtime.Scheme
-	Registry Registry
+	Registry registry.Registry
 	Config   ReconcilerConfig
 }
 
