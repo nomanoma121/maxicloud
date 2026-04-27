@@ -3,10 +3,12 @@ package config
 import "fmt"
 
 const (
+	LabelPrefix      = "maxicloud.maximum.vc/"
+	AnnotationPrefix = "maxicloud.maximum.vc/"
 	// GitHub Appの認証情報などのMaxiCloudが管理するSecret
 	SecretName = "maxicloud-secret"
 	// GitHub AppのInstallation IDを保存するためのキー
-	InstallationIDKey          = "installation-id"
+	InstallationIDKey = "installation-id"
 	// GitHub AppのInstallation Access Tokenを保存するためのキー
 	InstallationAccessTokenKey = "installation-access-token"
 	// Applicationに紐づくJobを識別するためのラベルキー

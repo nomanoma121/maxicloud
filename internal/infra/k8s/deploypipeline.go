@@ -8,16 +8,17 @@ import (
 	"time"
 
 	maxicloudv1alpha1 "github.com/saitamau-maximum/maxicloud/api/v1alpha1"
+	"github.com/saitamau-maximum/maxicloud/internal/config"
 	"github.com/saitamau-maximum/maxicloud/internal/domain"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 const (
-	labelPipelineID  = "pipeline-id"
-	labelAppID       = "app-id"
-	labelOwnerUserID = "owner-user-id"
-	labelPreview     = "preview"
+	labelPipelineID  = config.LabelPrefix + "pipeline-id"
+	labelAppID       = config.LabelPrefix + "app-id"
+	labelOwnerUserID = config.LabelPrefix + "owner-user-id"
+	labelPreview     = config.LabelPrefix + "preview"
 )
 
 type deploymentPipelineRepository struct {
@@ -32,7 +33,7 @@ func NewDeploymentPipelineRepository(c client.Client) domain.DeploymentPipelineR
 
 func (r *deploymentPipelineRepository) CreatePipeline(ctx context.Context, pipeline domain.DeploymentPipeline) (string, error) {
 	var appList maxicloudv1alpha1.ApplicationList
-	if err := r.client.List(ctx, &appList, client.MatchingLabels{"app-id": pipeline.ApplicationID}); err != nil {
+	if err := r.client.List(ctx, &appList, client.MatchingLabels{labelAppID: pipeline.ApplicationID}); err != nil {
 		return "", fmt.Errorf("list applications: %w", err)
 	}
 	if len(appList.Items) == 0 {

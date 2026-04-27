@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/saitamau-maximum/maxicloud/internal/config"
 	"github.com/saitamau-maximum/maxicloud/internal/domain"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -12,14 +13,14 @@ import (
 )
 
 const (
-	projectLabelKey = "maxicloud.saitamau-maximum.github.io/project"
+	projectLabelKey = config.LabelPrefix + "project"
 
-	OwnerUserIDLabelKey = "owner-user-id"
-	ProjectNameLabelKey = "project-name"
+	OwnerUserIDLabelKey = config.LabelPrefix + "owner-user-id"
+	ProjectNameLabelKey = config.LabelPrefix + "project-name"
 
-	ProjectDescriptionAnnotationKey = "project-description"
-	CreatedAtAnnotationKey          = "created-at"
-	UpdatedAtAnnotationKey          = "updated-at"
+	ProjectDescriptionAnnotationKey = config.AnnotationPrefix + "project-description"
+	CreatedAtAnnotationKey          = config.AnnotationPrefix + "created-at"
+	UpdatedAtAnnotationKey          = config.AnnotationPrefix + "updated-at"
 )
 
 type projectRepository struct {

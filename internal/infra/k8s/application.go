@@ -5,8 +5,15 @@ import (
 	"fmt"
 
 	maxicloudv1alpha1 "github.com/saitamau-maximum/maxicloud/api/v1alpha1"
+	"github.com/saitamau-maximum/maxicloud/internal/config"
 	"github.com/saitamau-maximum/maxicloud/internal/domain"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+)
+
+const (
+	labelApplicationID   = config.LabelPrefix + "app-id"
+	labelApplicationName = config.LabelPrefix + "app-name"
+	labelApplicationOwner = config.LabelPrefix + "owner-user-id"
 )
 
 type applicationRepository struct {
@@ -30,7 +37,7 @@ func (r *applicationRepository) newApplication() *maxicloudv1alpha1.Application 
 
 func (r *applicationRepository) GetApplication(ctx context.Context, id string) (*domain.Application, error) {
 	var list maxicloudv1alpha1.ApplicationList
-	if err := r.List(ctx, &list, client.MatchingLabels{"app-id": id}); err != nil {
+	if err := r.List(ctx, &list, client.MatchingLabels{labelApplicationID: id}); err != nil {
 		return nil, fmt.Errorf("list applications: %w", err)
 	}
 	if len(list.Items) == 0 {
@@ -57,21 +64,21 @@ func (r *applicationRepository) ListApplications(ctx context.Context, projectID 
 
 func (r *applicationRepository) UpdateApplication(ctx context.Context, app domain.Application) error {
 	var list maxicloudv1alpha1.ApplicationList
-	if err := r.List(ctx, &list, client.MatchingLabels{"app-id": app.ID}); err != nil {
+	if err := r.List(ctx, &list, client.MatchingLabels{labelApplicationID: app.ID}); err != nil {
 		return fmt.Errorf("list applications: %w", err)
 	}
 	if len(list.Items) == 0 {
 		return fmt.Errorf("application not found: %s", app.ID)
 	}
 	cr := list.Items[0]
-	cr.Labels["app-name"] = app.Name
-	cr.Labels["owner-user-id"] = app.OwnerID
+	cr.Labels[labelApplicationName] = app.Name
+	cr.Labels[labelApplicationOwner] = app.OwnerID
 	return r.Update(ctx, &cr)
 }
 
 func (r *applicationRepository) DeleteApplication(ctx context.Context, id string) error {
 	var list maxicloudv1alpha1.ApplicationList
-	if err := r.List(ctx, &list, client.MatchingLabels{"app-id": id}); err != nil {
+	if err := r.List(ctx, &list, client.MatchingLabels{labelApplicationID: id}); err != nil {
 		return fmt.Errorf("list applications: %w", err)
 	}
 	if len(list.Items) == 0 {
