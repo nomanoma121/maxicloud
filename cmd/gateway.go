@@ -8,6 +8,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/caarlos0/env/v11"
 	"github.com/spf13/cobra"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
@@ -20,31 +21,22 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-var (
-	gatewayAddr           string
-	gatewayGitHubAppID    int64
-	gatewayPrivateKeyPath string
-	gatewayWebhookSecret  string
-)
-
 var gatewayCmd = &cobra.Command{
 	Use:   "gateway",
 	Short: "Start the API gateway server",
 	RunE:  runGateway,
 }
 
-func init() {
-	gatewayCmd.Flags().StringVar(&gatewayAddr, "addr", ":8080", "The address the gateway server binds to.")
-	gatewayCmd.Flags().Int64Var(&gatewayGitHubAppID, "github-app-id", 0, "GitHub App ID")
-	gatewayCmd.Flags().StringVar(&gatewayPrivateKeyPath, "github-private-key-path", "", "Path to the GitHub App private key PEM file")
-	gatewayCmd.Flags().StringVar(&gatewayWebhookSecret, "github-webhook-secret", "", "GitHub webhook secret")
-}
-
 func runGateway(cmd *cobra.Command, args []string) error {
 	ctrl.SetLogger(zap.New(zap.UseDevMode(true)))
 	log := ctrl.Log.WithName("gateway")
 
-	_, err := os.ReadFile(gatewayPrivateKeyPath)
+	var cfg GatewayConfig
+	if err := env.Parse(&cfg); err != nil {
+		return err
+	}
+
+	_, err = os.ReadFile(cfg.GitHubPrivateKeyPath)
 	if err != nil {
 		return err
 	}
@@ -76,7 +68,7 @@ func runGateway(cmd *cobra.Command, args []string) error {
 	mux.HandleFunc("github/callback", ghHandler.Callback)
 
 	srv := &http.Server{
-		Addr:    gatewayAddr,
+		Addr:    cfg.Addr,
 		Handler: mux,
 	}
 
@@ -84,7 +76,7 @@ func runGateway(cmd *cobra.Command, args []string) error {
 	defer stop()
 
 	go func() {
-		log.Info("Starting gateway server", "addr", gatewayAddr)
+		log.Info("Starting gateway server", "addr", cfg.Addr)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Error(err, "Failed to start gateway server")
 		}

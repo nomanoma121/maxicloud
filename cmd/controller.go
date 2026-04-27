@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 
+	"github.com/caarlos0/env/v11"
 	"github.com/spf13/cobra"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
@@ -14,46 +15,31 @@ import (
 	"github.com/saitamau-maximum/maxicloud/internal/infra/registry"
 )
 
-var (
-	probeAddr            string
-	githubAppID          int64
-	githubPrivateKeyPath string
-	ghcrHost             string
-	ghcrToken            string
-	ingressClass         string
-	baseDomain           string
-)
-
 var controllerCmd = &cobra.Command{
 	Use:   "controller",
 	Short: "Start the Kubernetes controller manager",
 	RunE:  runController,
 }
 
-func init() {
-	controllerCmd.Flags().StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
-	controllerCmd.Flags().Int64Var(&githubAppID, "github-app-id", 0, "GitHub App ID")
-	controllerCmd.Flags().StringVar(&githubPrivateKeyPath, "github-private-key-path", "", "Path to the GitHub App private key PEM file")
-	controllerCmd.Flags().StringVar(&ghcrHost, "ghcr-host", "", "GHCR host")
-	controllerCmd.Flags().StringVar(&ghcrToken, "ghcr-token", "", "GitHub token for GHCR authentication")
-	controllerCmd.Flags().StringVar(&ingressClass, "ingress-class", "", "Ingress class")
-	controllerCmd.Flags().StringVar(&baseDomain, "base-domain", "", "Base domain for Ingress resources")
-}
-
 func runController(cmd *cobra.Command, args []string) error {
 	ctrl.SetLogger(zap.New(zap.UseDevMode(true)))
 	setupLog := ctrl.Log.WithName("setup")
 
-	privateKey, err := os.ReadFile(githubPrivateKeyPath)
+	var cfg ControllerConfig
+	if err := env.Parse(&cfg); err != nil {
+		return err
+	}
+
+	privateKey, err := os.ReadFile(cfg.GitHubPrivateKeyPath)
 	if err != nil {
 		return err
 	}
-	ghClient := github.NewClient(githubAppID, privateKey)
+	ghClient := github.NewClient(cfg.GitHubAppID, privateKey)
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                 scheme,
 		Metrics:                metricsserver.Options{BindAddress: "0"},
-		HealthProbeBindAddress: probeAddr,
+		HealthProbeBindAddress: cfg.HealthProbeBindAddress,
 	})
 	if err != nil {
 		return err
@@ -62,10 +48,10 @@ func runController(cmd *cobra.Command, args []string) error {
 	if err := (&controller.ApplicationReconciler{
 		Client:   mgr.GetClient(),
 		Scheme:   mgr.GetScheme(),
-		Registry: registry.NewGHCR(ghcrHost, ghcrToken),
+		Registry: registry.NewGHCR(cfg.GHCRHost, cfg.GHCRToken),
 		Config: controller.ReconcilerConfig{
-			IngressClass: ingressClass,
-			BaseDomain:   baseDomain,
+			IngressClass: cfg.IngressClass,
+			BaseDomain:   cfg.BaseDomain,
 		},
 	}).SetupWithManager(mgr); err != nil {
 		return err
@@ -73,7 +59,7 @@ func runController(cmd *cobra.Command, args []string) error {
 	if err := (&controller.BuildRunReconciler{
 		Client:       mgr.GetClient(),
 		Scheme:       mgr.GetScheme(),
-		Registry:     registry.NewGHCR(ghcrHost, ghcrToken),
+		Registry:     registry.NewGHCR(cfg.GHCRHost, cfg.GHCRToken),
 		GitHubClient: ghClient,
 	}).SetupWithManager(mgr); err != nil {
 		return err

@@ -5,10 +5,19 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
   - maxicloud.maximum.vc
   resources:
   - applications
   - buildruns
+  - deploymentpipelines
   verbs:
   - create
   - delete
@@ -22,6 +31,7 @@ rules:
   resources:
   - applications/finalizers
   - buildruns/finalizers
+  - deploymentpipelines/finalizers
   verbs:
   - update
 - apiGroups:
@@ -29,6 +39,7 @@ rules:
   resources:
   - applications/status
   - buildruns/status
+  - deploymentpipelines/status
   verbs:
   - get
   - patch
