@@ -4,3 +4,5 @@ resources:
   - ../../config/base
   - gateway.yaml
   - configmap.yaml
+  - secret.yaml
+  - rbac.yaml
