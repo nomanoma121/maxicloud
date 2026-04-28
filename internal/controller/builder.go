@@ -182,7 +182,7 @@ func newBuildJob(params BuildJobParams) *batchv1.Job {
 					Containers: []corev1.Container{
 						{
 							Name:  "buildkit",
-							Image: "moby/buildkit:latest",
+							Image: "moby/buildkit:rootless",
 							Env: []corev1.EnvVar{
 								{
 									Name: "GITHUB_TOKEN",
@@ -192,6 +192,10 @@ func newBuildJob(params BuildJobParams) *batchv1.Job {
 											Key:                  config.InstallationAccessTokenKey,
 										},
 									},
+								},
+								{
+									Name:  "XDG_RUNTIME_DIR",
+									Value: "/tmp",
 								},
 							},
 							Command: []string{
@@ -213,7 +217,7 @@ func newBuildJob(params BuildJobParams) *batchv1.Job {
 							VolumeMounts: []corev1.VolumeMount{
 								{
 									Name:      "registry-auth",
-									MountPath: "/root/.docker",
+									MountPath: "/home/user/.docker",
 								},
 							},
 						},
