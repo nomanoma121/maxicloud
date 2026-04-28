@@ -40,7 +40,7 @@ func (r *applicationRepository) CreateApplication(ctx context.Context, app domai
 	cr := &maxicloudv1alpha1.Application{
 		ObjectMeta: metav1.ObjectMeta{
 			GenerateName: app.Name + "-",
-			Namespace:    app.ProjectID,
+			Namespace:    projectNamespace(app.ProjectID),
 			Labels: map[string]string{
 				labelApplicationName:  app.Name,
 				labelApplicationOwner: app.OwnerID,
@@ -78,7 +78,7 @@ func (r *applicationRepository) ListApplications(ctx context.Context, projectID 
 	var list maxicloudv1alpha1.ApplicationList
 	opts := []client.ListOption{}
 	if projectID != "" {
-		opts = append(opts, client.InNamespace(projectID))
+		opts = append(opts, client.InNamespace(projectNamespace(projectID)))
 	}
 	if err := r.List(ctx, &list, opts...); err != nil {
 		return nil, fmt.Errorf("list applications: %w", err)
@@ -137,7 +137,7 @@ func (r *applicationRepository) GetApplicationsByRepo(ctx context.Context, owner
 func crToApplication(cr *maxicloudv1alpha1.Application) *domain.Application {
 	return &domain.Application{
 		ID:        cr.Name,
-		ProjectID: cr.Namespace,
+		ProjectID: projectIDFromNamespace(cr.Namespace),
 		Name:      cr.Labels[labelApplicationName],
 		OwnerID:   cr.Labels[labelApplicationOwner],
 		Source: domain.ApplicationSource{

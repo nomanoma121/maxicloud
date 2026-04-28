@@ -3,6 +3,7 @@ package k8s
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/saitamau-maximum/maxicloud/internal/config"
@@ -13,8 +14,6 @@ import (
 )
 
 const (
-	NamespacePrefix = "maxicloud-"
-
 	projectLabelKey = config.LabelPrefix + "project"
 
 	OwnerUserIDLabelKey = config.LabelPrefix + "owner-user-id"
@@ -38,7 +37,7 @@ func NewProjectRepository(c client.Client) domain.ProjectRepository {
 func (r *projectRepository) CreateProject(ctx context.Context, project domain.Project) (string, error) {
 	ns := &corev1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: NamespacePrefix + project.ID,
+			Name: projectNamespace(project.ID),
 			Labels: map[string]string{
 				projectLabelKey:     "true",
 				OwnerUserIDLabelKey: project.OwnerUserID,
@@ -54,12 +53,12 @@ func (r *projectRepository) CreateProject(ctx context.Context, project domain.Pr
 	if err := r.Create(ctx, ns); err != nil {
 		return "", fmt.Errorf("create namespace: %w", err)
 	}
-	return ns.Name, nil
+	return strings.TrimPrefix(ns.Name, NamespacePrefix), nil
 }
 
 func (r *projectRepository) GetProject(ctx context.Context, id string) (*domain.Project, error) {
 	var ns corev1.Namespace
-	if err := r.Get(ctx, client.ObjectKey{Name: NamespacePrefix + id}, &ns); err != nil {
+	if err := r.Get(ctx, client.ObjectKey{Name: projectNamespace(id)}, &ns); err != nil {
 		return nil, client.IgnoreNotFound(err)
 	}
 	return nsToProject(&ns)
@@ -83,7 +82,7 @@ func (r *projectRepository) ListProjects(ctx context.Context) ([]*domain.Project
 
 func (r *projectRepository) UpdateProject(ctx context.Context, project domain.Project) error {
 	var ns corev1.Namespace
-	if err := r.Get(ctx, client.ObjectKey{Name: project.ID}, &ns); err != nil {
+	if err := r.Get(ctx, client.ObjectKey{Name: projectNamespace(project.ID)}, &ns); err != nil {
 		return fmt.Errorf("get namespace: %w", err)
 	}
 	ns.Labels[OwnerUserIDLabelKey] = project.OwnerUserID
@@ -97,7 +96,7 @@ func (r *projectRepository) UpdateProject(ctx context.Context, project domain.Pr
 }
 
 func (r *projectRepository) DeleteProject(ctx context.Context, id string) error {
-	ns := &corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: id}}
+	ns := &corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: projectNamespace(id)}}
 	return client.IgnoreNotFound(r.Delete(ctx, ns))
 }
 
@@ -111,7 +110,7 @@ func nsToProject(ns *corev1.Namespace) (*domain.Project, error) {
 		return nil, fmt.Errorf("parse updatedAt: %w", err)
 	}
 	return &domain.Project{
-		ID:          ns.Name,
+		ID:          projectIDFromNamespace(ns.Name),
 		Name:        ns.Labels[ProjectNameLabelKey],
 		OwnerUserID: ns.Labels[OwnerUserIDLabelKey],
 		Description: ns.Annotations[ProjectDescriptionAnnotationKey],
