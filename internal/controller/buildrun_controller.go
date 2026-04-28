@@ -23,6 +23,7 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -71,6 +72,11 @@ func (r *BuildRunReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		return ctrl.Result{}, err
 	}
 
+	if err := r.reconcileStatus(ctx, &buildRun); err != nil {
+		log.Error(err, "failed to reconcile status")
+		return ctrl.Result{}, err
+	}
+
 	return ctrl.Result{}, nil
 }
 
@@ -104,11 +110,10 @@ func (r *BuildRunReconciler) reconcileSecret(ctx context.Context, buildRun *maxi
 }
 
 func (r *BuildRunReconciler) reconcileJob(ctx context.Context, buildRun *maxicloudv1alpha1.BuildRun) error {
-	owner, repo, err := github.ParseRepoURL(buildRun.Spec.Source.RepoURL)
+	destination, owner, repo, err := r.buildDestination(buildRun)
 	if err != nil {
-		return fmt.Errorf("failed to parse repository URL: %w", err)
+		return err
 	}
-	destination := fmt.Sprintf("%s/%s:%s", r.Registry.Host(), repo, github.ShortSHA(buildRun.Spec.Source.SHA))
 
 	var job batchv1.Job
 	if err := r.Get(ctx, types.NamespacedName{Name: buildRun.Name, Namespace: buildRun.Namespace}, &job); err != nil {
@@ -126,6 +131,98 @@ func (r *BuildRunReconciler) reconcileJob(ctx context.Context, buildRun *maxiclo
 		return err
 	}
 	return nil
+}
+
+func (r *BuildRunReconciler) reconcileStatus(ctx context.Context, buildRun *maxicloudv1alpha1.BuildRun) error {
+	var job batchv1.Job
+	if err := r.Get(ctx, types.NamespacedName{Name: buildRun.Name, Namespace: buildRun.Namespace}, &job); err != nil {
+		return client.IgnoreNotFound(err)
+	}
+
+	phase := buildRun.Status.Phase
+	image := buildRun.Status.Image
+	startedAt := buildRun.Status.StartedAt
+	finishedAt := buildRun.Status.FinishedAt
+	now := metav1.Now()
+
+	if job.Status.Active > 0 {
+		phase = maxicloudv1alpha1.BuildRunPhaseBuilding
+		startedAt = resolveStartedAt(startedAt, job.Status.StartTime, now)
+	}
+
+	if job.Status.Succeeded > 0 {
+		phase = maxicloudv1alpha1.BuildRunPhaseSucceeded
+		startedAt = resolveStartedAt(startedAt, job.Status.StartTime, now)
+		finishedAt = resolveFinishedAt(finishedAt, job.Status.CompletionTime, now)
+		destination, _, _, err := r.buildDestination(buildRun)
+		if err != nil {
+			return err
+		}
+		image = destination
+	}
+
+	if job.Status.Failed > 0 && job.Status.Active == 0 {
+		phase = maxicloudv1alpha1.BuildRunPhaseFailed
+		startedAt = resolveStartedAt(startedAt, job.Status.StartTime, now)
+		finishedAt = resolveFinishedAt(finishedAt, job.Status.CompletionTime, now)
+	}
+
+	if isBuildRunStatusUnchanged(buildRun, phase, image, startedAt, finishedAt) {
+		return nil
+	}
+
+	base := buildRun.DeepCopy()
+	buildRun.Status.Phase = phase
+	buildRun.Status.Image = image
+	buildRun.Status.StartedAt = startedAt
+	buildRun.Status.FinishedAt = finishedAt
+	return r.Status().Patch(ctx, buildRun, client.MergeFrom(base))
+}
+
+// currentがセットされてなければjobStartをセットして、なければfallbackを使用する
+func resolveStartedAt(current *metav1.Time, jobStart *metav1.Time, fallback metav1.Time) *metav1.Time {
+	if current != nil {
+		return current
+	}
+	if jobStart != nil {
+		t := *jobStart
+		return &t
+	}
+	return &fallback
+}
+
+// currentがセットされてなければjobCompletionをセットして、なければfallbackを使用する
+func resolveFinishedAt(current *metav1.Time, jobCompletion *metav1.Time, fallback metav1.Time) *metav1.Time {
+	if current != nil {
+		return current
+	}
+	if jobCompletion != nil {
+		t := *jobCompletion
+		return &t
+	}
+	return &fallback
+}
+
+func isBuildRunStatusUnchanged(
+	buildRun *maxicloudv1alpha1.BuildRun,
+	phase maxicloudv1alpha1.BuildRunPhase,
+	image string,
+	startedAt *metav1.Time,
+	finishedAt *metav1.Time,
+) bool {
+	return phase == buildRun.Status.Phase &&
+		image == buildRun.Status.Image &&
+		((startedAt == nil && buildRun.Status.StartedAt == nil) || (startedAt != nil && buildRun.Status.StartedAt != nil && startedAt.Equal(buildRun.Status.StartedAt))) &&
+		((finishedAt == nil && buildRun.Status.FinishedAt == nil) || (finishedAt != nil && buildRun.Status.FinishedAt != nil && finishedAt.Equal(buildRun.Status.FinishedAt)))
+}
+
+func (r *BuildRunReconciler) buildDestination(buildRun *maxicloudv1alpha1.BuildRun) (destination string, owner string, repo string, err error) {
+	owner, repo, err = github.ParseRepoURL(buildRun.Spec.Source.RepoURL)
+	if err != nil {
+		return "", "", "", fmt.Errorf("failed to parse repository URL: %w", err)
+	}
+	destination = fmt.Sprintf("%s/%s:%s", r.Registry.Host(), repo, github.ShortSHA(buildRun.Spec.Source.SHA))
+	return destination, owner, repo, nil
 }
 
 func getInstallationID(ctx context.Context, k8sClient client.Client, namespace string) (int64, error) {
