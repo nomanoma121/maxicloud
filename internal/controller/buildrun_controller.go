@@ -84,6 +84,7 @@ func (r *BuildRunReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 
 func (r *BuildRunReconciler) reconcileSecret(ctx context.Context, buildRun *maxicloudv1alpha1.BuildRun) error {
 	log := logf.FromContext(ctx)
+	secretName := buildRun.Name
 
 	installationID, err := r.SecretRepo.GetRepositoryIntegrationID(ctx)
 	if err != nil {
@@ -96,13 +97,13 @@ func (r *BuildRunReconciler) reconcileSecret(ctx context.Context, buildRun *maxi
 	}
 
 	secret := &corev1.Secret{}
-	key := types.NamespacedName{Name: config.SecretName, Namespace: buildRun.Namespace}
+	key := types.NamespacedName{Name: secretName, Namespace: buildRun.Namespace}
 	err = r.Get(ctx, key, secret)
 	if errors.IsNotFound(err) {
 		return r.Create(ctx, newBuildRunSecret(buildRun, r.Registry.DockerConfig(), token))
 	}
 	if err != nil {
-		log.Error(err, "failed to get repo secret", "secret", config.SecretName)
+		log.Error(err, "failed to get repo secret", "secret", secretName)
 		return err
 	}
 
@@ -124,7 +125,7 @@ func (r *BuildRunReconciler) reconcileJob(ctx context.Context, buildRun *maxiclo
 				buildRun:       buildRun,
 				jobName:        buildRun.Name,
 				sha:            buildRun.Spec.Source.SHA,
-				repoSecretName: config.SecretName,
+				repoSecretName: buildRun.Name,
 				owner:          owner,
 				repo:           repo,
 				destination:    destination,
