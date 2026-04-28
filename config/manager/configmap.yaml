@@ -7,3 +7,4 @@ data:
   GHCR_HOST: "ghcr.io/nomanoma121" # 一旦自分用で
   INGRESS_CLASS: "nginx"
   BASE_DOMAIN: "maxicloud.maximum.vc"
+  GITHUB_PRIVATE_KEY_PATH: "/etc/maxicloud/github/private-key.pem"

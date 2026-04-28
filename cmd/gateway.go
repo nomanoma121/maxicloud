@@ -36,12 +36,6 @@ func runGateway(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	privateKey, err := os.ReadFile(cfg.GitHubPrivateKeyPath)
-	if err != nil {
-		return err
-	}
-	_ = privateKey
-
 	k8sClient, err := client.New(ctrl.GetConfigOrDie(), client.Options{Scheme: scheme})
 	if err != nil {
 		return err
