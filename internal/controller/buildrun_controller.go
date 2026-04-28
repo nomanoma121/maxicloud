@@ -50,6 +50,8 @@ type BuildRunReconciler struct {
 // +kubebuilder:rbac:groups=maxicloud.maximum.vc,resources=buildruns,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=maxicloud.maximum.vc,resources=buildruns/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=maxicloud.maximum.vc,resources=buildruns/finalizers,verbs=update
+// +kubebuilder:rbac:groups="",resources=secrets,verbs=get;list;watch;create;update;patch
+// +kubebuilder:rbac:groups=batch,resources=jobs,verbs=get;list;watch;create;update;patch;delete
 
 func (r *BuildRunReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := logf.FromContext(ctx)

@@ -4,7 +4,3 @@ resources:
 - manager.yaml
 - configmap.yaml
 - secret.yaml
-images:
-- name: controller
-  newName: maxicloud
-  newTag: latest
