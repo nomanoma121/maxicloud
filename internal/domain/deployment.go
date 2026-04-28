@@ -83,3 +83,19 @@ type DeploymentPipelineRepository interface {
 	GetPipeline(ctx context.Context, id string) (*DeploymentPipeline, error)
 	DeleteOldPipelines(ctx context.Context, applicationID string, maxHistory int, isPreview bool) error
 }
+
+type DeploymentEventType string
+
+const (
+	DeploymentEventTypeProductionRequested DeploymentEventType = "ProductionRequested"
+	DeploymentEventTypePreviewRequested    DeploymentEventType = "PreviewRequested"
+	DeploymentEventTypePreviewDeleted      DeploymentEventType = "PreviewDeleted"
+)
+
+type DeploymentEvent struct {
+	Type     DeploymentEventType
+	Repo     Repository
+	Branch   string
+	Commit   Commit
+	PRNumber *int
+}

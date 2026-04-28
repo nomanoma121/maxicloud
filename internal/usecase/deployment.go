@@ -22,6 +22,7 @@ type deploymentService struct {
 
 type DeploymentService interface {
 	CreateDeployment(ctx context.Context, params CreateDeploymentParams) (string, error)
+	HandleGitHubEvent(ctx context.Context, event domain.DeploymentEvent) error
 }
 
 func NewDeploymentService(deployRepo domain.DeploymentRepository, pipelineRepo domain.DeploymentPipelineRepository, appRepo domain.ApplicationRepository) *deploymentService {
@@ -54,7 +55,7 @@ func (s *deploymentService) CreateDeployment(ctx context.Context, params CreateD
 		return "", err
 	}
 
-	s.pipelineRepo.CreatePipeline(ctx, domain.DeploymentPipeline{
+	if _, err := s.pipelineRepo.CreatePipeline(ctx, domain.DeploymentPipeline{
 		ID:            deployID,
 		ApplicationID: params.ApplicationID,
 		OwnerUserID:   params.OwnerUserID,
@@ -63,7 +64,9 @@ func (s *deploymentService) CreateDeployment(ctx context.Context, params CreateD
 		PRNumber:      params.PRNumber,
 		Status:        domain.DeploymentStatusQueued,
 		StartedAt:     time.Now(),
-	})
+	}); err != nil {
+		return "", fmt.Errorf("create deployment pipeline: %w", err)
+	}
 
 	// PRNumberがある場合はPreview環境
 	isPreview := params.PRNumber != nil
@@ -78,4 +81,54 @@ func (s *deploymentService) CreateDeployment(ctx context.Context, params CreateD
 	}
 
 	return deployID, nil
+}
+
+func (s *deploymentService) HandleGitHubEvent(ctx context.Context, event domain.DeploymentEvent) error {
+	switch event.Type {
+	case domain.DeploymentEventTypeProductionRequested:
+		return s.handleRepoDeploymentEvent(ctx, event, nil)
+	case domain.DeploymentEventTypePreviewRequested:
+		if event.PRNumber == nil {
+			return fmt.Errorf("pr number is required for preview deployment")
+		}
+		return s.handleRepoDeploymentEvent(ctx, event, event.PRNumber)
+	case domain.DeploymentEventTypePreviewDeleted:
+		// TODO: いつか実装する
+		return nil
+	default:
+		return fmt.Errorf("unsupported deployment event type: %s", event.Type)
+	}
+}
+
+func (s *deploymentService) handleRepoDeploymentEvent(ctx context.Context, event domain.DeploymentEvent, prNumber *int) error {
+	apps, err := s.appRepo.GetApplicationsByRepo(ctx, event.Repo.Owner, event.Repo.Name, event.Branch)
+	if err != nil {
+		return fmt.Errorf("get applications by repo: %w", err)
+	}
+	for _, app := range apps {
+		deployID, err := s.CreateDeployment(ctx, CreateDeploymentParams{
+			ApplicationID: app.ID,
+			OwnerUserID:   app.OwnerID,
+			Repo:          event.Repo,
+			Commit:        event.Commit,
+			PRNumber:      prNumber,
+		})
+		if err != nil {
+			return fmt.Errorf("create deployment for application %s: %w", app.ID, err)
+		}
+
+		if _, err := s.pipelineRepo.CreatePipeline(ctx, domain.DeploymentPipeline{
+			ID:            deployID,
+			ApplicationID: app.ID,
+			OwnerUserID:   app.OwnerID,
+			Repo:          event.Repo,
+			Commit:        event.Commit,
+			PRNumber:      prNumber,
+			Status:        domain.DeploymentStatusQueued,
+			StartedAt:     time.Now(),
+		}); err != nil {
+			return fmt.Errorf("create deployment pipeline for application %s: %w", app.ID, err)
+		}
+	}
+	return nil
 }

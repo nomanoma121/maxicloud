@@ -13,4 +13,11 @@ type ControllerConfig struct {
 type GatewayConfig struct {
 	Addr                 string `env:"ADDR" envDefault:":8080"`
 	GitHubPrivateKeyPath string `env:"GITHUB_PRIVATE_KEY_PATH,required"`
+	GitHubAppName        string `env:"GITHUB_APP_NAME,required"`
+	GitHubClientID       string `env:"GITHUB_CLIENT_ID,required"`
+	GitHubClientSecret   string `env:"GITHUB_CLIENT_SECRET,required"`
+	GitHubWebhookSecret  string `env:"GITHUB_WEBHOOK_SECRET,required"`
+
+	// Downward APIからGatewayのPodのNSを渡す
+	Namespace string `env:"POD_NAMESPACE,required"`
 }

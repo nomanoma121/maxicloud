@@ -36,10 +36,11 @@ func runGateway(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	_, err = os.ReadFile(cfg.GitHubPrivateKeyPath)
+	privateKey, err := os.ReadFile(cfg.GitHubPrivateKeyPath)
 	if err != nil {
 		return err
 	}
+	_ = privateKey
 
 	k8sClient, err := client.New(ctrl.GetConfigOrDie(), client.Options{Scheme: scheme})
 	if err != nil {
@@ -50,12 +51,19 @@ func runGateway(cmd *cobra.Command, args []string) error {
 	prjRepo := k8s.NewProjectRepository(k8sClient)
 	deployRepo := postgres.NewDeploymentRepository()
 	deployPipelineRepo := k8s.NewDeploymentPipelineRepository(k8sClient)
+	secretRepo := k8s.NewSecretRepository(k8sClient, cfg.Namespace)
 
 	deploySvc := usecase.NewDeploymentService(deployRepo, deployPipelineRepo, appRepo)
 	appSvc := usecase.NewApplicationService(appRepo)
 	prjSvc := usecase.NewProjectUsecase(prjRepo)
+	ghSvc := usecase.NewGitHubService(secretRepo)
 
-	ghHandler := handler.NewGitHubHandler(deploySvc)
+	ghHandler := handler.NewGitHubHandler(ghSvc, deploySvc, handler.GitHubHandlerConfig{
+		GitHubAppName: cfg.GitHubAppName,
+		WebhookSecret: cfg.GitHubWebhookSecret,
+		ClientID:      cfg.GitHubClientID,
+		ClientSecret:  cfg.GitHubClientSecret,
+	})
 	prjHandler := handler.NewProjectHandler(prjSvc)
 	appHandler := handler.NewApplicationHandler(appSvc)
 

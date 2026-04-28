@@ -4,3 +4,5 @@ metadata:
   name: maxicloud-gateway-config
 data:
   ADDR: ":8080"
+  GITHUB_APP_NAME: "REPLACE_ME"
+  GITHUB_CLIENT_ID: "REPLACE_ME"
