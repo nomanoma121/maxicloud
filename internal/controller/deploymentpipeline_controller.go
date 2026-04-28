@@ -45,6 +45,7 @@ type DeploymentPipelineReconciler struct {
 	Scheme *runtime.Scheme
 
 	DeployRepo domain.DeploymentRepository
+	SecretRepo domain.SecretRepository
 	Reporter   domain.DeploymentReporter
 }
 
@@ -101,7 +102,7 @@ func (r *DeploymentPipelineReconciler) notifyDeploymentStarted(ctx context.Conte
 	}
 	log := logf.FromContext(ctx)
 
-	installationID, err := getInstallationID(ctx, r.Client, pipeline.Namespace)
+	installationID, err := r.SecretRepo.GetRepositoryIntegrationID(ctx)
 	if err != nil {
 		log.Error(err, "failed to get installation ID")
 		return err
@@ -201,7 +202,7 @@ func (r *DeploymentPipelineReconciler) handleBuildSucceeded(ctx context.Context,
 func (r *DeploymentPipelineReconciler) handleBuildFailedOrCanceled(ctx context.Context, pipeline *maxicloudv1alpha1.DeploymentPipeline) (ctrl.Result, error) {
 	log := logf.FromContext(ctx)
 
-	installationID, err := getInstallationID(ctx, r.Client, pipeline.Namespace)
+	installationID, err := r.SecretRepo.GetRepositoryIntegrationID(ctx)
 	if err != nil {
 		log.Error(err, "failed to get installation ID")
 		return ctrl.Result{}, err
@@ -233,7 +234,7 @@ func (r *DeploymentPipelineReconciler) handleBuildFailedOrCanceled(ctx context.C
 func (r *DeploymentPipelineReconciler) handlePhaseDeploying(ctx context.Context, pipeline *maxicloudv1alpha1.DeploymentPipeline) (ctrl.Result, error) {
 	log := logf.FromContext(ctx)
 
-	installationID, err := getInstallationID(ctx, r.Client, pipeline.Namespace)
+	installationID, err := r.SecretRepo.GetRepositoryIntegrationID(ctx)
 	if err != nil {
 		log.Error(err, "failed to get installation ID")
 		return ctrl.Result{}, err

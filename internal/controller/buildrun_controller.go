@@ -19,7 +19,6 @@ package controller
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -32,11 +31,13 @@ import (
 
 	maxicloudv1alpha1 "github.com/saitamau-maximum/maxicloud/api/v1alpha1"
 	"github.com/saitamau-maximum/maxicloud/internal/config"
+	"github.com/saitamau-maximum/maxicloud/internal/domain"
 	"github.com/saitamau-maximum/maxicloud/internal/infra/github"
 	"github.com/saitamau-maximum/maxicloud/internal/infra/registry"
 	batchv1 "k8s.io/api/batch/v1"
 )
 
+// ここでしか使わないのでcontroller側で定義しちゃう
 type gitHubClient interface {
 	GetInstallationAccessToken(ctx context.Context, installationID int64) (string, error)
 }
@@ -45,6 +46,7 @@ type BuildRunReconciler struct {
 	client.Client
 	Scheme       *runtime.Scheme
 	Registry     registry.Registry
+	SecretRepo   domain.SecretRepository
 	GitHubClient gitHubClient
 }
 
@@ -83,7 +85,7 @@ func (r *BuildRunReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 func (r *BuildRunReconciler) reconcileSecret(ctx context.Context, buildRun *maxicloudv1alpha1.BuildRun) error {
 	log := logf.FromContext(ctx)
 
-	installationID, err := getInstallationID(ctx, r.Client, buildRun.Namespace)
+	installationID, err := r.SecretRepo.GetRepositoryIntegrationID(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to get installation ID: %w", err)
 	}
@@ -223,14 +225,6 @@ func (r *BuildRunReconciler) buildDestination(buildRun *maxicloudv1alpha1.BuildR
 	}
 	destination = fmt.Sprintf("%s/%s:%s", r.Registry.Host(), repo, github.ShortSHA(buildRun.Spec.Source.SHA))
 	return destination, owner, repo, nil
-}
-
-func getInstallationID(ctx context.Context, k8sClient client.Client, namespace string) (int64, error) {
-	var secret corev1.Secret
-	if err := k8sClient.Get(ctx, types.NamespacedName{Name: config.SecretName, Namespace: namespace}, &secret); err != nil {
-		return 0, fmt.Errorf("failed to get installation ID secret: %w", err)
-	}
-	return strconv.ParseInt(string(secret.Data[config.InstallationIDKey]), 10, 64)
 }
 
 // SetupWithManager sets up the controller with the Manager.

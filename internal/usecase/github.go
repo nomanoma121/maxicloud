@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"strconv"
 
 	"github.com/saitamau-maximum/maxicloud/internal/domain"
 )
@@ -24,5 +23,5 @@ func NewGitHubService(
 }
 
 func (s *gitHubService) SaveInstallation(ctx context.Context, installationID int64) error {
-	return s.secretRepo.SaveRepositoryIntegrationID(ctx, strconv.FormatInt(installationID, 10))
+	return s.secretRepo.SaveRepositoryIntegrationID(ctx, installationID)
 }

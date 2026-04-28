@@ -3,6 +3,7 @@ package k8s
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/saitamau-maximum/maxicloud/internal/config"
 	"github.com/saitamau-maximum/maxicloud/internal/domain"
@@ -23,15 +24,23 @@ func NewSecretRepository(c client.Client, namespace string) domain.SecretReposit
 	return &secretRepository{client: c, namespace: namespace}
 }
 
-func (s *secretRepository) GetRepositoryIntegrationID(ctx context.Context) (string, error) {
+func (s *secretRepository) GetRepositoryIntegrationID(ctx context.Context) (int64, error) {
 	var secret corev1.Secret
 	if err := s.client.Get(ctx, types.NamespacedName{Name: config.SecretName, Namespace: s.namespace}, &secret); err != nil {
-		return "", fmt.Errorf("get secret: %w", err)
+		return 0, fmt.Errorf("get secret: %w", err)
 	}
-	return string(secret.Data[config.InstallationIDKey]), nil
+	integrationIDBytes, ok := secret.Data[config.InstallationIDKey]
+	if !ok {
+		return 0, fmt.Errorf("installation ID not found in secret")
+	}
+	integrationID, err := strconv.ParseInt(string(integrationIDBytes), 10, 64)
+	if err != nil {
+		return 0, fmt.Errorf("invalid installation ID in secret: %w", err)
+	}
+	return integrationID, nil
 }
 
-func (s *secretRepository) SaveRepositoryIntegrationID(ctx context.Context, integrationID string) error {
+func (s *secretRepository) SaveRepositoryIntegrationID(ctx context.Context, integrationID int64) error {
 	var secret corev1.Secret
 	err := s.client.Get(ctx, types.NamespacedName{Name: config.SecretName, Namespace: s.namespace}, &secret)
 	if client.IgnoreNotFound(err) != nil {
@@ -44,10 +53,10 @@ func (s *secretRepository) SaveRepositoryIntegrationID(ctx context.Context, inte
 				Namespace: s.namespace,
 			},
 			Data: map[string][]byte{
-				config.InstallationIDKey: []byte(integrationID),
+				config.InstallationIDKey: []byte(strconv.FormatInt(integrationID, 10)),
 			},
 		})
 	}
-	secret.Data[config.InstallationIDKey] = []byte(integrationID)
+	secret.Data[config.InstallationIDKey] = []byte(strconv.FormatInt(integrationID, 10))
 	return s.client.Update(ctx, &secret)
 }

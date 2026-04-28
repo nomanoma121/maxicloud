@@ -6,12 +6,15 @@ import (
 	"github.com/caarlos0/env/v11"
 	"github.com/spf13/cobra"
 	ctrl "sigs.k8s.io/controller-runtime"
+	client "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 
 	"github.com/saitamau-maximum/maxicloud/internal/controller"
 	"github.com/saitamau-maximum/maxicloud/internal/infra/github"
+	"github.com/saitamau-maximum/maxicloud/internal/infra/k8s"
+	"github.com/saitamau-maximum/maxicloud/internal/infra/postgres"
 	"github.com/saitamau-maximum/maxicloud/internal/infra/registry"
 )
 
@@ -35,6 +38,10 @@ func runController(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	ghClient := github.NewClient(cfg.GitHubAppID, privateKey)
+
+	k8sClient, err := client.New(ctrl.GetConfigOrDie(), client.Options{Scheme: scheme})
+	secretRepo := k8s.NewSecretRepository(k8sClient, cfg.Namespace)
+	deployRepo := postgres.NewDeploymentRepository()
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                 scheme,
@@ -60,14 +67,17 @@ func runController(cmd *cobra.Command, args []string) error {
 		Client:       mgr.GetClient(),
 		Scheme:       mgr.GetScheme(),
 		Registry:     registry.NewGHCR(cfg.GHCRHost, cfg.GHCRToken),
+		SecretRepo:   secretRepo,
 		GitHubClient: ghClient,
 	}).SetupWithManager(mgr); err != nil {
 		return err
 	}
 	if err := (&controller.DeploymentPipelineReconciler{
-		Client:   mgr.GetClient(),
-		Scheme:   mgr.GetScheme(),
-		Reporter: ghClient,
+		Client:     mgr.GetClient(),
+		Scheme:     mgr.GetScheme(),
+		Reporter:   ghClient,
+		DeployRepo: deployRepo,
+		SecretRepo: secretRepo,
 	}).SetupWithManager(mgr); err != nil {
 		return err
 	}
