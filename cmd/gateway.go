@@ -65,9 +65,9 @@ func runGateway(cmd *cobra.Command, args []string) error {
 	mux.Handle(maxicloudv1connect.NewApplicationServiceHandler(appHandler))
 	mux.Handle(maxicloudv1connect.NewProjectServiceHandler(prjHandler))
 	// GitHub App 関連のエンドポイント
-	mux.HandleFunc("github/install", ghHandler.Install)
-	mux.HandleFunc("github/webhook", ghHandler.Webhook)
-	mux.HandleFunc("github/callback", ghHandler.Callback)
+	mux.HandleFunc("/github/install", ghHandler.Install)
+	mux.HandleFunc("/github/webhook", ghHandler.Webhook)
+	mux.HandleFunc("/github/callback", ghHandler.Callback)
 
 	srv := &http.Server{
 		Addr:    cfg.Addr,
