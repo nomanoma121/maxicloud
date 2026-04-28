@@ -1,8 +1,11 @@
 package k8s
 
 import (
+	"crypto/sha1"
 	"context"
 	"fmt"
+	"regexp"
+	"strings"
 
 	maxicloudv1alpha1 "github.com/saitamau-maximum/maxicloud/api/v1alpha1"
 	"github.com/saitamau-maximum/maxicloud/internal/config"
@@ -18,6 +21,8 @@ const (
 	labelSourceRepoOwner  = config.LabelPrefix + "source-repo-owner"
 	labelSourceRepoName   = config.LabelPrefix + "source-repo-name"
 	labelSourceBranch     = config.LabelPrefix + "source-branch"
+
+	annotationSourceBranch = config.AnnotationPrefix + "source-branch"
 )
 
 type applicationRepository struct {
@@ -31,6 +36,7 @@ func NewApplicationRepository(c client.Client) domain.ApplicationRepository {
 }
 
 func (r *applicationRepository) CreateApplication(ctx context.Context, app domain.Application) (*domain.Application, error) {
+	branchLabel := normalizeBranchForLabel(app.Source.Branch)
 	cr := &maxicloudv1alpha1.Application{
 		ObjectMeta: metav1.ObjectMeta{
 			GenerateName: app.Name + "-",
@@ -40,7 +46,10 @@ func (r *applicationRepository) CreateApplication(ctx context.Context, app domai
 				labelApplicationOwner: app.OwnerID,
 				labelSourceRepoOwner:  app.Source.Repo.Owner,
 				labelSourceRepoName:   app.Source.Repo.Name,
-				labelSourceBranch:     app.Source.Branch,
+				labelSourceBranch:     branchLabel,
+			},
+			Annotations: map[string]string{
+				annotationSourceBranch: app.Source.Branch,
 			},
 		},
 	}
@@ -112,7 +121,7 @@ func (r *applicationRepository) GetApplicationsByRepo(ctx context.Context, owner
 		labelSourceRepoName:  name,
 	}
 	if branch != "" {
-		matchLabels[labelSourceBranch] = branch
+		matchLabels[labelSourceBranch] = normalizeBranchForLabel(branch)
 	}
 	var list maxicloudv1alpha1.ApplicationList
 	if err := r.List(ctx, &list, matchLabels); err != nil {
@@ -136,10 +145,42 @@ func crToApplication(cr *maxicloudv1alpha1.Application) *domain.Application {
 				Owner: cr.Labels[labelSourceRepoOwner],
 				Name:  cr.Labels[labelSourceRepoName],
 			},
-			Branch: cr.Labels[labelSourceBranch],
+			Branch: cr.Annotations[annotationSourceBranch],
 		},
 		URL:       cr.Status.URL,
 		CreatedAt: cr.CreationTimestamp.Time,
 		UpdatedAt: cr.CreationTimestamp.Time,
 	}
+}
+
+var nonLabelChar = regexp.MustCompile(`[^A-Za-z0-9._-]+`)
+var edgeNonAlnum = regexp.MustCompile(`^[^A-Za-z0-9]+|[^A-Za-z0-9]+$`)
+
+// Labelには/を使用することができないため正規化する
+func normalizeBranchForLabel(branch string) string {
+	const (
+		maxLabelLen = 63
+		hashBytes   = 4
+	)
+
+	raw := strings.TrimSpace(branch)
+	normalized := nonLabelChar.ReplaceAllString(raw, "-")
+	normalized = edgeNonAlnum.ReplaceAllString(normalized, "")
+	if normalized == "" {
+		normalized = "branch"
+	}
+
+	sum := sha1.Sum([]byte(raw))
+	suffix := fmt.Sprintf("-%x", sum[:hashBytes])
+	maxBaseLen := maxLabelLen - len(suffix)
+	if maxBaseLen < 1 {
+		maxBaseLen = 1
+	}
+
+	if len(normalized) > maxBaseLen {
+		normalized = normalized[:maxBaseLen]
+		normalized = edgeNonAlnum.ReplaceAllString(normalized, "")
+	}
+
+	return normalized + suffix
 }
