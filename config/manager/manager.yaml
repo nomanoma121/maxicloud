@@ -66,8 +66,6 @@ spec:
         envFrom:
           - configMapRef:
               name: maxicloud-base-config
-          - secretRef:
-              name: maxicloud-base-secret
           - configMapRef:
               name: maxicloud-manager-config
           - secretRef:
