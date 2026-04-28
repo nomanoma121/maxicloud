@@ -7,9 +7,10 @@ metadata:
     app.kubernetes.io/name: maxicloud
     app.kubernetes.io/managed-by: kustomize
 spec:
-  ingressClassName: nginx
+  # 一旦デバックようにCloudflare TunnelのIngressClassを指定する
+  ingressClassName: cloudflare-tunnel
   rules:
-    - host: gateway.127.0.0.1.nip.io
+    - host: maxicloud.nomanoma-dev.com
       http:
         paths:
           - path: /

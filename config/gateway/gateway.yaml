@@ -28,6 +28,7 @@ spec:
             - /manager
             - gateway
           image: controller:latest
+          imagePullPolicy: IfNotPresent
           env:
             - name: POD_NAMESPACE
               valueFrom:
