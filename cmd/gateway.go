@@ -64,6 +64,12 @@ func runGateway(cmd *cobra.Command, args []string) error {
 	appHandler := handler.NewApplicationHandler(appSvc)
 
 	r := chi.NewRouter()
+
+	r.Use(middleware.RequestID)
+	r.Use(middleware.RealIP)
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
+
 	path, h := maxicloudv1connect.NewProjectServiceHandler(prjHandler)
 	r.Mount(path, h)
 	path, h = maxicloudv1connect.NewApplicationServiceHandler(appHandler)
@@ -73,11 +79,6 @@ func runGateway(cmd *cobra.Command, args []string) error {
 	r.Get("/github/install", ghHandler.Install)
 	r.Post("/github/webhook", ghHandler.Webhook)
 	r.Get("/github/callback", ghHandler.Callback)
-
-	r.Use(middleware.RequestID)
-	r.Use(middleware.RealIP)
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
 
 	srv := &http.Server{
 		Addr:    cfg.Addr,
