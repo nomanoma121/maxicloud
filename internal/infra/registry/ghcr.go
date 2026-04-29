@@ -2,6 +2,7 @@ package registry
 
 import (
 	"fmt"
+	"strings"
 )
 
 type Registry interface {
@@ -23,7 +24,8 @@ func NewGHCR(host, token string) Registry {
 }
 
 func (r *ghcr) DockerConfig() string {
-	return fmt.Sprintf(`{"auths":{"%s":{"username":"x-access-token","password":%q}}}`, r.host, r.token)
+	authHost := strings.Split(strings.TrimSpace(r.host), "/")[0]
+	return fmt.Sprintf(`{"auths":{"%s":{"username":"x-access-token","password":%q}}}`, authHost, r.token)
 }
 
 func (r *ghcr) Host() string {
