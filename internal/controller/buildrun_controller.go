@@ -107,10 +107,7 @@ func (r *BuildRunReconciler) reconcileSecret(ctx context.Context, buildRun *maxi
 		if err := r.Get(ctx, key, &secret); err != nil {
 			if errors.IsNotFound(err) {
 				if err := r.Create(ctx, newBuildRunSecret(buildRun, r.Registry.DockerConfig(), token)); err != nil {
-					if errors.IsAlreadyExists(err) {
-						return nil
-					}
-					return err
+					return ignoreAlreadyExists(err)
 				}
 				return nil
 			}
@@ -155,16 +152,20 @@ func (r *BuildRunReconciler) reconcileJob(ctx context.Context, buildRun *maxiclo
 				repo:           repo,
 				destination:    destination,
 			})); err != nil {
-				if errors.IsAlreadyExists(err) {
-					return nil
-				}
-				return err
+				return ignoreAlreadyExists(err)
 			}
 			return nil
 		}
 		return err
 	}
 	return nil
+}
+
+func ignoreAlreadyExists(err error) error {
+	if errors.IsAlreadyExists(err) {
+		return nil
+	}
+	return err
 }
 
 func (r *BuildRunReconciler) reconcileStatus(ctx context.Context, buildRun *maxicloudv1alpha1.BuildRun) error {

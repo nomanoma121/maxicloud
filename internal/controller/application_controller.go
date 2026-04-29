@@ -104,10 +104,7 @@ func (r *ApplicationReconciler) reconcileSecret(ctx context.Context, application
 		if err := r.Get(ctx, key, &secret); err != nil {
 			if errors.IsNotFound(err) {
 				if err := r.Create(ctx, newAppRegistrySecret(application, r.Registry.DockerConfig())); err != nil {
-					if errors.IsAlreadyExists(err) {
-						return nil
-					}
-					return err
+					return ignoreAlreadyExists(err)
 				}
 				return nil
 			}
