@@ -206,13 +206,16 @@ spec:
                     description: Domain is the hostname to expose (e.g. app.example.com).
                     type: string
                   ingressClassName:
-                    description: IngressClassName overrides the default ingress class.
+                    description: IngressClassName is the name of the IngressClass
+                      to use for the application's Ingress.
                     type: string
                   port:
                     description: Port is the container port to expose.
                     format: int32
                     type: integer
                 required:
+                - domain
+                - ingressClassName
                 - port
                 type: object
               image:
