@@ -42,6 +42,7 @@ func (f *fakeRegistry) Token() string        { return "token" }
 type fakeGitHubClient struct{}
 
 var _ domain.DeploymentReporter = (*fakeGitHubClient)(nil)
+var _ domain.SecretRepository = (*fakeSecretRepository)(nil)
 
 func (f *fakeGitHubClient) GetInstallationAccessToken(_ context.Context, _ int64) (string, error) {
 	return "fake-token", nil
@@ -62,11 +63,28 @@ func (f *fakeGitHubClient) UpdateDeploymentSummary(_ context.Context, _ domain.U
 	return nil
 }
 
+type fakeSecretRepository struct {
+	integrationID int64
+}
+
+func (f *fakeSecretRepository) SaveRepositoryIntegrationID(_ context.Context, integrationID int64) error {
+	f.integrationID = integrationID
+	return nil
+}
+
+func (f *fakeSecretRepository) GetRepositoryIntegrationID(_ context.Context) (int64, error) {
+	if f.integrationID == 0 {
+		return 12345, nil
+	}
+	return f.integrationID, nil
+}
+
 func newTestReconciler(maxHistory int) *BuildRunReconciler {
 	return &BuildRunReconciler{
 		Client:       k8sClient,
 		Scheme:       k8sClient.Scheme(),
 		Registry:     &fakeRegistry{},
+		SecretRepo:   &fakeSecretRepository{integrationID: 12345},
 		GitHubClient: &fakeGitHubClient{},
 	}
 }
@@ -167,7 +185,7 @@ var _ = Describe("BuildRun Controller", func() {
 			Expect(err).NotTo(HaveOccurred())
 
 			var secret corev1.Secret
-			Expect(k8sClient.Get(ctx, types.NamespacedName{Name: config.SecretName, Namespace: ns}, &secret)).To(Succeed())
+			Expect(k8sClient.Get(ctx, types.NamespacedName{Name: name, Namespace: ns}, &secret)).To(Succeed())
 			Expect(secret.Data).To(HaveKey(config.InstallationAccessTokenKey))
 			Expect(secret.Data).To(HaveKey(corev1.DockerConfigJsonKey))
 		})
