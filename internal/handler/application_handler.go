@@ -166,7 +166,7 @@ func protoToApplicationSpec(s *v1.ApplicationSpec) (domain.ApplicationSpec, erro
 		}
 	}
 	for _, kv := range s.EnvironmentVariables {
-		spec.EnvironmentVariables = append(spec.EnvironmentVariables, domain.KeyValue{Key: kv.Key, Value: kv.Value})
+		spec.Env = append(spec.Env, domain.KeyValue{Key: kv.Key, Value: kv.Value})
 	}
 	for _, kv := range s.Secrets {
 		spec.Secrets = append(spec.Secrets, domain.KeyValue{Key: kv.Key, Value: kv.Value})

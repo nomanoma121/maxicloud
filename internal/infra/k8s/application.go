@@ -166,8 +166,8 @@ func crToApplication(cr *maxicloudv1alpha1.Application) *domain.Application {
 }
 
 func buildApplicationEnvVar(spec domain.ApplicationSpec) []corev1.EnvVar {
-	env := make([]corev1.EnvVar, 0, len(spec.EnvironmentVariables)+len(spec.Secrets))
-	for _, kv := range spec.EnvironmentVariables {
+	env := make([]corev1.EnvVar, 0, len(spec.Env)+len(spec.Secrets))
+	for _, kv := range spec.Env {
 		env = append(env, corev1.EnvVar{
 			Name:  kv.Key,
 			Value: kv.Value,

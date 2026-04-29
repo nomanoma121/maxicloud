@@ -93,10 +93,6 @@ func newService(app *maxicloudv1alpha1.Application) *corev1.Service {
 func newIngress(app *maxicloudv1alpha1.Application, baseDomain, ingressClassName string) *networkingv1.Ingress {
 	pathType := networkingv1.PathTypePrefix
 	port := app.Spec.Expose.Port
-	className := app.Spec.Expose.IngressClassName
-	if className == nil && ingressClassName != "" {
-		className = &ingressClassName
-	}
 	host := app.Spec.Expose.Domain
 	if host == "" {
 		host = baseDomain
@@ -110,7 +106,7 @@ func newIngress(app *maxicloudv1alpha1.Application, baseDomain, ingressClassName
 			},
 		},
 		Spec: networkingv1.IngressSpec{
-			IngressClassName: className,
+			IngressClassName: &ingressClassName,
 			Rules: []networkingv1.IngressRule{
 				{
 					Host: host,

@@ -3,16 +3,29 @@ package domain
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 )
 
 var (
-	ErrInvalidProjectID             = errors.New("invalid project ID")
-	ErrInvalidApplicationName       = errors.New("invalid application name")
-	ErrInvalidRepositoryID          = errors.New("invalid repository ID")
-	ErrInvalidRepositoryFullName    = errors.New("invalid repository full name")
-	ErrInvalidBranch                = errors.New("invalid branch")
-	ErrDomainRequiredForMembersOnly = errors.New("domain is required when access mode is MembersOnly")
+	ErrInvalidProjectID                     = errors.New("invalid project ID")
+	ErrInvalidApplicationName               = errors.New("invalid application name")
+	ErrInvalidRepositoryID                  = errors.New("invalid repository ID")
+	ErrInvalidRepositoryFullName            = errors.New("invalid repository full name")
+	ErrInvalidBranch                        = errors.New("invalid branch")
+	ErrInvalidPort                          = errors.New("invalid port")
+	ErrInvalidSecret                        = errors.New("invalid secret")
+	ErrInvalidEnvVar                        = errors.New("invalid environment variable")
+	ErrSubdomainRequired                    = errors.New("subdomain is required for public access mode")
+	ErrRootDomainRequired                   = errors.New("root domain is required for public access mode")
+	ErrInvalidAccessMode                    = errors.New("invalid access mode")
+	ErrDomainRequired                       = errors.New("domain is required")
+	ErrDomainNotAllowedForPrivateAccessMode = errors.New("domain must be nil for private access mode")
+)
+
+const (
+	MinPort = 1
+	MaxPort = 65535
 )
 
 type Application struct {
@@ -44,11 +57,18 @@ type Domain struct {
 	RootDomain string
 }
 
+func (d Domain) Validate() error {
+	if d.Subdomain == "" {
+		return ErrSubdomainRequired
+	}
+	if d.RootDomain == "" {
+		return ErrRootDomainRequired
+	}
+	return nil
+}
+
 // FullDomain returns the full domain name in the format "subdomain.rootdomain"
 func (d Domain) FullDomain() string {
-	if d.Subdomain == "" {
-		return d.RootDomain
-	}
 	return d.Subdomain + "." + d.RootDomain
 }
 
@@ -57,18 +77,27 @@ type KeyValue struct {
 	Value string
 }
 
-type ApplicationSpec struct {
-	ProjectID            string
-	Source               ApplicationSource
-	BuildConfig          BuildConfig
-	AccessMode           AccessMode
-	Domain               *Domain
-	Port                 int32
-	EnvironmentVariables []KeyValue
-	Secrets              []KeyValue
+func (k KeyValue) Validate() error {
+	if k.Key == "" {
+		return errors.New("key is required")
+	}
+	if k.Value == "" {
+		return errors.New("value is required")
+	}
+	return nil
 }
 
-// TODO: バリデーションをどうするか考える
+type ApplicationSpec struct {
+	ProjectID   string
+	Source      ApplicationSource
+	BuildConfig BuildConfig
+	AccessMode  AccessMode
+	Domain      *Domain
+	Port        int32
+	Env         []KeyValue
+	Secrets     []KeyValue
+}
+
 func (s ApplicationSpec) Validate() error {
 	if s.ProjectID == "" {
 		return ErrInvalidProjectID
@@ -76,8 +105,30 @@ func (s ApplicationSpec) Validate() error {
 	if s.Source.Branch == "" {
 		return ErrInvalidBranch
 	}
-	if s.AccessMode == AccessModeMembersOnly && s.Domain == nil {
-		return ErrDomainRequiredForMembersOnly
+	if s.Port < MinPort || s.Port > MaxPort {
+		return ErrInvalidPort
+	}
+	for _, kv := range s.Env {
+		if err := kv.Validate(); err != nil {
+			return fmt.Errorf("invalid environment variable: %w", err)
+		}
+	}
+	for _, kv := range s.Secrets {
+		if err := kv.Validate(); err != nil {
+			return fmt.Errorf("invalid secret: %w", err)
+		}
+	}
+	switch s.AccessMode {
+	case AccessModePublic, AccessModeMembersOnly:
+		if s.Domain == nil {
+			return ErrDomainRequired
+		}
+	case AccessModePrivate:
+		if s.Domain != nil {
+			return ErrDomainNotAllowedForPrivateAccessMode
+		}
+	default:
+		return ErrInvalidAccessMode
 	}
 	return nil
 }

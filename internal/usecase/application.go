@@ -30,24 +30,14 @@ type CreateApplicationParams struct {
 }
 
 func (u *applicationService) CreateApplication(ctx context.Context, params CreateApplicationParams) (*domain.Application, error) {
-	spec := domain.ApplicationSpec{
-		ProjectID:            params.Spec.ProjectID,
-		Source:               params.Spec.Source,
-		BuildConfig:          params.Spec.BuildConfig,
-		AccessMode:           params.Spec.AccessMode,
-		Domain:               params.Spec.Domain,
-		Port:                 params.Spec.Port,
-		EnvironmentVariables: params.Spec.EnvironmentVariables,
-		Secrets:              params.Spec.Secrets,
-	}
-	if err := spec.Validate(); err != nil {
+	if err := params.Spec.Validate(); err != nil {
 		return nil, err
 	}
 	createdApp, err := u.appRepo.CreateApplication(ctx, domain.CreateApplicationParams{
 		ID:      uuid.New().String(),
 		Name:    params.Name,
 		OwnerID: params.OwnerID,
-		Spec:    spec,
+		Spec:    params.Spec,
 	})
 	if err != nil {
 		return nil, err
