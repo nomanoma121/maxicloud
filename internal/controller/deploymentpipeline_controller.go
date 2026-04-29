@@ -239,6 +239,19 @@ func (r *DeploymentPipelineReconciler) handlePhaseDeploying(ctx context.Context,
 		log.Error(err, "failed to get installation ID")
 		return ctrl.Result{}, err
 	}
+	
+	// HACK: 一旦普通にCRからDomainを読み取る
+	var app maxicloudv1alpha1.Application
+	if err := r.Get(ctx, types.NamespacedName{Name: pipeline.Spec.ApplicationName, Namespace: pipeline.Namespace}, &app); err != nil {
+		log.Error(err, "failed to get Application", "name", pipeline.Spec.ApplicationName)
+		return ctrl.Result{}, err
+	}
+
+	var appDomain string
+	if app.Spec.Expose != nil {
+		appDomain = app.Spec.Expose.Domain
+	}
+
 	if err := r.Reporter.UpdateCommitStatus(ctx, domain.UpdateCommitStatusParams{
 		InstallationID: installationID,
 		Owner:          pipeline.Spec.Owner,
@@ -249,7 +262,7 @@ func (r *DeploymentPipelineReconciler) handlePhaseDeploying(ctx context.Context,
 			Status:     domain.CheckStatusCompleted,
 			Conclusion: domain.CheckConclusionSuccess,
 			Title:      "Deploy succeeded",
-			Summary:    fmt.Sprintf("Successfully deployed %s@%s", pipeline.Spec.Repo, infragithub.ShortSHA(pipeline.Spec.SHA)),
+			Summary:    fmt.Sprintf("Successfully deployed %s@%s. Preview available at https://%s", pipeline.Spec.Repo, infragithub.ShortSHA(pipeline.Spec.SHA), appDomain),
 		},
 	}); err != nil {
 		log.Error(err, "failed to update check run")

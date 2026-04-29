@@ -106,7 +106,7 @@ func newIngress(app *maxicloudv1alpha1.Application, baseDomain, ingressClassName
 			Name:      app.Name,
 			Namespace: app.Namespace,
 			OwnerReferences: []metav1.OwnerReference{
-				*metav1.NewControllerRef(app, maxicloudv1alpha1.GroupVersion.WithKind("App")),
+				*metav1.NewControllerRef(app, maxicloudv1alpha1.GroupVersion.WithKind(ApplicationCRKind)),
 			},
 		},
 		Spec: networkingv1.IngressSpec{

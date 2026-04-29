@@ -50,6 +50,8 @@ type ApplicationReconciler struct {
 	Config   ReconcilerConfig
 }
 
+// TODO: フィールド経由で色々値を渡すようにしたいな, DeploymentPipelineに対してDomainを教えてあげたい。一旦はCRで渡す感じにしよう
+
 // +kubebuilder:rbac:groups=maxicloud.maximum.vc,resources=applications,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=maxicloud.maximum.vc,resources=applications/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=maxicloud.maximum.vc,resources=applications/finalizers,verbs=update
