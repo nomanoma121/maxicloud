@@ -631,8 +631,9 @@ type ApplicationSpec struct {
 	Build                *BuildConfig           `protobuf:"bytes,4,opt,name=build,proto3" json:"build,omitempty"`
 	Access               *AccessConfig          `protobuf:"bytes,5,opt,name=access,proto3" json:"access,omitempty"`
 	Domain               *Domain                `protobuf:"bytes,6,opt,name=domain,proto3" json:"domain,omitempty"`
-	EnvironmentVariables []*KeyValue            `protobuf:"bytes,7,rep,name=environment_variables,json=environmentVariables,proto3" json:"environment_variables,omitempty"`
-	Secrets              []*KeyValue            `protobuf:"bytes,8,rep,name=secrets,proto3" json:"secrets,omitempty"`
+	Port                 int32                  `protobuf:"varint,7,opt,name=port,proto3" json:"port,omitempty"`
+	EnvironmentVariables []*KeyValue            `protobuf:"bytes,8,rep,name=environment_variables,json=environmentVariables,proto3" json:"environment_variables,omitempty"`
+	Secrets              []*KeyValue            `protobuf:"bytes,9,rep,name=secrets,proto3" json:"secrets,omitempty"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -700,6 +701,13 @@ func (x *ApplicationSpec) GetDomain() *Domain {
 		return x.Domain
 	}
 	return nil
+}
+
+func (x *ApplicationSpec) GetPort() int32 {
+	if x != nil {
+		return x.Port
+	}
+	return 0
 }
 
 func (x *ApplicationSpec) GetEnvironmentVariables() []*KeyValue {
@@ -1395,16 +1403,17 @@ const file_maxicloud_v1_application_proto_rawDesc = "" +
 	"\x06Domain\x12\x1c\n" +
 	"\tsubdomain\x18\x01 \x01(\tR\tsubdomain\x12\x1f\n" +
 	"\vroot_domain\x18\x02 \x01(\tR\n" +
-	"rootDomain\"\xfb\x02\n" +
+	"rootDomain\"\x8f\x03\n" +
 	"\x0fApplicationSpec\x12\x1d\n" +
 	"\n" +
 	"project_id\x18\x01 \x01(\tR\tprojectId\x127\n" +
 	"\x06source\x18\x03 \x01(\v2\x1f.maxicloud.v1.ApplicationSourceR\x06source\x12/\n" +
 	"\x05build\x18\x04 \x01(\v2\x19.maxicloud.v1.BuildConfigR\x05build\x122\n" +
 	"\x06access\x18\x05 \x01(\v2\x1a.maxicloud.v1.AccessConfigR\x06access\x12,\n" +
-	"\x06domain\x18\x06 \x01(\v2\x14.maxicloud.v1.DomainR\x06domain\x12K\n" +
-	"\x15environment_variables\x18\a \x03(\v2\x16.maxicloud.v1.KeyValueR\x14environmentVariables\x120\n" +
-	"\asecrets\x18\b \x03(\v2\x16.maxicloud.v1.KeyValueR\asecrets\"|\n" +
+	"\x06domain\x18\x06 \x01(\v2\x14.maxicloud.v1.DomainR\x06domain\x12\x12\n" +
+	"\x04port\x18\a \x01(\x05R\x04port\x12K\n" +
+	"\x15environment_variables\x18\b \x03(\v2\x16.maxicloud.v1.KeyValueR\x14environmentVariables\x120\n" +
+	"\asecrets\x18\t \x03(\v2\x16.maxicloud.v1.KeyValueR\asecrets\"|\n" +
 	"\x18CreateApplicationRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x19\n" +
 	"\bowner_id\x18\x02 \x01(\tR\aownerId\x121\n" +

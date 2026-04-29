@@ -36,6 +36,7 @@ func (u *applicationService) CreateApplication(ctx context.Context, params Creat
 		BuildConfig:          params.Spec.BuildConfig,
 		AccessMode:           params.Spec.AccessMode,
 		Domain:               params.Spec.Domain,
+		Port:                 params.Spec.Port,
 		EnvironmentVariables: params.Spec.EnvironmentVariables,
 		Secrets:              params.Spec.Secrets,
 	}

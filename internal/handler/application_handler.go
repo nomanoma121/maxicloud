@@ -109,6 +109,7 @@ func protoToApplicationSpec(s *v1.ApplicationSpec) (domain.ApplicationSpec, erro
 	}
 	spec := domain.ApplicationSpec{
 		ProjectID: s.ProjectId,
+		Port:      s.GetPort(),
 	}
 	if s.Source != nil {
 		spec.Source = domain.ApplicationSource{

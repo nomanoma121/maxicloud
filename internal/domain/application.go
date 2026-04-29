@@ -63,6 +63,7 @@ type ApplicationSpec struct {
 	BuildConfig          BuildConfig
 	AccessMode           AccessMode
 	Domain               *Domain
+	Port                 int32
 	EnvironmentVariables []KeyValue
 	Secrets              []KeyValue
 }

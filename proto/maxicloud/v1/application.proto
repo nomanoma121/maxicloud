@@ -78,8 +78,9 @@ message ApplicationSpec {
   BuildConfig build = 4;
   AccessConfig access = 5;
   Domain domain = 6;
-  repeated KeyValue environment_variables = 7;
-  repeated KeyValue secrets = 8;
+  int32 port = 7;
+  repeated KeyValue environment_variables = 8;
+  repeated KeyValue secrets = 9;
 }
 
 message CreateApplicationRequest {
