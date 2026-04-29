@@ -58,7 +58,10 @@ func (r *applicationRepository) CreateApplication(ctx context.Context, app domai
 		},
 	}
 	if app.Spec.Domain != nil {
-		cr.Spec.Expose.Domain = app.Spec.Domain.FullDomain()
+		cr.Spec.Expose = &maxicloudv1alpha1.ExposeConfig{
+			Domain: app.Spec.Domain.FullDomain(),
+			Port:   app.Spec.Port,
+		}
 	}
 	if err := r.Create(ctx, cr); err != nil {
 		return nil, fmt.Errorf("create application: %w", err)
