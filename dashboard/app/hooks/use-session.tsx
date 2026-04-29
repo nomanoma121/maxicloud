@@ -27,7 +27,7 @@ type SessionContextValue = {
 const SessionContext = createContext<SessionContextValue | null>(null);
 
 export const SessionProvider = ({ children }: { children: React.ReactNode }) => {
-  const { maxicloudRepository } = useRepository();
+  const { userRepository } = useRepository();
   const [users, setUsers] = useState<UserAccount[]>([]);
   const [session, setSession] = useState<SessionState | null>(null);
   const [isReady, setIsReady] = useState(false);
@@ -36,7 +36,7 @@ export const SessionProvider = ({ children }: { children: React.ReactNode }) => 
     let cancelled = false;
 
     const bootstrap = async () => {
-      const nextUsers = await maxicloudRepository.listUsers();
+      const nextUsers = await userRepository.listUsers();
       if (cancelled) {
         return;
       }
@@ -62,7 +62,7 @@ export const SessionProvider = ({ children }: { children: React.ReactNode }) => 
     return () => {
       cancelled = true;
     };
-  }, [maxicloudRepository]);
+  }, [userRepository]);
 
   const loginAs = useCallback((userId: string) => {
     const next = { userId } satisfies SessionState;
