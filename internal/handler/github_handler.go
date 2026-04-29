@@ -84,16 +84,17 @@ func (h *GitHubHandler) Webhook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	deployEvent, handled, err := toDeploymentEvent(event)
-	if err != nil {
-		http.Error(w, "failed to convert webhook event", http.StatusBadRequest)
-		return
-	}
+	deployEvent, handled := toDeploymentEvent(event)
+	// どうでもいいイベントは無視して200 OKを返す
 	if !handled {
 		w.WriteHeader(http.StatusOK)
 		return
 	}
 	if err := h.deployService.HandleGitHubEvent(r.Context(), *deployEvent); err != nil {
+		if domain.IsValidationError(err) {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 		http.Error(w, "failed to handle deployment event", http.StatusInternalServerError)
 		return
 	}
@@ -101,15 +102,15 @@ func (h *GitHubHandler) Webhook(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func toDeploymentEvent(event interface{}) (*domain.DeploymentEvent, bool, error) {
+func toDeploymentEvent(event interface{}) (*domain.DeploymentEvent, bool) {
 	switch e := event.(type) {
 	case *gh.PushEvent:
 		if e.GetDeleted() {
-			return nil, false, nil
+			return nil, false
 		}
 		const refPrefix = "refs/heads/"
 		if !strings.HasPrefix(e.GetRef(), refPrefix) {
-			return nil, false, nil
+			return nil, false
 		}
 		branch := strings.TrimPrefix(e.GetRef(), refPrefix)
 		return &domain.DeploymentEvent{
@@ -124,7 +125,7 @@ func toDeploymentEvent(event interface{}) (*domain.DeploymentEvent, bool, error)
 				Message:    e.GetHeadCommit().GetMessage(),
 				AuthorName: e.GetHeadCommit().GetAuthor().GetName(),
 			},
-		}, true, nil
+		}, true
 	case *gh.PullRequestEvent:
 		var eventType domain.DeploymentEventType
 		switch e.GetAction() {
@@ -133,7 +134,7 @@ func toDeploymentEvent(event interface{}) (*domain.DeploymentEvent, bool, error)
 		case "closed":
 			eventType = domain.DeploymentEventTypePreviewDeleted
 		default:
-			return nil, false, nil
+			return nil, false
 		}
 		pr := e.GetPullRequest()
 		prNumber := pr.GetNumber()
@@ -150,8 +151,8 @@ func toDeploymentEvent(event interface{}) (*domain.DeploymentEvent, bool, error)
 				AuthorName: pr.GetUser().GetLogin(),
 			},
 			PRNumber: &prNumber,
-		}, true, nil
+		}, true
 	default:
-		return nil, false, nil
+		return nil, false
 	}
 }

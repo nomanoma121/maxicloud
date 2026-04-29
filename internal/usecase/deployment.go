@@ -89,14 +89,14 @@ func (s *deploymentService) HandleGitHubEvent(ctx context.Context, event domain.
 		return s.handleRepoDeploymentEvent(ctx, event, nil)
 	case domain.DeploymentEventTypePreviewRequested:
 		if event.PRNumber == nil {
-			return fmt.Errorf("pr number is required for preview deployment")
+			return domain.ValidationError{Message: "PR number is required for preview deployment"}
 		}
 		return s.handleRepoDeploymentEvent(ctx, event, event.PRNumber)
 	case domain.DeploymentEventTypePreviewDeleted:
 		// TODO: いつか実装する
 		return nil
 	default:
-		return fmt.Errorf("unsupported deployment event type: %s", event.Type)
+		return domain.ValidationError{Message: fmt.Sprintf("unsupported deployment event type: %s", event.Type)}
 	}
 }
 

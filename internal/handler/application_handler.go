@@ -22,7 +22,7 @@ func NewApplicationHandler(uc usecase.ApplicationService) *ApplicationHandler {
 }
 
 func (h *ApplicationHandler) CreateApplication(ctx context.Context, req *v1.CreateApplicationRequest) (*v1.CreateApplicationResponse, error) {
-	spec, err := protoToApplicationSpec(req.Spec)
+	spec, err := toApplicationSpec(req.Spec)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, err)
 	}
@@ -61,7 +61,7 @@ func (h *ApplicationHandler) ListApplications(ctx context.Context, req *v1.ListA
 }
 
 func (h *ApplicationHandler) UpdateApplication(ctx context.Context, req *v1.UpdateApplicationRequest) (*v1.UpdateApplicationResponse, error) {
-	spec, err := protoToApplicationSpec(req.Spec)
+	spec, err := toApplicationSpec(req.Spec)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, err)
 	}
@@ -103,7 +103,7 @@ func toProtoApplication(a *domain.Application) *v1.Application {
 	}
 }
 
-func protoToApplicationSpec(s *v1.ApplicationSpec) (domain.ApplicationSpec, error) {
+func toApplicationSpec(s *v1.ApplicationSpec) (domain.ApplicationSpec, error) {
 	if s == nil {
 		return domain.ApplicationSpec{}, nil
 	}
@@ -172,11 +172,4 @@ func protoToApplicationSpec(s *v1.ApplicationSpec) (domain.ApplicationSpec, erro
 		spec.Secrets = append(spec.Secrets, domain.KeyValue{Key: kv.Key, Value: kv.Value})
 	}
 	return spec, nil
-}
-
-func toConnectError(err error) error {
-	if domain.IsValidationError(err) {
-		return connect.NewError(connect.CodeInvalidArgument, err)
-	}
-	return connect.NewError(connect.CodeInternal, err)
 }
