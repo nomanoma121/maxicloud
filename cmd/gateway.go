@@ -41,7 +41,7 @@ func runGateway(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	appRepo := k8s.NewApplicationRepository(k8sClient)
+	appRepo := k8s.NewApplicationRepository(k8sClient, cfg.IngressClass)
 	prjRepo := k8s.NewProjectRepository(k8sClient)
 	deployRepo := postgres.NewDeploymentRepository()
 	deployPipelineRepo := k8s.NewDeploymentPipelineRepository(k8sClient)

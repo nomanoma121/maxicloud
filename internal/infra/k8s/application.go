@@ -28,12 +28,13 @@ const (
 
 type applicationRepository struct {
 	client.Client
+	ingressClassName string
 }
 
 var _ domain.ApplicationRepository = (*applicationRepository)(nil)
 
-func NewApplicationRepository(c client.Client) domain.ApplicationRepository {
-	return &applicationRepository{Client: c}
+func NewApplicationRepository(c client.Client, ingressClassName string) domain.ApplicationRepository {
+	return &applicationRepository{Client: c, ingressClassName: ingressClassName}
 }
 
 func (r *applicationRepository) CreateApplication(ctx context.Context, app domain.CreateApplicationParams) (*domain.Application, error) {
@@ -61,6 +62,7 @@ func (r *applicationRepository) CreateApplication(ctx context.Context, app domai
 		cr.Spec.Expose = &maxicloudv1alpha1.ExposeConfig{
 			Domain: app.Spec.Domain.FullDomain(),
 			Port:   app.Spec.Port,
+			IngressClassName: r.ingressClassName,
 		}
 	}
 	if err := r.Create(ctx, cr); err != nil {

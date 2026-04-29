@@ -27,13 +27,13 @@ type ExposeConfig struct {
 	// +required
 	Port int32 `json:"port"`
 
-	// IngressClassName overrides the default ingress class.
-	// +optional
-	IngressClassName *string `json:"ingressClassName,omitempty"`
+	// IngressClassName is the name of the IngressClass to use for the application's Ingress.
+	// +required
+	IngressClassName string `json:"ingressClassName"`
 
 	// Domain is the hostname to expose (e.g. app.example.com).
-	// +optional
-	Domain string `json:"domain,omitempty"`
+	// +required
+	Domain string `json:"domain"`
 }
 
 // ApplicationSpec defines the desired state of Application

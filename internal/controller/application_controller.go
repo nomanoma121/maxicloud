@@ -50,8 +50,6 @@ type ApplicationReconciler struct {
 	Config   ReconcilerConfig
 }
 
-// TODO: フィールド経由で色々値を渡すようにしたいな, DeploymentPipelineに対してDomainを教えてあげたい。一旦はCRで渡す感じにしよう
-
 // +kubebuilder:rbac:groups=maxicloud.maximum.vc,resources=applications,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=maxicloud.maximum.vc,resources=applications/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=maxicloud.maximum.vc,resources=applications/finalizers,verbs=update
@@ -178,7 +176,7 @@ func (r *ApplicationReconciler) reconcileIngress(ctx context.Context, applicatio
 
 	ingress.Spec.Rules[0].Host = application.Spec.Expose.Domain
 	ingress.Spec.Rules[0].HTTP.Paths[0].Backend.Service.Port.Number = application.Spec.Expose.Port
-	ingress.Spec.IngressClassName = application.Spec.Expose.IngressClassName
+	ingress.Spec.IngressClassName = &application.Spec.Expose.IngressClassName
 	return r.Update(ctx, &ingress)
 }
 

@@ -5,6 +5,6 @@ metadata:
 data:
   HEALTH_PROBE_BIND_ADDRESS: ":8081"
   GHCR_HOST: "ghcr.io/nomanoma121"
-  INGRESS_CLASS: "nginx"
+  INGRESS_CLASS: "cloudflare-tunnel"
   BASE_DOMAIN: "maxicloud.maximum.vc"
   GITHUB_PRIVATE_KEY_PATH: "/etc/maxicloud/github/private-key.pem"
