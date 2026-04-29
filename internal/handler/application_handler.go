@@ -32,7 +32,7 @@ func (h *ApplicationHandler) CreateApplication(ctx context.Context, req *v1.Crea
 		Spec:    spec,
 	})
 	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, err)
+		return nil, toConnectError(err)
 	}
 	return &v1.CreateApplicationResponse{Application: toProtoApplication(app)}, nil
 }
@@ -72,7 +72,7 @@ func (h *ApplicationHandler) UpdateApplication(ctx context.Context, req *v1.Upda
 		Spec:    spec,
 	})
 	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, err)
+		return nil, toConnectError(err)
 	}
 	return &v1.UpdateApplicationResponse{Application: toProtoApplication(app)}, nil
 }
@@ -172,4 +172,11 @@ func protoToApplicationSpec(s *v1.ApplicationSpec) (domain.ApplicationSpec, erro
 		spec.Secrets = append(spec.Secrets, domain.KeyValue{Key: kv.Key, Value: kv.Value})
 	}
 	return spec, nil
+}
+
+func toConnectError(err error) error {
+	if domain.IsValidationError(err) {
+		return connect.NewError(connect.CodeInvalidArgument, err)
+	}
+	return connect.NewError(connect.CodeInternal, err)
 }

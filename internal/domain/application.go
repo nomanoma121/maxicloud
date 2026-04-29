@@ -2,25 +2,8 @@ package domain
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"time"
-)
-
-var (
-	ErrInvalidProjectID                     = errors.New("invalid project ID")
-	ErrInvalidApplicationName               = errors.New("invalid application name")
-	ErrInvalidRepositoryID                  = errors.New("invalid repository ID")
-	ErrInvalidRepositoryFullName            = errors.New("invalid repository full name")
-	ErrInvalidBranch                        = errors.New("invalid branch")
-	ErrInvalidPort                          = errors.New("invalid port")
-	ErrInvalidSecret                        = errors.New("invalid secret")
-	ErrInvalidEnvVar                        = errors.New("invalid environment variable")
-	ErrSubdomainRequired                    = errors.New("subdomain is required for public access mode")
-	ErrRootDomainRequired                   = errors.New("root domain is required for public access mode")
-	ErrInvalidAccessMode                    = errors.New("invalid access mode")
-	ErrDomainRequired                       = errors.New("domain is required")
-	ErrDomainNotAllowedForPrivateAccessMode = errors.New("domain must be nil for private access mode")
 )
 
 const (
@@ -59,10 +42,10 @@ type Domain struct {
 
 func (d Domain) Validate() error {
 	if d.Subdomain == "" {
-		return ErrSubdomainRequired
+		return ValidationError{Message: "subdomain is required for public access mode"}
 	}
 	if d.RootDomain == "" {
-		return ErrRootDomainRequired
+		return ValidationError{Message: "root domain is required for public access mode"}
 	}
 	return nil
 }
@@ -79,10 +62,10 @@ type KeyValue struct {
 
 func (k KeyValue) Validate() error {
 	if k.Key == "" {
-		return errors.New("key is required")
+		return ValidationError{Message: "key is required"}
 	}
 	if k.Value == "" {
-		return errors.New("value is required")
+		return ValidationError{Message: "value is required"}
 	}
 	return nil
 }
@@ -100,13 +83,13 @@ type ApplicationSpec struct {
 
 func (s ApplicationSpec) Validate() error {
 	if s.ProjectID == "" {
-		return ErrInvalidProjectID
+		return ValidationError{Message: "project_id is required"}
 	}
 	if s.Source.Branch == "" {
-		return ErrInvalidBranch
+		return ValidationError{Message: "source.branch is required"}
 	}
 	if s.Port < MinPort || s.Port > MaxPort {
-		return ErrInvalidPort
+		return ValidationError{Message: fmt.Sprintf("port must be between %d and %d", MinPort, MaxPort)}
 	}
 	for _, kv := range s.Env {
 		if err := kv.Validate(); err != nil {
@@ -121,14 +104,14 @@ func (s ApplicationSpec) Validate() error {
 	switch s.AccessMode {
 	case AccessModePublic, AccessModeMembersOnly:
 		if s.Domain == nil {
-			return ErrDomainRequired
+			return ValidationError{Message: "domain is required"}
 		}
 	case AccessModePrivate:
 		if s.Domain != nil {
-			return ErrDomainNotAllowedForPrivateAccessMode
+			return ValidationError{Message: "domain must be nil for private access mode"}
 		}
 	default:
-		return ErrInvalidAccessMode
+		return ValidationError{Message: "invalid access mode"}
 	}
 	return nil
 }

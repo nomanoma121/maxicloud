@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"github.com/caarlos0/env/v11"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/spf13/cobra"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
@@ -61,17 +63,25 @@ func runGateway(cmd *cobra.Command, args []string) error {
 	prjHandler := handler.NewProjectHandler(prjSvc)
 	appHandler := handler.NewApplicationHandler(appSvc)
 
-	mux := http.NewServeMux()
-	mux.Handle(maxicloudv1connect.NewApplicationServiceHandler(appHandler))
-	mux.Handle(maxicloudv1connect.NewProjectServiceHandler(prjHandler))
+	r := chi.NewRouter()
+	path, h := maxicloudv1connect.NewProjectServiceHandler(prjHandler)
+	r.Mount(path, h)
+	path, h = maxicloudv1connect.NewApplicationServiceHandler(appHandler)
+	r.Mount(path, h)
+
 	// GitHub App 関連のエンドポイント
-	mux.HandleFunc("/github/install", ghHandler.Install)
-	mux.HandleFunc("/github/webhook", ghHandler.Webhook)
-	mux.HandleFunc("/github/callback", ghHandler.Callback)
+	r.Get("/github/install", ghHandler.Install)
+	r.Post("/github/webhook", ghHandler.Webhook)
+	r.Get("/github/callback", ghHandler.Callback)
+
+	r.Use(middleware.RequestID)
+	r.Use(middleware.RealIP)
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
 
 	srv := &http.Server{
 		Addr:    cfg.Addr,
-		Handler: mux,
+		Handler: r,
 	}
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
