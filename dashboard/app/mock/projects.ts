@@ -5,7 +5,7 @@ import type {
   Job,
   JobRun,
   Project,
-  Service,
+  Application,
   StackTemplate,
   UserAccount,
 } from "~/types";
@@ -72,7 +72,7 @@ export const PROJECTS: Project[] = [
   },
 ];
 
-export const SERVICES: Service[] = [
+export const APPLICATIONS: Application[] = [
   {
     id: "svc-web-01",
     projectId: "prj-event-hub",
@@ -134,7 +134,7 @@ export const SERVICES: Service[] = [
 export const DEPLOYMENTS: DeploymentRun[] = [
   {
     id: "dep-20260415-001",
-    serviceId: "svc-api-02",
+    applicationId: "svc-api-02",
     ownerId: "u-yu",
     revision: "rev-20260415-1",
     commit: "sha-4a92f7c",
@@ -144,7 +144,7 @@ export const DEPLOYMENTS: DeploymentRun[] = [
   },
   {
     id: "dep-20260415-002",
-    serviceId: "svc-web-01",
+    applicationId: "svc-web-01",
     ownerId: "u-rina",
     revision: "rev-20260415-2",
     commit: "sha-6d9c34a",
@@ -154,7 +154,7 @@ export const DEPLOYMENTS: DeploymentRun[] = [
   },
   {
     id: "dep-20260415-003",
-    serviceId: "svc-tools-04",
+    applicationId: "svc-tools-04",
     ownerId: "u-kouta",
     revision: "rev-20260415-3",
     commit: "sha-aa31e80",
@@ -164,7 +164,7 @@ export const DEPLOYMENTS: DeploymentRun[] = [
   },
   {
     id: "dep-20260415-004",
-    serviceId: "svc-batch-03",
+    applicationId: "svc-batch-03",
     ownerId: "u-rina",
     revision: "rev-20260415-4",
     commit: "sha-118ca11",
@@ -181,7 +181,7 @@ export const JOBS: Job[] = [
     name: "db-migrate",
     command: "pnpm prisma migrate deploy",
     trigger: "predeploy",
-    sourceServiceId: "svc-web-01",
+    sourceApplicationId: "svc-web-01",
     ownerId: "u-rina",
     updatedAt: "10 min ago",
     lastRunStatus: "success",
@@ -193,7 +193,7 @@ export const JOBS: Job[] = [
     name: "ranking-backfill",
     command: "python worker.py backfill --days 7",
     trigger: "manual",
-    sourceServiceId: "svc-batch-03",
+    sourceApplicationId: "svc-batch-03",
     ownerId: "u-rina",
     updatedAt: "1 day ago",
     lastRunStatus: "failed",
@@ -206,7 +206,7 @@ export const JOBS: Job[] = [
     command: "python scripts/train.py --dataset latest",
     trigger: "schedule",
     schedule: "0 2 * * *",
-    sourceServiceId: "svc-tools-04",
+    sourceApplicationId: "svc-tools-04",
     ownerId: "u-kouta",
     updatedAt: "35 min ago",
     lastRunStatus: "running",
@@ -331,8 +331,8 @@ export const STACK_TEMPLATES: StackTemplate[] = [
   },
   {
     id: "tpl-rust",
-    title: "Rust Service",
-    description: "Cargo build with a slim runtime image for low-memory services.",
+    title: "Rust Application",
+    description: "Cargo build with a slim runtime image for low-memory applications.",
     dockerfile: "rust:1.86-slim",
     envKeys: ["PORT", "RUST_LOG"],
     badge: "Backend",
@@ -389,8 +389,8 @@ export const PROJECT_BY_ID = Object.fromEntries(
   PROJECTS.map((project) => [project.id, project] as const),
 );
 
-export const SERVICE_BY_ID = Object.fromEntries(
-  SERVICES.map((service) => [service.id, service] as const),
+export const APPLICATION_BY_ID = Object.fromEntries(
+  APPLICATIONS.map((application) => [application.id, application] as const),
 );
 
 export const JOB_BY_ID = Object.fromEntries(

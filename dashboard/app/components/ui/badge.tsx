@@ -8,9 +8,9 @@ import {
   XCircle,
   type Icon,
 } from "react-feather";
-import type { DeploymentStatus, ServiceStatus, UserStatus } from "~/types";
+import type { DeploymentStatus, ApplicationStatus, UserStatus } from "~/types";
 
-type BadgeStatus = ServiceStatus | DeploymentStatus | UserStatus;
+type BadgeStatus = ApplicationStatus | DeploymentStatus | UserStatus;
 
 const statusStyle: Record<BadgeStatus, { text: string; icon: string; label: string; glyph: Icon }> = {
   healthy: {

@@ -7,37 +7,37 @@ import { Breadcrumb } from "~/components/ui/breadcrumb";
 import { Button } from "~/components/ui/button";
 import { Input, Select, Textarea } from "~/components/ui/form-controls";
 import { useCreateDeploymentMutation } from "~/hooks/use-maxicloud-mutation";
-import { useServicesQuery } from "~/hooks/use-maxicloud-query";
+import { useApplicationsQuery } from "~/hooks/use-maxicloud-query";
 import { useSession } from "~/hooks/use-session";
 import { Panel } from "~/components/ui/panel";
 
 export default function NewDeploymentPage() {
   const navigate = useNavigate();
   const { currentUser } = useSession();
-  const { data: services = [] } = useServicesQuery();
+  const { data: applications = [] } = useApplicationsQuery();
   const { mutateAsync: createDeployment, isPending } = useCreateDeploymentMutation();
 
-  const [serviceId, setServiceId] = useState("");
+  const [applicationId, setApplicationId] = useState("");
   const [branch, setBranch] = useState("main");
   const [revision, setRevision] = useState("HEAD");
   const [strategy, setStrategy] = useState("rolling");
   const [envText, setEnvText] = useState("LOG_LEVEL=info");
 
   useEffect(() => {
-    if (!serviceId && services[0]) {
-      setServiceId(services[0].id);
+    if (!applicationId && applications[0]) {
+      setApplicationId(applications[0].id);
     }
-  }, [serviceId, services]);
+  }, [applicationId, applications]);
 
-  const service = useMemo(
-    () => services.find((target) => target.id === serviceId) ?? services[0],
-    [serviceId, services],
+  const application = useMemo(
+    () => applications.find((target) => target.id === applicationId) ?? applications[0],
+    [applicationId, applications],
   );
 
   useEffect(() => {
-    if (!service) return;
-    setBranch(service.branch);
-  }, [service]);
+    if (!application) return;
+    setBranch(application.branch);
+  }, [application]);
 
   return (
     <div className={css({ display: "grid", gap: 4 })}>
@@ -51,7 +51,7 @@ export default function NewDeploymentPage() {
 
       <DashboardHeader
         title="New Deployment"
-        subtitle="既存Serviceを選択して再デプロイ（処理は未接続）"
+        subtitle="既存Applicationを選択して再デプロイ（処理は未接続）"
       />
 
       <div
@@ -67,10 +67,10 @@ export default function NewDeploymentPage() {
             className={css({ display: "grid", gap: 3 })}
             onSubmit={async (event) => {
               event.preventDefault();
-              if (!currentUser || !service) return;
+              if (!currentUser || !application) return;
 
               await createDeployment({
-                serviceId: service.id,
+                applicationId: application.id,
                 ownerId: currentUser.id,
                 revision,
                 commit: `sha-${Math.random().toString(16).slice(2, 9)}`,
@@ -93,18 +93,18 @@ export default function NewDeploymentPage() {
               })}
             >
               <p className={css({ margin: 0, fontSize: "sm", color: "gray.600" })}>
-                新規Serviceの作成は別フローです
+                新規Applicationの作成は別フローです
               </p>
-              <Button type="button" variant="secondary" size="sm" onClick={() => navigate("/services/new")}>
-                New Service
+              <Button type="button" variant="secondary" size="sm" onClick={() => navigate("/applications/new")}>
+                New Application
               </Button>
             </div>
 
-            <Field label="Service">
-              <Select value={serviceId} onChange={(event) => setServiceId(event.target.value)}>
-                {services.map((serviceItem) => (
-                  <option key={serviceItem.id} value={serviceItem.id}>
-                    {serviceItem.name}
+            <Field label="Application">
+              <Select value={applicationId} onChange={(event) => setApplicationId(event.target.value)}>
+                {applications.map((applicationItem) => (
+                  <option key={applicationItem.id} value={applicationItem.id}>
+                    {applicationItem.name}
                   </option>
                 ))}
               </Select>
@@ -134,9 +134,9 @@ export default function NewDeploymentPage() {
 
         <Panel title="Review">
           <dl className={css({ margin: 0, display: "grid", gap: 2 })}>
-            <Row label="Service" value={service?.name ?? "-"} />
-            <Row label="Repository" value={service?.repository ?? "-"} />
-            <Row label="Domain" value={service?.url ?? "-"} />
+            <Row label="Application" value={application?.name ?? "-"} />
+            <Row label="Repository" value={application?.repository ?? "-"} />
+            <Row label="Domain" value={application?.url ?? "-"} />
             <Row label="Branch" value={branch} />
             <Row label="Revision" value={revision} />
             <Row label="Strategy" value={strategy} />

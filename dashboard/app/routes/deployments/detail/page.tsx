@@ -9,7 +9,7 @@ import { useDeploymentDetailData } from "~/routes/deployments/internal/hooks/use
 
 export default function DeploymentDetailPage() {
   const { deploymentId = "" } = useParams();
-  const { deployment, events, serviceByID, userByID } = useDeploymentDetailData(deploymentId);
+  const { deployment, events, applicationByID, userByID } = useDeploymentDetailData(deploymentId);
 
   if (!deployment) {
     return (
@@ -27,7 +27,7 @@ export default function DeploymentDetailPage() {
     );
   }
 
-  const service = serviceByID[deployment.serviceId];
+  const application = applicationByID[deployment.applicationId];
   const owner = userByID[deployment.ownerId];
 
   return (
@@ -42,7 +42,7 @@ export default function DeploymentDetailPage() {
 
       <DashboardHeader
         title={deployment.revision}
-        subtitle={`${service?.name ?? "-"} ・ ${owner?.displayName ?? "-"}`}
+        subtitle={`${application?.name ?? "-"} ・ ${owner?.displayName ?? "-"}`}
       />
 
       <Panel title="Deployment Summary" rightSlot={<StatusBadge status={deployment.status} />}>
@@ -54,7 +54,7 @@ export default function DeploymentDetailPage() {
             mdDown: { gridTemplateColumns: "1fr" },
           })}
         >
-          <KpiItem label="Service" value={service?.name ?? "-"} />
+          <KpiItem label="Application" value={application?.name ?? "-"} />
           <KpiItem label="Owner" value={owner?.displayName ?? "-"} />
           <KpiItem label="Started At" value={deployment.startedAt} />
           <KpiItem label="Duration" value={deployment.duration} />

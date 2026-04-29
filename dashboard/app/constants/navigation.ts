@@ -10,7 +10,7 @@ export type NavigationItem = {
 export const NAVIGATION_ITEMS: NavigationItem[] = [
   { to: "/", label: "Overview", icon: Home },
   { to: "/projects", label: "Projects", icon: Folder },
-  { to: "/services", label: "Services", icon: Box },
+  { to: "/applications", label: "Applications", icon: Box },
   { to: "/deployments", label: "Deployments", icon: Layers },
   { to: "/settings", label: "Workspace", icon: Settings },
 ];

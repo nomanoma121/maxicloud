@@ -2,7 +2,7 @@ import type { DeployEvent, DeploymentRun } from "~/types";
 import { makeID, state } from "~/repository/shared/state";
 
 export type CreateDeploymentInput = {
-  serviceId: string;
+  applicationId: string;
   ownerId: string;
   revision: string;
   commit: string;
@@ -35,7 +35,7 @@ export class DeploymentRepository implements IDeploymentRepository {
   async createDeployment(input: CreateDeploymentInput): Promise<DeploymentRun> {
     const created: DeploymentRun = {
       id: makeID("dep"),
-      serviceId: input.serviceId,
+      applicationId: input.applicationId,
       ownerId: input.ownerId,
       revision: input.revision.trim(),
       commit: input.commit.trim(),

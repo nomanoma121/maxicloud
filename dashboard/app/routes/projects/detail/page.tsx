@@ -10,7 +10,7 @@ import { useProjectDetailData } from "~/routes/projects/internal/hooks/use-proje
 
 export default function ProjectDetailPage() {
   const { projectId = "" } = useParams();
-  const { deployments, project, services, userByID } = useProjectDetailData(projectId);
+  const { deployments, project, applications, userByID } = useProjectDetailData(projectId);
 
   if (!project) {
     return (
@@ -44,9 +44,9 @@ export default function ProjectDetailPage() {
   }
 
   const owner = userByID[project.ownerId];
-  const projectServices = services.filter((service) => service.projectId === project.id);
-  const serviceIdSet = new Set(projectServices.map((service) => service.id));
-  const projectDeployments = deployments.filter((deployment) => serviceIdSet.has(deployment.serviceId));
+  const projectApplications = applications.filter((application) => application.projectId === project.id);
+  const serviceIdSet = new Set(projectApplications.map((application) => application.id));
+  const projectDeployments = deployments.filter((deployment) => serviceIdSet.has(deployment.applicationId));
 
   return (
     <div className={css({ display: "grid", gap: 4 })}>
@@ -73,17 +73,17 @@ export default function ProjectDetailPage() {
         >
           <Row label="Owner" value={owner?.displayName ?? "-"} />
           <Row label="Visibility" value={project.visibility} />
-          <Row label="Services" value={String(projectServices.length)} />
+          <Row label="Applications" value={String(projectApplications.length)} />
           <Row label="Updated" value={project.updatedAt} />
         </dl>
       </Panel>
 
       <Panel
-        title="Services"
-        subtitle="このProjectに紐づくService一覧"
+        title="Applications"
+        subtitle="このProjectに紐づくApplication一覧"
         rightSlot={(
           <Link
-            to={`/services/new?projectId=${project.id}`}
+            to={`/applications/new?projectId=${project.id}`}
             className={css({
               display: "inline-flex",
               alignItems: "center",
@@ -102,7 +102,7 @@ export default function ProjectDetailPage() {
               },
             })}
           >
-            New Service
+            New Application
           </Link>
         )}
       >
@@ -119,21 +119,21 @@ export default function ProjectDetailPage() {
             </Table.Tr>
           </thead>
           <tbody>
-            {projectServices.map((service) => (
-              <Table.Tr key={service.id}>
+            {projectApplications.map((application) => (
+              <Table.Tr key={application.id}>
                 <Table.Td>
-                  <strong>{service.name}</strong>
-                  <div className={css({ color: "gray.500", fontSize: "xs" })}>{service.branch}</div>
+                  <strong>{application.name}</strong>
+                  <div className={css({ color: "gray.500", fontSize: "xs" })}>{application.branch}</div>
                 </Table.Td>
-                <Table.Td>{service.repository}</Table.Td>
-                <Table.Td>{userByID[service.ownerId]?.displayName}</Table.Td>
+                <Table.Td>{application.repository}</Table.Td>
+                <Table.Td>{userByID[application.ownerId]?.displayName}</Table.Td>
                 <Table.Td>
-                  <StatusBadge status={service.status} />
+                  <StatusBadge status={application.status} />
                 </Table.Td>
-                <Table.Td>{service.cpu}</Table.Td>
-                <Table.Td>{service.memory}</Table.Td>
+                <Table.Td>{application.cpu}</Table.Td>
+                <Table.Td>{application.memory}</Table.Td>
                 <Table.Td>
-                  <Link to={`/services/${service.id}`} className={css({ color: "green.700", fontSize: "sm" })}>
+                  <Link to={`/applications/${application.id}`} className={css({ color: "green.700", fontSize: "sm" })}>
                     View
                   </Link>
                 </Table.Td>
@@ -148,7 +148,7 @@ export default function ProjectDetailPage() {
           <thead>
             <Table.Tr>
               <Table.Th>Revision</Table.Th>
-              <Table.Th>Service</Table.Th>
+              <Table.Th>Application</Table.Th>
               <Table.Th>Status</Table.Th>
               <Table.Th>Started</Table.Th>
               <Table.Th>Duration</Table.Th>
@@ -159,7 +159,7 @@ export default function ProjectDetailPage() {
             {projectDeployments.map((deployment) => (
               <Table.Tr key={deployment.id}>
                 <Table.Td>{deployment.revision}</Table.Td>
-                <Table.Td>{projectServices.find((item) => item.id === deployment.serviceId)?.name ?? "-"}</Table.Td>
+                <Table.Td>{projectApplications.find((item) => item.id === deployment.applicationId)?.name ?? "-"}</Table.Td>
                 <Table.Td>
                   <StatusBadge status={deployment.status} />
                 </Table.Td>

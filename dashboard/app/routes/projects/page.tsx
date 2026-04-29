@@ -12,18 +12,18 @@ import { useProjectsData } from "~/routes/projects/internal/hooks/use-projects-d
 export default function ProjectsPage() {
   const navigate = useNavigate();
   const [keyword, setKeyword] = useState("");
-  const { projects, services, userByID } = useProjectsData();
+  const { projects, applications, userByID } = useProjectsData();
 
   const projectCounts = useMemo(
     () =>
       Object.fromEntries(
         projects.map((project) => {
-          const items = services.filter((service) => service.projectId === project.id);
-          const healthy = items.filter((service) => service.status === "healthy").length;
+          const items = applications.filter((application) => application.projectId === project.id);
+          const healthy = items.filter((application) => application.status === "healthy").length;
           return [project.id, { total: items.length, healthy }] as const;
         }),
       ),
-    [projects, services],
+    [projects, applications],
   );
 
   const data = useMemo(() => {
@@ -49,7 +49,7 @@ export default function ProjectsPage() {
 
       <DashboardHeader
         title="Projects"
-        subtitle="ProjectごとにServiceをまとめて管理します"
+        subtitle="ProjectごとにApplicationをまとめて管理します"
       />
 
       <Panel>
@@ -99,7 +99,7 @@ export default function ProjectsPage() {
             <Table.Tr>
               <Table.Th>Project</Table.Th>
               <Table.Th>Owner</Table.Th>
-              <Table.Th>Services</Table.Th>
+              <Table.Th>Applications</Table.Th>
               <Table.Th>Healthy</Table.Th>
               <Table.Th>Updated</Table.Th>
               <Table.Th>Detail</Table.Th>

@@ -15,7 +15,7 @@ import { DashboardHeader } from "~/components/layout/dashboard-header";
 import { Breadcrumb } from "~/components/ui/breadcrumb";
 import { Button } from "~/components/ui/button";
 import { Input, Select, Textarea } from "~/components/ui/form-controls";
-import { useCreateServiceMutation } from "~/hooks/use-maxicloud-mutation";
+import { useCreateApplicationMutation } from "~/hooks/use-maxicloud-mutation";
 import {
   useGitHubRepositoriesQuery,
   useProjectsQuery,
@@ -53,19 +53,19 @@ const runtimeDefaultEnv = (runtime: string) => {
   return "NODE_ENV=production\nPORT=3000";
 };
 
-export const ServiceCreateBuilder = () => {
+export const ApplicationCreateBuilder = () => {
   const { currentUser } = useSession();
   const { data: projects = [] } = useProjectsQuery();
   const { data: githubRepositories = [] } = useGitHubRepositoriesQuery();
-  const { mutateAsync: createService, isPending } = useCreateServiceMutation();
+  const { mutateAsync: createApplication, isPending } = useCreateApplicationMutation();
 
   const [searchParams] = useSearchParams();
   const [oauthState, setOauthState] = useState<"disconnected" | "connecting" | "connected">("disconnected");
   const [projectId, setProjectId] = useState("");
   const [repositoryId, setRepositoryId] = useState("");
   const [branch, setBranch] = useState("main");
-  const [serviceName, setServiceName] = useState("new-service");
-  const [domainPrefix, setDomainPrefix] = useState("new-service");
+  const [applicationName, setApplicationName] = useState("new-application");
+  const [domainPrefix, setDomainPrefix] = useState("new-application");
   const [domainEdited, setDomainEdited] = useState(false);
   const [domainSuffix, setDomainSuffix] = useState(DOMAIN_SUFFIXES[0]);
   const [exposureMode, setExposureMode] = useState<ExposureMode>("public");
@@ -102,10 +102,10 @@ export const ServiceCreateBuilder = () => {
 
   useEffect(() => {
     if (!domainEdited) {
-      const next = slugify(serviceName);
-      setDomainPrefix(next || "new-service");
+      const next = slugify(applicationName);
+      setDomainPrefix(next || "new-application");
     }
-  }, [domainEdited, serviceName]);
+  }, [domainEdited, applicationName]);
 
   useEffect(() => {
     if (oauthState !== "connected") return;
@@ -164,14 +164,14 @@ export const ServiceCreateBuilder = () => {
       <Breadcrumb
         items={[
           { label: "Dashboard", href: "/" },
-          { label: "Services", href: "/services", icon: <Box size={14} /> },
+          { label: "Applications", href: "/applications", icon: <Box size={14} /> },
           { label: "New", icon: <PlusCircle size={14} /> },
         ]}
       />
 
       <DashboardHeader
-        title="New Service"
-        subtitle="Projectを選んで、Serviceを作成します"
+        title="New Application"
+        subtitle="Projectを選んで、Applicationを作成します"
       />
 
       <div className={css({ display: "grid", gap: 4 })}>
@@ -184,13 +184,13 @@ export const ServiceCreateBuilder = () => {
 
               const exposure =
                 exposureMode === "private"
-                  ? `${serviceName}.internal.maximum.vc`
+                  ? `${applicationName}.internal.maximum.vc`
                   : `${domainPrefix}.${domainSuffix}`;
 
-              await createService({
+              await createApplication({
                 projectId,
                 ownerId: currentUser.id,
-                name: serviceName,
+                name: applicationName,
                 repository: repository.fullName,
                 branch,
                 runtime: repository.detectedRuntime,
@@ -201,7 +201,7 @@ export const ServiceCreateBuilder = () => {
             }}
           >
             <section className={css({ display: "grid", gap: 3 })}>
-              <SectionHeading icon={<Folder size={15} />} title="0. Project" description="Serviceを追加するProject" />
+              <SectionHeading icon={<Folder size={15} />} title="0. Project" description="Applicationを追加するProject" />
               <Field label="Project">
                 <Select value={projectId} onChange={(event) => setProjectId(event.target.value)}>
                   {projects.map((project) => (
@@ -213,8 +213,8 @@ export const ServiceCreateBuilder = () => {
               </Field>
             </section>
             <GeneralSection
-              serviceName={serviceName}
-              setServiceName={setServiceName}
+              applicationName={applicationName}
+              setApplicationName={setApplicationName}
             />
             <SourceSection
               oauthState={oauthState}
@@ -444,11 +444,11 @@ const BuildSection = ({
 };
 
 const GeneralSection = ({
-  serviceName,
-  setServiceName,
+  applicationName,
+  setApplicationName,
 }: {
-  serviceName: string;
-  setServiceName: (value: string) => void;
+  applicationName: string;
+  setApplicationName: (value: string) => void;
 }) => {
   return (
     <section className={css({ display: "grid", gap: 3 })}>
@@ -459,8 +459,8 @@ const GeneralSection = ({
           gap: 2,
         })}
       >
-        <Field label="Service Name">
-          <Input value={serviceName} onChange={(event) => setServiceName(event.target.value)} />
+        <Field label="Application Name">
+          <Input value={applicationName} onChange={(event) => setApplicationName(event.target.value)} />
         </Field>
       </div>
     </section>
@@ -668,7 +668,7 @@ const ActionRow = ({ isPending }: { isPending: boolean }) => (
       設定は保存されます（API未接続のUIモック）
     </p>
     <Button type="submit" variant="primary" disabled={isPending}>
-      {isPending ? "Creating..." : "Create Service"}
+      {isPending ? "Creating..." : "Create Application"}
     </Button>
   </div>
 );

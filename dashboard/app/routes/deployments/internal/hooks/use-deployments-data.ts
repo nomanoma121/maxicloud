@@ -3,31 +3,31 @@ import {
   useDeployEventsQuery,
   useDeploymentQuery,
   useDeploymentsQuery,
-  useServicesQuery,
+  useApplicationsQuery,
   useUsersQuery,
 } from "~/hooks/use-maxicloud-query";
 import { indexByID } from "~/utils/collection";
 
 export const useDeploymentsData = () => {
   const { data: users = [] } = useUsersQuery();
-  const { data: services = [] } = useServicesQuery();
+  const { data: applications = [] } = useApplicationsQuery();
   const { data: deployments = [] } = useDeploymentsQuery();
 
   const userByID = useMemo(
     () => indexByID(users),
     [users],
   );
-  const serviceByID = useMemo(
-    () => indexByID(services),
-    [services],
+  const applicationByID = useMemo(
+    () => indexByID(applications),
+    [applications],
   );
 
-  return { userByID, serviceByID, deployments };
+  return { userByID, applicationByID, deployments };
 };
 
 export const useDeploymentDetailData = (deploymentId: string) => {
   const { data: users = [] } = useUsersQuery();
-  const { data: services = [] } = useServicesQuery();
+  const { data: applications = [] } = useApplicationsQuery();
   const { data: deployment } = useDeploymentQuery(deploymentId);
   const { data: events = [] } = useDeployEventsQuery(deploymentId);
 
@@ -35,10 +35,10 @@ export const useDeploymentDetailData = (deploymentId: string) => {
     () => indexByID(users),
     [users],
   );
-  const serviceByID = useMemo(
-    () => indexByID(services),
-    [services],
+  const applicationByID = useMemo(
+    () => indexByID(applications),
+    [applications],
   );
 
-  return { userByID, serviceByID, deployment, events };
+  return { userByID, applicationByID, deployment, events };
 };

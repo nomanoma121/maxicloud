@@ -8,37 +8,37 @@ import { Breadcrumb } from "~/components/ui/breadcrumb";
 import { Button } from "~/components/ui/button";
 import { Panel } from "~/components/ui/panel";
 import { Table } from "~/components/ui/table";
-import { useServicesData } from "~/routes/services/internal/hooks/use-services-data";
+import { useApplicationsData } from "~/routes/applications/internal/hooks/use-applications-data";
 
-export default function ServicesPage() {
+export default function ApplicationsPage() {
   const navigate = useNavigate();
   const [keyword, setKeyword] = useState("");
-  const { projectByID, services, userByID } = useServicesData();
+  const { projectByID, applications, userByID } = useApplicationsData();
 
   const data = useMemo(() => {
     const normalized = keyword.trim().toLowerCase();
-    if (!normalized) return services;
+    if (!normalized) return applications;
 
-    return services.filter((service) =>
-      [service.name, service.repository, projectByID[service.projectId]?.name ?? ""]
+    return applications.filter((application) =>
+      [application.name, application.repository, projectByID[application.projectId]?.name ?? ""]
         .join(" ")
         .toLowerCase()
         .includes(normalized),
     );
-  }, [keyword, projectByID, services]);
+  }, [keyword, projectByID, applications]);
 
   return (
     <div className={css({ display: "grid", gap: 4 })}>
       <Breadcrumb
         items={[
           { label: "Dashboard", href: "/" },
-          { label: "Services", icon: <Box size={14} /> },
+          { label: "Applications", icon: <Box size={14} /> },
         ]}
       />
 
       <DashboardHeader
-        title="Services"
-        subtitle="全ProjectのServiceを横断で確認できます"
+        title="Applications"
+        subtitle="全ProjectのApplicationを横断で確認できます"
       />
 
       <Panel>
@@ -68,7 +68,7 @@ export default function ServicesPage() {
               value={keyword}
               onChange={(event) => setKeyword(event.target.value)}
               type="text"
-              placeholder="service / project / repo"
+              placeholder="application / project / repo"
               className={css({
                 border: "none",
                 outline: "none",
@@ -78,15 +78,15 @@ export default function ServicesPage() {
               })}
             />
           </label>
-          <Button type="button" variant="secondary" size="sm" onClick={() => navigate("/services/new")}>
-            New Service
+          <Button type="button" variant="secondary" size="sm" onClick={() => navigate("/applications/new")}>
+            New Application
           </Button>
         </div>
 
         <Table.Root>
           <thead>
             <Table.Tr>
-              <Table.Th>Service</Table.Th>
+              <Table.Th>Application</Table.Th>
               <Table.Th>Project</Table.Th>
               <Table.Th>Owner</Table.Th>
               <Table.Th>Status</Table.Th>
@@ -97,28 +97,28 @@ export default function ServicesPage() {
             </Table.Tr>
           </thead>
           <tbody>
-            {data.map((service) => (
-              <Table.Tr key={service.id}>
+            {data.map((application) => (
+              <Table.Tr key={application.id}>
                 <Table.Td>
-                  <strong>{service.name}</strong>
+                  <strong>{application.name}</strong>
                   <div className={css({ color: "gray.500", fontSize: "xs" })}>
-                    {service.repository} ({service.branch})
+                    {application.repository} ({application.branch})
                   </div>
                 </Table.Td>
                 <Table.Td>
-                  <Link to={`/projects/${service.projectId}`} className={css({ color: "green.700", fontSize: "sm" })}>
-                    {projectByID[service.projectId]?.name}
+                  <Link to={`/projects/${application.projectId}`} className={css({ color: "green.700", fontSize: "sm" })}>
+                    {projectByID[application.projectId]?.name}
                   </Link>
                 </Table.Td>
-                <Table.Td>{userByID[service.ownerId]?.displayName}</Table.Td>
+                <Table.Td>{userByID[application.ownerId]?.displayName}</Table.Td>
                 <Table.Td>
-                  <StatusBadge status={service.status} />
+                  <StatusBadge status={application.status} />
                 </Table.Td>
-                <Table.Td>{service.cpu}</Table.Td>
-                <Table.Td>{service.memory}</Table.Td>
-                <Table.Td>{service.updatedAt}</Table.Td>
+                <Table.Td>{application.cpu}</Table.Td>
+                <Table.Td>{application.memory}</Table.Td>
+                <Table.Td>{application.updatedAt}</Table.Td>
                 <Table.Td>
-                  <Link to={`/services/${service.id}`} className={css({ color: "green.700", fontSize: "sm" })}>
+                  <Link to={`/applications/${application.id}`} className={css({ color: "green.700", fontSize: "sm" })}>
                     View
                   </Link>
                 </Table.Td>

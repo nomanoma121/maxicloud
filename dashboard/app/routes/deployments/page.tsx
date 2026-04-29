@@ -9,7 +9,7 @@ import { Table } from "~/components/ui/table";
 import { useDeploymentsData } from "~/routes/deployments/internal/hooks/use-deployments-data";
 
 export default function DeploymentsPage() {
-  const { deployments, serviceByID, userByID } = useDeploymentsData();
+  const { deployments, applicationByID, userByID } = useDeploymentsData();
 
   return (
     <div className={css({ display: "grid", gap: 4 })}>
@@ -30,7 +30,7 @@ export default function DeploymentsPage() {
           <thead>
             <Table.Tr>
               <Table.Th>Revision</Table.Th>
-              <Table.Th>Service</Table.Th>
+              <Table.Th>Application</Table.Th>
               <Table.Th>Owner</Table.Th>
               <Table.Th>Status</Table.Th>
               <Table.Th>Started At</Table.Th>
@@ -45,7 +45,7 @@ export default function DeploymentsPage() {
                   <strong>{deployment.revision}</strong>
                   <div className={css({ color: "gray.500", fontSize: "xs" })}>{deployment.commit}</div>
                 </Table.Td>
-                <Table.Td>{serviceByID[deployment.serviceId]?.name}</Table.Td>
+                <Table.Td>{applicationByID[deployment.applicationId]?.name}</Table.Td>
                 <Table.Td>{userByID[deployment.ownerId]?.displayName}</Table.Td>
                 <Table.Td>
                   <StatusBadge status={deployment.status} />

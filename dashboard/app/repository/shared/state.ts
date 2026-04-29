@@ -3,7 +3,7 @@ import {
   DEPLOY_EVENTS,
   GITHUB_REPOSITORIES,
   PROJECTS,
-  SERVICES,
+  APPLICATIONS,
   USERS,
 } from "~/mock/projects";
 import type {
@@ -11,7 +11,7 @@ import type {
   DeploymentRun,
   GitRepository,
   Project,
-  Service,
+  Application,
   UserAccount,
 } from "~/types";
 
@@ -27,7 +27,7 @@ export type WorkspaceSecret = {
 export type MockState = {
   users: UserAccount[];
   projects: Project[];
-  services: Service[];
+  applications: Application[];
   deployments: DeploymentRun[];
   deployEvents: DeployEvent[];
   githubRepositories: GitRepository[];
@@ -38,7 +38,7 @@ export type MockState = {
 export const state: MockState = {
   users: USERS.map((item) => ({ ...item })),
   projects: PROJECTS.map((item) => ({ ...item })),
-  services: SERVICES.map((item) => ({ ...item })),
+  applications: APPLICATIONS.map((item) => ({ ...item })),
   deployments: DEPLOYMENTS.map((item) => ({ ...item })),
   deployEvents: DEPLOY_EVENTS.map((item) => ({ ...item })),
   githubRepositories: GITHUB_REPOSITORIES.map((item) => ({ ...item })),

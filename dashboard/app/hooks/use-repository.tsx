@@ -2,7 +2,7 @@ import { createContext, useContext } from "react";
 import { DefaultRepositories } from "~/repository";
 import type { IDeploymentRepository } from "~/repository/deployment";
 import type { IProjectRepository } from "~/repository/project";
-import type { IServiceRepository } from "~/repository/service";
+import type { IApplicationRepository } from "~/repository/application";
 import type { ISourceRepository } from "~/repository/source";
 import type { IUserRepository } from "~/repository/user";
 import type { IWorkspaceRepository } from "~/repository/workspace";
@@ -10,7 +10,7 @@ import type { IWorkspaceRepository } from "~/repository/workspace";
 export interface RepositoryContextProps {
   userRepository: IUserRepository;
   projectRepository: IProjectRepository;
-  serviceRepository: IServiceRepository;
+  applicationRepository: IApplicationRepository;
   deploymentRepository: IDeploymentRepository;
   sourceRepository: ISourceRepository;
   workspaceRepository: IWorkspaceRepository;

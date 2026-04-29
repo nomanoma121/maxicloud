@@ -6,63 +6,63 @@ import { StatusBadge } from "~/components/ui/badge";
 import { Breadcrumb } from "~/components/ui/breadcrumb";
 import { Panel } from "~/components/ui/panel";
 import { Table } from "~/components/ui/table";
-import { useServiceDetailData } from "~/routes/services/internal/hooks/use-services-data";
+import { useApplicationDetailData } from "~/routes/applications/internal/hooks/use-applications-data";
 
-export default function ServiceDetailPage() {
-  const { serviceId = "" } = useParams();
-  const { deployments, projectByID, service, userByID } = useServiceDetailData(serviceId);
+export default function ApplicationDetailPage() {
+  const { applicationId = "" } = useParams();
+  const { deployments, projectByID, application, userByID } = useApplicationDetailData(applicationId);
 
-  if (!service) {
+  if (!application) {
     return (
       <div className={css({ display: "grid", gap: 4 })}>
         <Breadcrumb
           items={[
             { label: "Dashboard", href: "/" },
-            { label: "Services", href: "/services", icon: <Box size={14} /> },
+            { label: "Applications", href: "/applications", icon: <Box size={14} /> },
             { label: "Not Found" },
           ]}
         />
 
         <DashboardHeader
-          title="Service Not Found"
-          subtitle="指定されたServiceは存在しません"
+          title="Application Not Found"
+          subtitle="指定されたApplicationは存在しません"
         />
 
         <Panel>
           <p className={css({ margin: 0, color: "gray.600", fontSize: "sm" })}>
-            URL を確認してください。Service一覧に戻って選び直せます。
+            URL を確認してください。Application一覧に戻って選び直せます。
           </p>
           <Link
-            to="/services"
+            to="/applications"
             className={css({ marginTop: 3, display: "inline-block", color: "green.700", fontSize: "sm" })}
           >
-            Back to Services
+            Back to Applications
           </Link>
         </Panel>
       </div>
     );
   }
 
-  const owner = userByID[service.ownerId];
-  const project = projectByID[service.projectId];
-  const serviceDeployments = deployments.filter((deployment) => deployment.serviceId === service.id);
+  const owner = userByID[application.ownerId];
+  const project = projectByID[application.projectId];
+  const applicationDeployments = deployments.filter((deployment) => deployment.applicationId === application.id);
 
   return (
     <div className={css({ display: "grid", gap: 4 })}>
       <Breadcrumb
         items={[
           { label: "Dashboard", href: "/" },
-          { label: "Services", href: "/services", icon: <Box size={14} /> },
-          { label: service.name },
+          { label: "Applications", href: "/applications", icon: <Box size={14} /> },
+          { label: application.name },
         ]}
       />
 
       <DashboardHeader
-        title={service.name}
-        subtitle={`${service.repository} (${service.branch})`}
+        title={application.name}
+        subtitle={`${application.repository} (${application.branch})`}
       />
 
-      <Panel title="Service Summary" rightSlot={<StatusBadge status={service.status} />}>
+      <Panel title="Application Summary" rightSlot={<StatusBadge status={application.status} />}>
         <dl
           className={css({
             margin: 0,
@@ -72,15 +72,15 @@ export default function ServiceDetailPage() {
         >
           <Row label="Project" value={project?.name ?? "-"} href={project ? `/projects/${project.id}` : undefined} />
           <Row label="Owner" value={owner?.displayName ?? "-"} />
-          <Row label="Runtime" value={service.runtime} />
-          <Row label="CPU" value={service.cpu} />
-          <Row label="Memory" value={service.memory} />
-          <Row label="Updated" value={service.updatedAt} />
-          <Row label="URL" value={service.url} href={service.url} />
+          <Row label="Runtime" value={application.runtime} />
+          <Row label="CPU" value={application.cpu} />
+          <Row label="Memory" value={application.memory} />
+          <Row label="Updated" value={application.updatedAt} />
+          <Row label="URL" value={application.url} href={application.url} />
         </dl>
       </Panel>
 
-      <Panel title="Recent Deployments" subtitle="このServiceに紐づく履歴">
+      <Panel title="Recent Deployments" subtitle="このApplicationに紐づく履歴">
         <Table.Root>
           <thead>
             <Table.Tr>
@@ -93,7 +93,7 @@ export default function ServiceDetailPage() {
             </Table.Tr>
           </thead>
           <tbody>
-            {serviceDeployments.map((deployment) => (
+            {applicationDeployments.map((deployment) => (
               <Table.Tr key={deployment.id}>
                 <Table.Td>{deployment.revision}</Table.Td>
                 <Table.Td>{deployment.commit}</Table.Td>

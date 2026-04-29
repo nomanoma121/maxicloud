@@ -1,18 +1,18 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { maxicloudQueryKeys } from "~/hooks/maxicloud-query";
 import { useRepository } from "~/hooks/use-repository";
-import type { CreateServiceInput } from "~/repository/service";
+import type { CreateApplicationInput } from "~/repository/application";
 
-export const useCreateServiceMutation = () => {
-  const { serviceRepository } = useRepository();
+export const useCreateApplicationMutation = () => {
+  const { applicationRepository } = useRepository();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (input: CreateServiceInput) =>
-      serviceRepository.createService(input),
+    mutationFn: (input: CreateApplicationInput) =>
+      applicationRepository.createApplication(input),
     onSuccess: async () => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: maxicloudQueryKeys.services }),
+        queryClient.invalidateQueries({ queryKey: maxicloudQueryKeys.applications }),
         queryClient.invalidateQueries({ queryKey: maxicloudQueryKeys.projects }),
       ]);
     },

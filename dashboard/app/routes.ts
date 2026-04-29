@@ -14,9 +14,9 @@ export default [
     route("projects", "routes/projects/page.tsx"),
     route("projects/new", "routes/projects/new/page.tsx"),
     route("projects/:projectId", "routes/projects/detail/page.tsx"),
-    route("services", "routes/services/page.tsx"),
-    route("services/new", "routes/services/new/page.tsx"),
-    route("services/:serviceId", "routes/services/detail/page.tsx"),
+    route("applications", "routes/applications/page.tsx"),
+    route("applications/new", "routes/applications/new/page.tsx"),
+    route("applications/:applicationId", "routes/applications/detail/page.tsx"),
     ...prefix("deployments", [
       index("routes/deployments/page.tsx"),
       route(":deploymentId", "routes/deployments/detail/page.tsx"),

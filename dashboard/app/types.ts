@@ -1,6 +1,6 @@
 export type UserStatus = "active" | "invited" | "suspended";
 
-export type ServiceStatus = "healthy" | "degraded" | "unhealthy" | "sleeping";
+export type ApplicationStatus = "healthy" | "degraded" | "unhealthy" | "sleeping";
 export type DeploymentStatus = "success" | "running" | "failed";
 export type ProjectVisibility = "private" | "members" | "public";
 export type JobTrigger = "manual" | "predeploy" | "schedule";
@@ -23,14 +23,14 @@ export type Project = {
   updatedAt: string;
 };
 
-export type Service = {
+export type Application = {
   id: string;
   projectId: string;
   name: string;
   repository: string;
   branch: string;
   runtime: string;
-  status: ServiceStatus;
+  status: ApplicationStatus;
   url: string;
   updatedAt: string;
   cpu: string;
@@ -40,7 +40,7 @@ export type Service = {
 
 export type DeploymentRun = {
   id: string;
-  serviceId: string;
+  applicationId: string;
   ownerId: string;
   revision: string;
   commit: string;
@@ -56,7 +56,7 @@ export type Job = {
   command: string;
   trigger: JobTrigger;
   schedule?: string;
-  sourceServiceId?: string;
+  sourceApplicationId?: string;
   ownerId: string;
   updatedAt: string;
   lastRunStatus?: DeploymentStatus;

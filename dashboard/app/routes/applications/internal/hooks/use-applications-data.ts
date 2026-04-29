@@ -2,16 +2,16 @@ import { useMemo } from "react";
 import {
   useDeploymentsQuery,
   useProjectsQuery,
-  useServiceQuery,
-  useServicesQuery,
+  useApplicationQuery,
+  useApplicationsQuery,
   useUsersQuery,
 } from "~/hooks/use-maxicloud-query";
 import { indexByID } from "~/utils/collection";
 
-export const useServicesData = () => {
+export const useApplicationsData = () => {
   const { data: users = [] } = useUsersQuery();
   const { data: projects = [] } = useProjectsQuery();
-  const { data: services = [] } = useServicesQuery();
+  const { data: applications = [] } = useApplicationsQuery();
 
   const userByID = useMemo(
     () => indexByID(users),
@@ -23,13 +23,13 @@ export const useServicesData = () => {
     [projects],
   );
 
-  return { userByID, projectByID, services };
+  return { userByID, projectByID, applications };
 };
 
-export const useServiceDetailData = (serviceId: string) => {
+export const useApplicationDetailData = (applicationId: string) => {
   const { data: users = [] } = useUsersQuery();
   const { data: projects = [] } = useProjectsQuery();
-  const { data: service } = useServiceQuery(serviceId);
+  const { data: application } = useApplicationQuery(applicationId);
   const { data: deployments = [] } = useDeploymentsQuery();
 
   const userByID = useMemo(
@@ -42,5 +42,5 @@ export const useServiceDetailData = (serviceId: string) => {
     [projects],
   );
 
-  return { userByID, projectByID, service, deployments };
+  return { userByID, projectByID, application, deployments };
 };
