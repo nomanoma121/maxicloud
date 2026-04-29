@@ -71,8 +71,6 @@ spec:
               fieldPath: metadata.namespace
         envFrom:
           - configMapRef:
-              name: maxicloud-base-config
-          - configMapRef:
               name: maxicloud-manager-config
           - secretRef:
               name: maxicloud-manager-secret

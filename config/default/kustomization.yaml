@@ -25,7 +25,6 @@ namePrefix: maxicloud-
 resources:
 - ../crd
 - ../rbac
-- ../base
 - ../manager
 - ../gateway
 - metrics_service.yaml

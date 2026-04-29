@@ -1,6 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: maxicloud-base-config
-data:
-  GITHUB_APP_ID: "3521592" # TODO: 一旦ハードコードする

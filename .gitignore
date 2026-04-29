@@ -29,5 +29,6 @@ go.work
 # Kubeconfig might contain secrets
 *.kubeconfig
 
-.env
+*.env
+!*.example.env
 *.pem

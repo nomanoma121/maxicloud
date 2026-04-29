@@ -51,11 +51,19 @@ func runController(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	registry, err := registry.NewFromConfig(registry.Config{
+		Provider: registry.ProviderGHCR,
+		Host:     cfg.RegistryHost,
+		Password: cfg.RegistryPassword,
+	})
+	if err != nil {
+		return err
+	}
 
 	if err := (&controller.ApplicationReconciler{
 		Client:   mgr.GetClient(),
 		Scheme:   mgr.GetScheme(),
-		Registry: registry.NewGHCR(cfg.GHCRHost, cfg.GHCRToken),
+		Registry: registry,
 		Config: controller.ReconcilerConfig{
 			IngressClass: cfg.IngressClass,
 			BaseDomain:   cfg.BaseDomain,
@@ -66,7 +74,7 @@ func runController(cmd *cobra.Command, args []string) error {
 	if err := (&controller.BuildRunReconciler{
 		Client:       mgr.GetClient(),
 		Scheme:       mgr.GetScheme(),
-		Registry:     registry.NewGHCR(cfg.GHCRHost, cfg.GHCRToken),
+		Registry:     registry,
 		SecretRepo:   secretRepo,
 		GitHubClient: ghClient,
 	}).SetupWithManager(mgr); err != nil {

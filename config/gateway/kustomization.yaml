@@ -4,6 +4,4 @@ resources:
   - gateway.yaml
   - service.yaml
   - ingress.yaml
-  - configmap.yaml
-  - secret.yaml
   - rbac.yaml

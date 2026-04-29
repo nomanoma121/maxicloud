@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: maxicloud-gateway-config
-data:
-  ADDR: ":8080"
-  GITHUB_APP_NAME: "MaxiCloud-nomanoma" # 一旦自分の適当につくったやつ
-  GITHUB_CLIENT_ID: "Iv23liF4xdInS0CWs7fd"
-  INGRESS_CLASS: "cloudflare-tunnel"
