@@ -1,6 +1,8 @@
 package registry
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Registry interface {
 	DockerConfig() string

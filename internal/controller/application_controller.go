@@ -17,12 +17,15 @@ limitations under the License.
 package controller
 
 import (
+	"bytes"
 	"context"
+	"strings"
 
 	"github.com/saitamau-maximum/maxicloud/internal/config"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/client-go/util/retry"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -93,21 +96,49 @@ func (r *ApplicationReconciler) reconcileSecret(ctx context.Context, application
 	log := logf.FromContext(ctx)
 
 	secretName := config.AppRegistrySecretName(application.Name)
-	var secret corev1.Secret
-	err := r.Get(ctx, types.NamespacedName{Name: secretName, Namespace: application.Namespace}, &secret)
-	if errors.IsNotFound(err) {
-		return r.Create(ctx, newAppRegistrySecret(application, r.Registry.DockerConfig()))
-	}
+	key := types.NamespacedName{Name: secretName, Namespace: application.Namespace}
+	dockerConfig := []byte(r.Registry.DockerConfig())
+
+	err := retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		var secret corev1.Secret
+		if err := r.Get(ctx, key, &secret); err != nil {
+			if errors.IsNotFound(err) {
+				if err := r.Create(ctx, newAppRegistrySecret(application, r.Registry.DockerConfig())); err != nil {
+					if errors.IsAlreadyExists(err) {
+						return nil
+					}
+					return err
+				}
+				return nil
+			}
+			return err
+		}
+
+		if secret.Data == nil {
+			secret.Data = map[string][]byte{}
+		}
+		unchanged := bytes.Equal(secret.Data[corev1.DockerConfigJsonKey], dockerConfig) &&
+			secret.Type == corev1.SecretTypeDockerConfigJson
+		if unchanged {
+			return nil
+		}
+
+		secret.Type = corev1.SecretTypeDockerConfigJson
+		secret.Data[corev1.DockerConfigJsonKey] = dockerConfig
+		return r.Update(ctx, &secret)
+	})
 	if err != nil {
-		log.Error(err, "failed to get registry secret", "secret", secretName)
+		log.Error(err, "failed to reconcile registry secret", "secret", secretName)
 		return err
 	}
-
-	secret.Data[corev1.DockerConfigJsonKey] = []byte(r.Registry.DockerConfig())
-	return r.Update(ctx, &secret)
+	return nil
 }
 
 func (r *ApplicationReconciler) reconcileDeployment(ctx context.Context, application *maxicloudv1alpha1.Application) error {
+	if strings.TrimSpace(application.Spec.Image) == "" {
+		return nil
+	}
+
 	var deploy appsv1.Deployment
 	err := r.Get(ctx, types.NamespacedName{Name: application.Name, Namespace: application.Namespace}, &deploy)
 	if errors.IsNotFound(err) {

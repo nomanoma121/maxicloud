@@ -17,6 +17,7 @@ limitations under the License.
 package controller
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 
@@ -25,6 +26,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/client-go/util/retry"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -96,20 +98,43 @@ func (r *BuildRunReconciler) reconcileSecret(ctx context.Context, buildRun *maxi
 		return err
 	}
 
-	secret := &corev1.Secret{}
 	key := types.NamespacedName{Name: secretName, Namespace: buildRun.Namespace}
-	err = r.Get(ctx, key, secret)
-	if errors.IsNotFound(err) {
-		return r.Create(ctx, newBuildRunSecret(buildRun, r.Registry.DockerConfig(), token))
-	}
+	dockerConfig := []byte(r.Registry.DockerConfig())
+	installationAccessToken := []byte(token)
+
+	err = retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		var secret corev1.Secret
+		if err := r.Get(ctx, key, &secret); err != nil {
+			if errors.IsNotFound(err) {
+				if err := r.Create(ctx, newBuildRunSecret(buildRun, r.Registry.DockerConfig(), token)); err != nil {
+					if errors.IsAlreadyExists(err) {
+						return nil
+					}
+					return err
+				}
+				return nil
+			}
+			return err
+		}
+
+		if secret.Data == nil {
+			secret.Data = map[string][]byte{}
+		}
+		unchanged := bytes.Equal(secret.Data[config.InstallationAccessTokenKey], installationAccessToken) &&
+			bytes.Equal(secret.Data[corev1.DockerConfigJsonKey], dockerConfig)
+		if unchanged {
+			return nil
+		}
+
+		secret.Data[config.InstallationAccessTokenKey] = installationAccessToken
+		secret.Data[corev1.DockerConfigJsonKey] = dockerConfig
+		return r.Update(ctx, &secret)
+	})
 	if err != nil {
-		log.Error(err, "failed to get repo secret", "secret", secretName)
+		log.Error(err, "failed to reconcile repo secret", "secret", secretName)
 		return err
 	}
-
-	secret.Data[config.InstallationAccessTokenKey] = []byte(token)
-	secret.Data[corev1.DockerConfigJsonKey] = []byte(r.Registry.DockerConfig())
-	return r.Update(ctx, secret)
+	return nil
 }
 
 func (r *BuildRunReconciler) reconcileJob(ctx context.Context, buildRun *maxicloudv1alpha1.BuildRun) error {
@@ -121,7 +146,7 @@ func (r *BuildRunReconciler) reconcileJob(ctx context.Context, buildRun *maxiclo
 	var job batchv1.Job
 	if err := r.Get(ctx, types.NamespacedName{Name: buildRun.Name, Namespace: buildRun.Namespace}, &job); err != nil {
 		if errors.IsNotFound(err) {
-			return r.Create(ctx, newBuildJob(BuildJobParams{
+			if err := r.Create(ctx, newBuildJob(BuildJobParams{
 				buildRun:       buildRun,
 				jobName:        buildRun.Name,
 				sha:            buildRun.Spec.Source.SHA,
@@ -129,7 +154,13 @@ func (r *BuildRunReconciler) reconcileJob(ctx context.Context, buildRun *maxiclo
 				owner:          owner,
 				repo:           repo,
 				destination:    destination,
-			}))
+			})); err != nil {
+				if errors.IsAlreadyExists(err) {
+					return nil
+				}
+				return err
+			}
+			return nil
 		}
 		return err
 	}

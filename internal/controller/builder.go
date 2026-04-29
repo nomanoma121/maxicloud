@@ -30,7 +30,7 @@ func newAppRegistrySecret(app *maxicloudv1alpha1.Application, dockerConfig strin
 		Data: map[string][]byte{
 			corev1.DockerConfigJsonKey: []byte(dockerConfig),
 		},
-		Type: corev1.SecretTypeOpaque,
+		Type: corev1.SecretTypeDockerConfigJson,
 	}
 }
 
@@ -165,6 +165,7 @@ type BuildJobParams struct {
 	repo           string
 }
 
+// TODO: 非特権コンテナでビルドできるようにする
 func newBuildJob(params BuildJobParams) *batchv1.Job {
 	return &batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
@@ -182,7 +183,7 @@ func newBuildJob(params BuildJobParams) *batchv1.Job {
 					Containers: []corev1.Container{
 						{
 							Name:  "buildkit",
-							Image: "moby/buildkit:rootless",
+							Image: "moby/buildkit:latest",
 							Env: []corev1.EnvVar{
 								{
 									Name: "GITHUB_TOKEN",
@@ -197,6 +198,10 @@ func newBuildJob(params BuildJobParams) *batchv1.Job {
 									Name:  "XDG_RUNTIME_DIR",
 									Value: "/tmp",
 								},
+								{
+									Name:  "DOCKER_CONFIG",
+									Value: "/root/.docker",
+								},
 							},
 							Command: []string{
 								"buildctl-daemonless.sh",
@@ -207,9 +212,7 @@ func newBuildJob(params BuildJobParams) *batchv1.Job {
 								"--output", fmt.Sprintf("type=image,name=%s,push=true", params.destination),
 							},
 							SecurityContext: &corev1.SecurityContext{
-								Privileged: boolPtr(false),
-								RunAsUser:  int64Ptr(1000),
-								RunAsGroup: int64Ptr(1000),
+								Privileged: boolPtr(true),
 								SeccompProfile: &corev1.SeccompProfile{
 									Type: corev1.SeccompProfileTypeUnconfined,
 								},
@@ -217,7 +220,7 @@ func newBuildJob(params BuildJobParams) *batchv1.Job {
 							VolumeMounts: []corev1.VolumeMount{
 								{
 									Name:      "registry-auth",
-									MountPath: "/home/user/.docker",
+									MountPath: "/root/.docker",
 								},
 							},
 						},

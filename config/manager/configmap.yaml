@@ -4,7 +4,7 @@ metadata:
   name: maxicloud-manager-config
 data:
   HEALTH_PROBE_BIND_ADDRESS: ":8081"
-  GHCR_HOST: "ghcr.io/nomanoma121" # 一旦自分用で
+  GHCR_HOST: "ghcr.io"
   INGRESS_CLASS: "nginx"
   BASE_DOMAIN: "maxicloud.maximum.vc"
   GITHUB_PRIVATE_KEY_PATH: "/etc/maxicloud/github/private-key.pem"
