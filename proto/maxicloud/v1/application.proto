@@ -15,8 +15,9 @@ enum ApplicationStatus {
 
 enum AccessMode {
   ACCESS_MODE_UNSPECIFIED = 0;
-  ACCESS_MODE_PRIVATE = 1;
-  ACCESS_MODE_MEMBERS_ONLY = 2;
+  ACCESS_MODE_PUBLIC = 1;
+  ACCESS_MODE_PRIVATE = 2;
+  ACCESS_MODE_MEMBERS_ONLY = 3;
 }
 
 enum BuildStrategy {
@@ -73,7 +74,6 @@ message Domain {
 
 message ApplicationSpec {
   string project_id = 1;
-  string name = 2;
   ApplicationSource source = 3;
   BuildConfig build = 4;
   AccessConfig access = 5;
@@ -83,7 +83,9 @@ message ApplicationSpec {
 }
 
 message CreateApplicationRequest {
-  ApplicationSpec spec = 1;
+  string name = 1;
+  string owner_id = 2;
+  ApplicationSpec spec = 3;
 }
 
 message CreateApplicationResponse {
@@ -109,7 +111,9 @@ message ListApplicationsResponse {
 
 message UpdateApplicationRequest {
   string application_id = 1;
-  ApplicationSpec spec = 2;
+  string name = 2;
+  string owner_id = 3;
+  ApplicationSpec spec = 4;
 }
 
 message UpdateApplicationResponse {

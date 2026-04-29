@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"errors"
 
 	"connectrpc.com/connect"
 	v1 "github.com/saitamau-maximum/maxicloud/gen/maxicloud/v1"
@@ -21,8 +22,15 @@ func NewApplicationHandler(uc usecase.ApplicationService) *ApplicationHandler {
 }
 
 func (h *ApplicationHandler) CreateApplication(ctx context.Context, req *v1.CreateApplicationRequest) (*v1.CreateApplicationResponse, error) {
-	spec := protoToApplicationSpec(req.Spec)
-	app, err := h.uc.CreateApplication(ctx, spec, "")
+	spec, err := protoToApplicationSpec(req.Spec)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInvalidArgument, err)
+	}
+	app, err := h.uc.CreateApplication(ctx, usecase.CreateApplicationParams{
+		Name:    req.Name,
+		OwnerID: req.OwnerId,
+		Spec:    spec,
+	})
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
@@ -53,8 +61,16 @@ func (h *ApplicationHandler) ListApplications(ctx context.Context, req *v1.ListA
 }
 
 func (h *ApplicationHandler) UpdateApplication(ctx context.Context, req *v1.UpdateApplicationRequest) (*v1.UpdateApplicationResponse, error) {
-	spec := protoToApplicationSpec(req.Spec)
-	app, err := h.uc.UpdateApplication(ctx, req.ApplicationId, spec)
+	spec, err := protoToApplicationSpec(req.Spec)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInvalidArgument, err)
+	}
+	app, err := h.uc.UpdateApplication(ctx, usecase.UpdateApplicationParams{
+		ID:      req.ApplicationId,
+		Name:    req.Name,
+		OwnerID: req.OwnerId,
+		Spec:    spec,
+	})
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
@@ -87,21 +103,65 @@ func toProtoApplication(a *domain.Application) *v1.Application {
 	}
 }
 
-func protoToApplicationSpec(s *v1.ApplicationSpec) domain.ApplicationSpec {
+func protoToApplicationSpec(s *v1.ApplicationSpec) (domain.ApplicationSpec, error) {
 	if s == nil {
-		return domain.ApplicationSpec{}
+		return domain.ApplicationSpec{}, nil
 	}
 	spec := domain.ApplicationSpec{
 		ProjectID: s.ProjectId,
-		Name:      s.Name,
 	}
 	if s.Source != nil {
 		spec.Source = domain.ApplicationSource{
 			Repo: domain.Repository{
-				Owner: s.Source.Repository.Owner,
-				Name:  s.Source.Repository.Name,
+				Owner: s.Source.GetRepository().GetOwner(),
+				Name:  s.Source.GetRepository().GetName(),
 			},
 			Branch: s.Source.Branch,
+		}
+	}
+	if s.GetBuild() != nil {
+		switch s.GetBuild().GetStrategy() {
+		case v1.BuildStrategy_BUILD_STRATEGY_DOCKERFILE:
+			if s.GetBuild().GetDockerfile() == nil {
+				return domain.ApplicationSpec{}, errors.New("dockerfile build config is required")
+			}
+			switch s.GetBuild().GetDockerfile().GetSource() {
+			case v1.DockerfileSource_DOCKERFILE_SOURCE_PATH:
+				spec.BuildConfig = domain.BuildConfigDockerfile{
+					Source: domain.DockerfileSourcePath{
+						Path: s.GetBuild().GetDockerfile().GetDockerfilePath(),
+					},
+				}
+			case v1.DockerfileSource_DOCKERFILE_SOURCE_INLINE:
+				spec.BuildConfig = domain.BuildConfigDockerfile{
+					Source: domain.DockerfileSourceInline{
+						Content: s.GetBuild().GetDockerfile().GetDockerfileInline(),
+					},
+				}
+			default:
+				return domain.ApplicationSpec{}, errors.New("invalid dockerfile build config")
+			}
+		default:
+			return domain.ApplicationSpec{}, errors.New("invalid build strategy")
+		}
+	}
+	if s.GetAccess() != nil {
+		switch s.GetAccess().GetMode() {
+		case v1.AccessMode_ACCESS_MODE_PUBLIC:
+			spec.AccessMode = domain.AccessModePublic
+		case v1.AccessMode_ACCESS_MODE_PRIVATE:
+			spec.AccessMode = domain.AccessModePrivate
+		case v1.AccessMode_ACCESS_MODE_MEMBERS_ONLY:
+			spec.AccessMode = domain.AccessModeMembersOnly
+		case v1.AccessMode_ACCESS_MODE_UNSPECIFIED:
+		default:
+			return domain.ApplicationSpec{}, errors.New("invalid access mode")
+		}
+	}
+	if s.GetDomain() != nil {
+		spec.Domain = &domain.Domain{
+			Subdomain:  s.GetDomain().GetSubdomain(),
+			RootDomain: s.GetDomain().GetRootDomain(),
 		}
 	}
 	for _, kv := range s.EnvironmentVariables {
@@ -110,5 +170,5 @@ func protoToApplicationSpec(s *v1.ApplicationSpec) domain.ApplicationSpec {
 	for _, kv := range s.Secrets {
 		spec.Secrets = append(spec.Secrets, domain.KeyValue{Key: kv.Key, Value: kv.Value})
 	}
-	return spec
+	return spec, nil
 }

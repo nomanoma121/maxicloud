@@ -1,8 +1,8 @@
 package k8s
 
 import (
-	"crypto/sha1"
 	"context"
+	"crypto/sha1"
 	"fmt"
 	"regexp"
 	"strings"
@@ -10,6 +10,7 @@ import (
 	maxicloudv1alpha1 "github.com/saitamau-maximum/maxicloud/api/v1alpha1"
 	"github.com/saitamau-maximum/maxicloud/internal/config"
 	"github.com/saitamau-maximum/maxicloud/internal/domain"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -35,21 +36,27 @@ func NewApplicationRepository(c client.Client) domain.ApplicationRepository {
 	return &applicationRepository{Client: c}
 }
 
-func (r *applicationRepository) CreateApplication(ctx context.Context, app domain.Application) (*domain.Application, error) {
-	branchLabel := normalizeBranchForLabel(app.Source.Branch)
+func (r *applicationRepository) CreateApplication(ctx context.Context, app domain.CreateApplicationParams) (*domain.Application, error) {
+	branchLabel := normalizeBranchForLabel(app.Spec.Source.Branch)
 	cr := &maxicloudv1alpha1.Application{
 		ObjectMeta: metav1.ObjectMeta{
 			GenerateName: app.Name + "-",
-			Namespace:    projectNamespace(app.ProjectID),
+			Namespace:    projectNamespace(app.Spec.ProjectID),
 			Labels: map[string]string{
 				labelApplicationName:  app.Name,
 				labelApplicationOwner: app.OwnerID,
-				labelSourceRepoOwner:  app.Source.Repo.Owner,
-				labelSourceRepoName:   app.Source.Repo.Name,
+				labelSourceRepoOwner:  app.Spec.Source.Repo.Owner,
+				labelSourceRepoName:   app.Spec.Source.Repo.Name,
 				labelSourceBranch:     branchLabel,
 			},
 			Annotations: map[string]string{
-				annotationSourceBranch: app.Source.Branch,
+				annotationSourceBranch: app.Spec.Source.Branch,
+			},
+		},
+		Spec: maxicloudv1alpha1.ApplicationSpec{
+			Env: buildApplicationEnvVar(app.Spec),
+			Expose: &maxicloudv1alpha1.ExposeConfig{
+				Domain: app.Spec.Domain.FullDomain(),
 			},
 		},
 	}
@@ -151,6 +158,23 @@ func crToApplication(cr *maxicloudv1alpha1.Application) *domain.Application {
 		CreatedAt: cr.CreationTimestamp.Time,
 		UpdatedAt: cr.CreationTimestamp.Time,
 	}
+}
+
+func buildApplicationEnvVar(spec domain.ApplicationSpec) []corev1.EnvVar {
+	env := make([]corev1.EnvVar, 0, len(spec.EnvironmentVariables)+len(spec.Secrets))
+	for _, kv := range spec.EnvironmentVariables {
+		env = append(env, corev1.EnvVar{
+			Name:  kv.Key,
+			Value: kv.Value,
+		})
+	}
+	for _, kv := range spec.Secrets {
+		env = append(env, corev1.EnvVar{
+			Name:  kv.Key,
+			Value: kv.Value,
+		})
+	}
+	return env
 }
 
 var nonLabelChar = regexp.MustCompile(`[^A-Za-z0-9._-]+`)

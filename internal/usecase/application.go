@@ -3,14 +3,15 @@ package usecase
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/saitamau-maximum/maxicloud/internal/domain"
 )
 
 type ApplicationService interface {
-	CreateApplication(ctx context.Context, spec domain.ApplicationSpec, ownerID string) (*domain.Application, error)
+	CreateApplication(ctx context.Context, params CreateApplicationParams) (*domain.Application, error)
 	GetApplication(ctx context.Context, id string) (*domain.Application, error)
 	ListApplications(ctx context.Context, projectID string) ([]domain.Application, error)
-	UpdateApplication(ctx context.Context, id string, spec domain.ApplicationSpec) (*domain.Application, error)
+	UpdateApplication(ctx context.Context, params UpdateApplicationParams) (*domain.Application, error)
 	DeleteApplication(ctx context.Context, id string) error
 }
 
@@ -22,17 +23,31 @@ func NewApplicationService(repo domain.ApplicationRepository) ApplicationService
 	return &applicationService{appRepo: repo}
 }
 
-func (u *applicationService) CreateApplication(ctx context.Context, spec domain.ApplicationSpec, ownerID string) (*domain.Application, error) {
+type CreateApplicationParams struct {
+	Name    string
+	OwnerID string
+	Spec    domain.ApplicationSpec
+}
+
+func (u *applicationService) CreateApplication(ctx context.Context, params CreateApplicationParams) (*domain.Application, error) {
+	spec := domain.ApplicationSpec{
+		ProjectID:            params.Spec.ProjectID,
+		Source:               params.Spec.Source,
+		BuildConfig:          params.Spec.BuildConfig,
+		AccessMode:           params.Spec.AccessMode,
+		Domain:               params.Spec.Domain,
+		EnvironmentVariables: params.Spec.EnvironmentVariables,
+		Secrets:              params.Spec.Secrets,
+	}
 	if err := spec.Validate(); err != nil {
 		return nil, err
 	}
-	app := domain.Application{
-		ProjectID: spec.ProjectID,
-		Name:      spec.Name,
-		Source:    spec.Source,
-		OwnerID:   ownerID,
-	}
-	createdApp, err := u.appRepo.CreateApplication(ctx, app)
+	createdApp, err := u.appRepo.CreateApplication(ctx, domain.CreateApplicationParams{
+		ID:      uuid.New().String(),
+		Name:    params.Name,
+		OwnerID: params.OwnerID,
+		Spec:    spec,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -47,21 +62,29 @@ func (u *applicationService) ListApplications(ctx context.Context, projectID str
 	return u.appRepo.ListApplications(ctx, projectID)
 }
 
-func (u *applicationService) UpdateApplication(ctx context.Context, id string, spec domain.ApplicationSpec) (*domain.Application, error) {
-	if err := spec.Validate(); err != nil {
+type UpdateApplicationParams struct {
+	ID      string
+	Name    string
+	OwnerID string
+	Spec    domain.ApplicationSpec
+}
+
+func (u *applicationService) UpdateApplication(ctx context.Context, params UpdateApplicationParams) (*domain.Application, error) {
+	if err := params.Spec.Validate(); err != nil {
 		return nil, err
 	}
-	existing, err := u.appRepo.GetApplication(ctx, id)
+	existing, err := u.appRepo.GetApplication(ctx, params.ID)
 	if err != nil {
 		return nil, err
 	}
-	existing.ProjectID = spec.ProjectID
-	existing.Name = spec.Name
-	existing.Source = spec.Source
+	existing.ProjectID = params.Spec.ProjectID
+	existing.Name = params.Name
+	existing.OwnerID = params.OwnerID
+	existing.Source = params.Spec.Source
 	if err := u.appRepo.UpdateApplication(ctx, *existing); err != nil {
 		return nil, err
 	}
-	return u.appRepo.GetApplication(ctx, id)
+	return u.appRepo.GetApplication(ctx, params.ID)
 }
 
 func (u *applicationService) DeleteApplication(ctx context.Context, id string) error {

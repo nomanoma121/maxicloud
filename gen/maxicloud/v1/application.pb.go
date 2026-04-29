@@ -81,21 +81,24 @@ type AccessMode int32
 
 const (
 	AccessMode_ACCESS_MODE_UNSPECIFIED  AccessMode = 0
-	AccessMode_ACCESS_MODE_PRIVATE      AccessMode = 1
-	AccessMode_ACCESS_MODE_MEMBERS_ONLY AccessMode = 2
+	AccessMode_ACCESS_MODE_PUBLIC       AccessMode = 1
+	AccessMode_ACCESS_MODE_PRIVATE      AccessMode = 2
+	AccessMode_ACCESS_MODE_MEMBERS_ONLY AccessMode = 3
 )
 
 // Enum value maps for AccessMode.
 var (
 	AccessMode_name = map[int32]string{
 		0: "ACCESS_MODE_UNSPECIFIED",
-		1: "ACCESS_MODE_PRIVATE",
-		2: "ACCESS_MODE_MEMBERS_ONLY",
+		1: "ACCESS_MODE_PUBLIC",
+		2: "ACCESS_MODE_PRIVATE",
+		3: "ACCESS_MODE_MEMBERS_ONLY",
 	}
 	AccessMode_value = map[string]int32{
 		"ACCESS_MODE_UNSPECIFIED":  0,
-		"ACCESS_MODE_PRIVATE":      1,
-		"ACCESS_MODE_MEMBERS_ONLY": 2,
+		"ACCESS_MODE_PUBLIC":       1,
+		"ACCESS_MODE_PRIVATE":      2,
+		"ACCESS_MODE_MEMBERS_ONLY": 3,
 	}
 )
 
@@ -624,7 +627,6 @@ func (x *Domain) GetRootDomain() string {
 type ApplicationSpec struct {
 	state                protoimpl.MessageState `protogen:"open.v1"`
 	ProjectId            string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
-	Name                 string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	Source               *ApplicationSource     `protobuf:"bytes,3,opt,name=source,proto3" json:"source,omitempty"`
 	Build                *BuildConfig           `protobuf:"bytes,4,opt,name=build,proto3" json:"build,omitempty"`
 	Access               *AccessConfig          `protobuf:"bytes,5,opt,name=access,proto3" json:"access,omitempty"`
@@ -668,13 +670,6 @@ func (*ApplicationSpec) Descriptor() ([]byte, []int) {
 func (x *ApplicationSpec) GetProjectId() string {
 	if x != nil {
 		return x.ProjectId
-	}
-	return ""
-}
-
-func (x *ApplicationSpec) GetName() string {
-	if x != nil {
-		return x.Name
 	}
 	return ""
 }
@@ -723,7 +718,9 @@ func (x *ApplicationSpec) GetSecrets() []*KeyValue {
 
 type CreateApplicationRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Spec          *ApplicationSpec       `protobuf:"bytes,1,opt,name=spec,proto3" json:"spec,omitempty"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	OwnerId       string                 `protobuf:"bytes,2,opt,name=owner_id,json=ownerId,proto3" json:"owner_id,omitempty"`
+	Spec          *ApplicationSpec       `protobuf:"bytes,3,opt,name=spec,proto3" json:"spec,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -756,6 +753,20 @@ func (x *CreateApplicationRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use CreateApplicationRequest.ProtoReflect.Descriptor instead.
 func (*CreateApplicationRequest) Descriptor() ([]byte, []int) {
 	return file_maxicloud_v1_application_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *CreateApplicationRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *CreateApplicationRequest) GetOwnerId() string {
+	if x != nil {
+		return x.OwnerId
+	}
+	return ""
 }
 
 func (x *CreateApplicationRequest) GetSpec() *ApplicationSpec {
@@ -996,7 +1007,9 @@ func (x *ListApplicationsResponse) GetApplications() []*Application {
 type UpdateApplicationRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ApplicationId string                 `protobuf:"bytes,1,opt,name=application_id,json=applicationId,proto3" json:"application_id,omitempty"`
-	Spec          *ApplicationSpec       `protobuf:"bytes,2,opt,name=spec,proto3" json:"spec,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	OwnerId       string                 `protobuf:"bytes,3,opt,name=owner_id,json=ownerId,proto3" json:"owner_id,omitempty"`
+	Spec          *ApplicationSpec       `protobuf:"bytes,4,opt,name=spec,proto3" json:"spec,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1034,6 +1047,20 @@ func (*UpdateApplicationRequest) Descriptor() ([]byte, []int) {
 func (x *UpdateApplicationRequest) GetApplicationId() string {
 	if x != nil {
 		return x.ApplicationId
+	}
+	return ""
+}
+
+func (x *UpdateApplicationRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *UpdateApplicationRequest) GetOwnerId() string {
+	if x != nil {
+		return x.OwnerId
 	}
 	return ""
 }
@@ -1368,19 +1395,20 @@ const file_maxicloud_v1_application_proto_rawDesc = "" +
 	"\x06Domain\x12\x1c\n" +
 	"\tsubdomain\x18\x01 \x01(\tR\tsubdomain\x12\x1f\n" +
 	"\vroot_domain\x18\x02 \x01(\tR\n" +
-	"rootDomain\"\x8f\x03\n" +
+	"rootDomain\"\xfb\x02\n" +
 	"\x0fApplicationSpec\x12\x1d\n" +
 	"\n" +
-	"project_id\x18\x01 \x01(\tR\tprojectId\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x127\n" +
+	"project_id\x18\x01 \x01(\tR\tprojectId\x127\n" +
 	"\x06source\x18\x03 \x01(\v2\x1f.maxicloud.v1.ApplicationSourceR\x06source\x12/\n" +
 	"\x05build\x18\x04 \x01(\v2\x19.maxicloud.v1.BuildConfigR\x05build\x122\n" +
 	"\x06access\x18\x05 \x01(\v2\x1a.maxicloud.v1.AccessConfigR\x06access\x12,\n" +
 	"\x06domain\x18\x06 \x01(\v2\x14.maxicloud.v1.DomainR\x06domain\x12K\n" +
 	"\x15environment_variables\x18\a \x03(\v2\x16.maxicloud.v1.KeyValueR\x14environmentVariables\x120\n" +
-	"\asecrets\x18\b \x03(\v2\x16.maxicloud.v1.KeyValueR\asecrets\"M\n" +
-	"\x18CreateApplicationRequest\x121\n" +
-	"\x04spec\x18\x01 \x01(\v2\x1d.maxicloud.v1.ApplicationSpecR\x04spec\"X\n" +
+	"\asecrets\x18\b \x03(\v2\x16.maxicloud.v1.KeyValueR\asecrets\"|\n" +
+	"\x18CreateApplicationRequest\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x19\n" +
+	"\bowner_id\x18\x02 \x01(\tR\aownerId\x121\n" +
+	"\x04spec\x18\x03 \x01(\v2\x1d.maxicloud.v1.ApplicationSpecR\x04spec\"X\n" +
 	"\x19CreateApplicationResponse\x12;\n" +
 	"\vapplication\x18\x01 \x01(\v2\x19.maxicloud.v1.ApplicationR\vapplication\">\n" +
 	"\x15GetApplicationRequest\x12%\n" +
@@ -1392,10 +1420,12 @@ const file_maxicloud_v1_application_proto_rawDesc = "" +
 	"\n" +
 	"project_id\x18\x02 \x01(\tR\tprojectId\"Y\n" +
 	"\x18ListApplicationsResponse\x12=\n" +
-	"\fapplications\x18\x01 \x03(\v2\x19.maxicloud.v1.ApplicationR\fapplications\"t\n" +
+	"\fapplications\x18\x01 \x03(\v2\x19.maxicloud.v1.ApplicationR\fapplications\"\xa3\x01\n" +
 	"\x18UpdateApplicationRequest\x12%\n" +
-	"\x0eapplication_id\x18\x01 \x01(\tR\rapplicationId\x121\n" +
-	"\x04spec\x18\x02 \x01(\v2\x1d.maxicloud.v1.ApplicationSpecR\x04spec\"X\n" +
+	"\x0eapplication_id\x18\x01 \x01(\tR\rapplicationId\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x19\n" +
+	"\bowner_id\x18\x03 \x01(\tR\aownerId\x121\n" +
+	"\x04spec\x18\x04 \x01(\v2\x1d.maxicloud.v1.ApplicationSpecR\x04spec\"X\n" +
 	"\x19UpdateApplicationResponse\x12;\n" +
 	"\vapplication\x18\x01 \x01(\v2\x19.maxicloud.v1.ApplicationR\vapplication\"A\n" +
 	"\x18DeleteApplicationRequest\x12%\n" +
@@ -1415,12 +1445,13 @@ const file_maxicloud_v1_application_proto_rawDesc = "" +
 	"\x1aAPPLICATION_STATUS_HEALTHY\x10\x01\x12\x1f\n" +
 	"\x1bAPPLICATION_STATUS_DEGRADED\x10\x02\x12 \n" +
 	"\x1cAPPLICATION_STATUS_UNHEALTHY\x10\x03\x12\x1f\n" +
-	"\x1bAPPLICATION_STATUS_SLEEPING\x10\x04*`\n" +
+	"\x1bAPPLICATION_STATUS_SLEEPING\x10\x04*x\n" +
 	"\n" +
 	"AccessMode\x12\x1b\n" +
-	"\x17ACCESS_MODE_UNSPECIFIED\x10\x00\x12\x17\n" +
-	"\x13ACCESS_MODE_PRIVATE\x10\x01\x12\x1c\n" +
-	"\x18ACCESS_MODE_MEMBERS_ONLY\x10\x02*N\n" +
+	"\x17ACCESS_MODE_UNSPECIFIED\x10\x00\x12\x16\n" +
+	"\x12ACCESS_MODE_PUBLIC\x10\x01\x12\x17\n" +
+	"\x13ACCESS_MODE_PRIVATE\x10\x02\x12\x1c\n" +
+	"\x18ACCESS_MODE_MEMBERS_ONLY\x10\x03*N\n" +
 	"\rBuildStrategy\x12\x1e\n" +
 	"\x1aBUILD_STRATEGY_UNSPECIFIED\x10\x00\x12\x1d\n" +
 	"\x19BUILD_STRATEGY_DOCKERFILE\x10\x01*o\n" +
