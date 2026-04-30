@@ -1,27 +1,45 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
+# Adds namespace to all resources.
+namespace: maxicloud-system
+
+# Value of this field is prepended to the
+# names of all resources, e.g. a deployment named
+# "wordpress" becomes "alices-wordpress".
+# Note that it should also match with the prefix (text before '-') of the namespace
+# field above.
+namePrefix: maxicloud-
+
 resources:
-  - ../../default
-  - ingress.yaml
+- ../../default
+- ingress.yaml
 
 generatorOptions:
   disableNameSuffixHash: true
 
+images:
+- name: controller
+  newName: maxicloud
+  newTag: latest
+- name: maxicloud:latest
+  newName: localhost:5001/maxicloud
+  newTag: latest
+
 configMapGenerator:
-  - name: maxicloud-manager-config
-    envs:
-      - config.env
-  - name: maxicloud-gateway-config
-    envs:
-      - config.env
+- envs:
+  - config.env
+  name: manager-config
+- envs:
+  - config.env
+  name: gateway-config
 
 secretGenerator:
-  - name: maxicloud-manager-secret
-    envs:
-      - secret.env
-    files:
-      - private-key.pem=private-key.pem
-  - name: maxicloud-gateway-secret
-    envs:
-      - secret.env
+- envs:
+  - secret.env
+  files:
+  - private-key.pem=private-key.pem
+  name: manager-secret
+- envs:
+  - secret.env
+  name: gateway-secret

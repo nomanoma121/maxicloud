@@ -27,8 +27,8 @@ spec:
           command:
             - /manager
             - gateway
-          image: controller:latest
-          imagePullPolicy: IfNotPresent
+          image: maxicloud:latest
+          imagePullPolicy: Always
           env:
             - name: POD_NAMESPACE
               valueFrom:

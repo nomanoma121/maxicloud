@@ -11,7 +11,12 @@
 
 Ingress-Nginxをインストールします。
 ```bash
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.15.1/deploy/static/provider/cloud/deploy.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.15.1/deploy/static/provider/kind/deploy.yaml
+```
+
+DockerイメージのビルドとPush
+```bash
+make docker-build docker-push-local
 ```
 
 Manifestの適用
@@ -20,14 +25,6 @@ Manifestの適用
 make install
 # Manifestsをクラスタに適用
 make deploy
-```
-
-DockerイメージのビルドとKindへのロード
-```bash
-# Dockerイメージのビルド
-make docker-build
-# KindにDockerイメージをロード
-kind load docker-image maxicloud:latest --name maxicloud
 ```
 
 変更を反映させるためのコマンド

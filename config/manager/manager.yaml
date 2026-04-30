@@ -61,8 +61,8 @@ spec:
       - command:
         - /manager
         - controller
-        image: controller:latest
-        imagePullPolicy: IfNotPresent
+        image: maxicloud:latest
+        imagePullPolicy: Always
         name: manager
         env:
         - name: POD_NAMESPACE
