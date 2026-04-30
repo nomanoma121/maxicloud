@@ -2,7 +2,8 @@ syntax = "proto3";
 
 package maxicloud.v1;
 
-import "maxicloud/v1/common.proto";
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
 
 enum DeploymentStatus {
   DEPLOYMENT_STATUS_UNSPECIFIED = 0;
@@ -15,48 +16,54 @@ message Commit {
   string sha = 1;
   string message = 2;
   string author_name = 3;
-  string timestamp = 4;
+  google.protobuf.Timestamp timestamp = 4;
 }
 
-message DeploymentRun {
+message Deployment {
   string id = 1;
   string application_id = 2;
   string owner_user_id = 3;
   Commit commit = 4;
   DeploymentStatus status = 5;
-  string started_at = 6;
-  string duration = 7;
+  google.protobuf.Timestamp started_at = 6;
+  optional google.protobuf.Timestamp finished_at = 7;
 }
 
-message CreateDeploymentRequest {
-  string application_id = 1;
-  string branch = 2;
-  repeated KeyValue environment = 3;
-  repeated KeyValue secrets = 4;
+message RetryDeploymentRequest {
+  string deployment_id = 1 [
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.uuid = true
+  ];
 }
 
-message CreateDeploymentResponse {
-  DeploymentRun deployment = 1;
+message RetryDeploymentResponse {
+  Deployment deployment = 1;
 }
 
 message GetDeploymentRequest {
-  string deployment_id = 1;
+  string deployment_id = 1 [
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.uuid = true
+  ];
 }
 
 message GetDeploymentResponse {
-  DeploymentRun deployment = 1;
+  Deployment deployment = 1;
 }
 
 message ListDeploymentsRequest {
-  string application_id = 1;
+  string application_id = 1 [
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.uuid = true
+  ];
 }
 
 message ListDeploymentsResponse {
-  repeated DeploymentRun deployments = 1;
+  repeated Deployment deployments = 1;
 }
 
 service DeploymentService {
-  rpc CreateDeployment(CreateDeploymentRequest) returns (CreateDeploymentResponse);
+  rpc RetryDeployment(RetryDeploymentRequest) returns (RetryDeploymentResponse);
   rpc GetDeployment(GetDeploymentRequest) returns (GetDeploymentResponse);
   rpc ListDeployments(ListDeploymentsRequest) returns (ListDeploymentsResponse);
 }

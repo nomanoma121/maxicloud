@@ -62,6 +62,7 @@ func runGateway(cmd *cobra.Command, args []string) error {
 	})
 	prjHandler := handler.NewProjectHandler(prjSvc)
 	appHandler := handler.NewApplicationHandler(appSvc)
+	deployHandler := handler.NewDeploymentHandler(deploySvc)
 
 	r := chi.NewRouter()
 
@@ -73,6 +74,8 @@ func runGateway(cmd *cobra.Command, args []string) error {
 	path, h := maxicloudv1connect.NewProjectServiceHandler(prjHandler)
 	r.Mount(path, h)
 	path, h = maxicloudv1connect.NewApplicationServiceHandler(appHandler)
+	r.Mount(path, h)
+	path, h = maxicloudv1connect.NewDeploymentServiceHandler(deployHandler)
 	r.Mount(path, h)
 
 	// GitHub App 関連のエンドポイント

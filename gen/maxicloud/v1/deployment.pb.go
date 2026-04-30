@@ -7,8 +7,10 @@
 package maxicloudv1
 
 import (
+	_ "github.com/saitamau-maximum/maxicloud/gen/buf/validate"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -78,7 +80,7 @@ type Commit struct {
 	Sha           string                 `protobuf:"bytes,1,opt,name=sha,proto3" json:"sha,omitempty"`
 	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
 	AuthorName    string                 `protobuf:"bytes,3,opt,name=author_name,json=authorName,proto3" json:"author_name,omitempty"`
-	Timestamp     string                 `protobuf:"bytes,4,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	Timestamp     *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -134,40 +136,40 @@ func (x *Commit) GetAuthorName() string {
 	return ""
 }
 
-func (x *Commit) GetTimestamp() string {
+func (x *Commit) GetTimestamp() *timestamppb.Timestamp {
 	if x != nil {
 		return x.Timestamp
 	}
-	return ""
+	return nil
 }
 
-type DeploymentRun struct {
+type Deployment struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	ApplicationId string                 `protobuf:"bytes,2,opt,name=application_id,json=applicationId,proto3" json:"application_id,omitempty"`
 	OwnerUserId   string                 `protobuf:"bytes,3,opt,name=owner_user_id,json=ownerUserId,proto3" json:"owner_user_id,omitempty"`
 	Commit        *Commit                `protobuf:"bytes,4,opt,name=commit,proto3" json:"commit,omitempty"`
 	Status        DeploymentStatus       `protobuf:"varint,5,opt,name=status,proto3,enum=maxicloud.v1.DeploymentStatus" json:"status,omitempty"`
-	StartedAt     string                 `protobuf:"bytes,6,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty"`
-	Duration      string                 `protobuf:"bytes,7,opt,name=duration,proto3" json:"duration,omitempty"`
+	StartedAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty"`
+	FinishedAt    *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=finished_at,json=finishedAt,proto3,oneof" json:"finished_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *DeploymentRun) Reset() {
-	*x = DeploymentRun{}
+func (x *Deployment) Reset() {
+	*x = Deployment{}
 	mi := &file_maxicloud_v1_deployment_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *DeploymentRun) String() string {
+func (x *Deployment) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*DeploymentRun) ProtoMessage() {}
+func (*Deployment) ProtoMessage() {}
 
-func (x *DeploymentRun) ProtoReflect() protoreflect.Message {
+func (x *Deployment) ProtoReflect() protoreflect.Message {
 	mi := &file_maxicloud_v1_deployment_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -179,84 +181,81 @@ func (x *DeploymentRun) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use DeploymentRun.ProtoReflect.Descriptor instead.
-func (*DeploymentRun) Descriptor() ([]byte, []int) {
+// Deprecated: Use Deployment.ProtoReflect.Descriptor instead.
+func (*Deployment) Descriptor() ([]byte, []int) {
 	return file_maxicloud_v1_deployment_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *DeploymentRun) GetId() string {
+func (x *Deployment) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-func (x *DeploymentRun) GetApplicationId() string {
+func (x *Deployment) GetApplicationId() string {
 	if x != nil {
 		return x.ApplicationId
 	}
 	return ""
 }
 
-func (x *DeploymentRun) GetOwnerUserId() string {
+func (x *Deployment) GetOwnerUserId() string {
 	if x != nil {
 		return x.OwnerUserId
 	}
 	return ""
 }
 
-func (x *DeploymentRun) GetCommit() *Commit {
+func (x *Deployment) GetCommit() *Commit {
 	if x != nil {
 		return x.Commit
 	}
 	return nil
 }
 
-func (x *DeploymentRun) GetStatus() DeploymentStatus {
+func (x *Deployment) GetStatus() DeploymentStatus {
 	if x != nil {
 		return x.Status
 	}
 	return DeploymentStatus_DEPLOYMENT_STATUS_UNSPECIFIED
 }
 
-func (x *DeploymentRun) GetStartedAt() string {
+func (x *Deployment) GetStartedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.StartedAt
 	}
-	return ""
+	return nil
 }
 
-func (x *DeploymentRun) GetDuration() string {
+func (x *Deployment) GetFinishedAt() *timestamppb.Timestamp {
 	if x != nil {
-		return x.Duration
+		return x.FinishedAt
 	}
-	return ""
+	return nil
 }
 
-type CreateDeploymentRequest struct {
+type RetryDeploymentRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ApplicationId string                 `protobuf:"bytes,1,opt,name=application_id,json=applicationId,proto3" json:"application_id,omitempty"`
-	Branch        string                 `protobuf:"bytes,2,opt,name=branch,proto3" json:"branch,omitempty"`
-	Environment   []*KeyValue            `protobuf:"bytes,3,rep,name=environment,proto3" json:"environment,omitempty"`
-	Secrets       []*KeyValue            `protobuf:"bytes,4,rep,name=secrets,proto3" json:"secrets,omitempty"`
+	DeploymentId  string                 `protobuf:"bytes,1,opt,name=deployment_id,json=deploymentId,proto3" json:"deployment_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *CreateDeploymentRequest) Reset() {
-	*x = CreateDeploymentRequest{}
+func (x *RetryDeploymentRequest) Reset() {
+	*x = RetryDeploymentRequest{}
 	mi := &file_maxicloud_v1_deployment_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *CreateDeploymentRequest) String() string {
+func (x *RetryDeploymentRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*CreateDeploymentRequest) ProtoMessage() {}
+func (*RetryDeploymentRequest) ProtoMessage() {}
 
-func (x *CreateDeploymentRequest) ProtoReflect() protoreflect.Message {
+func (x *RetryDeploymentRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_maxicloud_v1_deployment_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -268,60 +267,39 @@ func (x *CreateDeploymentRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use CreateDeploymentRequest.ProtoReflect.Descriptor instead.
-func (*CreateDeploymentRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use RetryDeploymentRequest.ProtoReflect.Descriptor instead.
+func (*RetryDeploymentRequest) Descriptor() ([]byte, []int) {
 	return file_maxicloud_v1_deployment_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *CreateDeploymentRequest) GetApplicationId() string {
+func (x *RetryDeploymentRequest) GetDeploymentId() string {
 	if x != nil {
-		return x.ApplicationId
+		return x.DeploymentId
 	}
 	return ""
 }
 
-func (x *CreateDeploymentRequest) GetBranch() string {
-	if x != nil {
-		return x.Branch
-	}
-	return ""
-}
-
-func (x *CreateDeploymentRequest) GetEnvironment() []*KeyValue {
-	if x != nil {
-		return x.Environment
-	}
-	return nil
-}
-
-func (x *CreateDeploymentRequest) GetSecrets() []*KeyValue {
-	if x != nil {
-		return x.Secrets
-	}
-	return nil
-}
-
-type CreateDeploymentResponse struct {
+type RetryDeploymentResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Deployment    *DeploymentRun         `protobuf:"bytes,1,opt,name=deployment,proto3" json:"deployment,omitempty"`
+	Deployment    *Deployment            `protobuf:"bytes,1,opt,name=deployment,proto3" json:"deployment,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *CreateDeploymentResponse) Reset() {
-	*x = CreateDeploymentResponse{}
+func (x *RetryDeploymentResponse) Reset() {
+	*x = RetryDeploymentResponse{}
 	mi := &file_maxicloud_v1_deployment_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *CreateDeploymentResponse) String() string {
+func (x *RetryDeploymentResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*CreateDeploymentResponse) ProtoMessage() {}
+func (*RetryDeploymentResponse) ProtoMessage() {}
 
-func (x *CreateDeploymentResponse) ProtoReflect() protoreflect.Message {
+func (x *RetryDeploymentResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_maxicloud_v1_deployment_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -333,12 +311,12 @@ func (x *CreateDeploymentResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use CreateDeploymentResponse.ProtoReflect.Descriptor instead.
-func (*CreateDeploymentResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use RetryDeploymentResponse.ProtoReflect.Descriptor instead.
+func (*RetryDeploymentResponse) Descriptor() ([]byte, []int) {
 	return file_maxicloud_v1_deployment_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *CreateDeploymentResponse) GetDeployment() *DeploymentRun {
+func (x *RetryDeploymentResponse) GetDeployment() *Deployment {
 	if x != nil {
 		return x.Deployment
 	}
@@ -391,7 +369,7 @@ func (x *GetDeploymentRequest) GetDeploymentId() string {
 
 type GetDeploymentResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Deployment    *DeploymentRun         `protobuf:"bytes,1,opt,name=deployment,proto3" json:"deployment,omitempty"`
+	Deployment    *Deployment            `protobuf:"bytes,1,opt,name=deployment,proto3" json:"deployment,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -426,7 +404,7 @@ func (*GetDeploymentResponse) Descriptor() ([]byte, []int) {
 	return file_maxicloud_v1_deployment_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *GetDeploymentResponse) GetDeployment() *DeploymentRun {
+func (x *GetDeploymentResponse) GetDeployment() *Deployment {
 	if x != nil {
 		return x.Deployment
 	}
@@ -479,7 +457,7 @@ func (x *ListDeploymentsRequest) GetApplicationId() string {
 
 type ListDeploymentsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Deployments   []*DeploymentRun       `protobuf:"bytes,1,rep,name=deployments,proto3" json:"deployments,omitempty"`
+	Deployments   []*Deployment          `protobuf:"bytes,1,rep,name=deployments,proto3" json:"deployments,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -514,7 +492,7 @@ func (*ListDeploymentsResponse) Descriptor() ([]byte, []int) {
 	return file_maxicloud_v1_deployment_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *ListDeploymentsResponse) GetDeployments() []*DeploymentRun {
+func (x *ListDeploymentsResponse) GetDeployments() []*Deployment {
 	if x != nil {
 		return x.Deployments
 	}
@@ -525,48 +503,48 @@ var File_maxicloud_v1_deployment_proto protoreflect.FileDescriptor
 
 const file_maxicloud_v1_deployment_proto_rawDesc = "" +
 	"\n" +
-	"\x1dmaxicloud/v1/deployment.proto\x12\fmaxicloud.v1\x1a\x19maxicloud/v1/common.proto\"s\n" +
+	"\x1dmaxicloud/v1/deployment.proto\x12\fmaxicloud.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x8f\x01\n" +
 	"\x06Commit\x12\x10\n" +
 	"\x03sha\x18\x01 \x01(\tR\x03sha\x12\x18\n" +
 	"\amessage\x18\x02 \x01(\tR\amessage\x12\x1f\n" +
 	"\vauthor_name\x18\x03 \x01(\tR\n" +
-	"authorName\x12\x1c\n" +
-	"\ttimestamp\x18\x04 \x01(\tR\ttimestamp\"\x8b\x02\n" +
-	"\rDeploymentRun\x12\x0e\n" +
+	"authorName\x128\n" +
+	"\ttimestamp\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\"\xda\x02\n" +
+	"\n" +
+	"Deployment\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12%\n" +
 	"\x0eapplication_id\x18\x02 \x01(\tR\rapplicationId\x12\"\n" +
 	"\rowner_user_id\x18\x03 \x01(\tR\vownerUserId\x12,\n" +
 	"\x06commit\x18\x04 \x01(\v2\x14.maxicloud.v1.CommitR\x06commit\x126\n" +
-	"\x06status\x18\x05 \x01(\x0e2\x1e.maxicloud.v1.DeploymentStatusR\x06status\x12\x1d\n" +
+	"\x06status\x18\x05 \x01(\x0e2\x1e.maxicloud.v1.DeploymentStatusR\x06status\x129\n" +
 	"\n" +
-	"started_at\x18\x06 \x01(\tR\tstartedAt\x12\x1a\n" +
-	"\bduration\x18\a \x01(\tR\bduration\"\xc4\x01\n" +
-	"\x17CreateDeploymentRequest\x12%\n" +
-	"\x0eapplication_id\x18\x01 \x01(\tR\rapplicationId\x12\x16\n" +
-	"\x06branch\x18\x02 \x01(\tR\x06branch\x128\n" +
-	"\venvironment\x18\x03 \x03(\v2\x16.maxicloud.v1.KeyValueR\venvironment\x120\n" +
-	"\asecrets\x18\x04 \x03(\v2\x16.maxicloud.v1.KeyValueR\asecrets\"W\n" +
-	"\x18CreateDeploymentResponse\x12;\n" +
+	"started_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tstartedAt\x12@\n" +
+	"\vfinished_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampH\x00R\n" +
+	"finishedAt\x88\x01\x01B\x0e\n" +
+	"\f_finished_at\"J\n" +
+	"\x16RetryDeploymentRequest\x120\n" +
+	"\rdeployment_id\x18\x01 \x01(\tB\v\xbaH\b\xc8\x01\x01r\x03\xb0\x01\x01R\fdeploymentId\"S\n" +
+	"\x17RetryDeploymentResponse\x128\n" +
 	"\n" +
-	"deployment\x18\x01 \x01(\v2\x1b.maxicloud.v1.DeploymentRunR\n" +
-	"deployment\";\n" +
-	"\x14GetDeploymentRequest\x12#\n" +
-	"\rdeployment_id\x18\x01 \x01(\tR\fdeploymentId\"T\n" +
-	"\x15GetDeploymentResponse\x12;\n" +
+	"deployment\x18\x01 \x01(\v2\x18.maxicloud.v1.DeploymentR\n" +
+	"deployment\"H\n" +
+	"\x14GetDeploymentRequest\x120\n" +
+	"\rdeployment_id\x18\x01 \x01(\tB\v\xbaH\b\xc8\x01\x01r\x03\xb0\x01\x01R\fdeploymentId\"Q\n" +
+	"\x15GetDeploymentResponse\x128\n" +
 	"\n" +
-	"deployment\x18\x01 \x01(\v2\x1b.maxicloud.v1.DeploymentRunR\n" +
-	"deployment\"?\n" +
-	"\x16ListDeploymentsRequest\x12%\n" +
-	"\x0eapplication_id\x18\x01 \x01(\tR\rapplicationId\"X\n" +
-	"\x17ListDeploymentsResponse\x12=\n" +
-	"\vdeployments\x18\x01 \x03(\v2\x1b.maxicloud.v1.DeploymentRunR\vdeployments*\x91\x01\n" +
+	"deployment\x18\x01 \x01(\v2\x18.maxicloud.v1.DeploymentR\n" +
+	"deployment\"L\n" +
+	"\x16ListDeploymentsRequest\x122\n" +
+	"\x0eapplication_id\x18\x01 \x01(\tB\v\xbaH\b\xc8\x01\x01r\x03\xb0\x01\x01R\rapplicationId\"U\n" +
+	"\x17ListDeploymentsResponse\x12:\n" +
+	"\vdeployments\x18\x01 \x03(\v2\x18.maxicloud.v1.DeploymentR\vdeployments*\x91\x01\n" +
 	"\x10DeploymentStatus\x12!\n" +
 	"\x1dDEPLOYMENT_STATUS_UNSPECIFIED\x10\x00\x12\x1d\n" +
 	"\x19DEPLOYMENT_STATUS_SUCCESS\x10\x01\x12\x1d\n" +
 	"\x19DEPLOYMENT_STATUS_RUNNING\x10\x02\x12\x1c\n" +
-	"\x18DEPLOYMENT_STATUS_FAILED\x10\x032\xb0\x02\n" +
-	"\x11DeploymentService\x12a\n" +
-	"\x10CreateDeployment\x12%.maxicloud.v1.CreateDeploymentRequest\x1a&.maxicloud.v1.CreateDeploymentResponse\x12X\n" +
+	"\x18DEPLOYMENT_STATUS_FAILED\x10\x032\xad\x02\n" +
+	"\x11DeploymentService\x12^\n" +
+	"\x0fRetryDeployment\x12$.maxicloud.v1.RetryDeploymentRequest\x1a%.maxicloud.v1.RetryDeploymentResponse\x12X\n" +
 	"\rGetDeployment\x12\".maxicloud.v1.GetDeploymentRequest\x1a#.maxicloud.v1.GetDeploymentResponse\x12^\n" +
 	"\x0fListDeployments\x12$.maxicloud.v1.ListDeploymentsRequest\x1a%.maxicloud.v1.ListDeploymentsResponseB\xb8\x01\n" +
 	"\x10com.maxicloud.v1B\x0fDeploymentProtoP\x01ZBgithub.com/saitamau-maximum/maxicloud/gen/maxicloud/v1;maxicloudv1\xa2\x02\x03MXX\xaa\x02\fMaxicloud.V1\xca\x02\fMaxicloud\\V1\xe2\x02\x18Maxicloud\\V1\\GPBMetadata\xea\x02\rMaxicloud::V1b\x06proto3"
@@ -586,36 +564,37 @@ func file_maxicloud_v1_deployment_proto_rawDescGZIP() []byte {
 var file_maxicloud_v1_deployment_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_maxicloud_v1_deployment_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_maxicloud_v1_deployment_proto_goTypes = []any{
-	(DeploymentStatus)(0),            // 0: maxicloud.v1.DeploymentStatus
-	(*Commit)(nil),                   // 1: maxicloud.v1.Commit
-	(*DeploymentRun)(nil),            // 2: maxicloud.v1.DeploymentRun
-	(*CreateDeploymentRequest)(nil),  // 3: maxicloud.v1.CreateDeploymentRequest
-	(*CreateDeploymentResponse)(nil), // 4: maxicloud.v1.CreateDeploymentResponse
-	(*GetDeploymentRequest)(nil),     // 5: maxicloud.v1.GetDeploymentRequest
-	(*GetDeploymentResponse)(nil),    // 6: maxicloud.v1.GetDeploymentResponse
-	(*ListDeploymentsRequest)(nil),   // 7: maxicloud.v1.ListDeploymentsRequest
-	(*ListDeploymentsResponse)(nil),  // 8: maxicloud.v1.ListDeploymentsResponse
-	(*KeyValue)(nil),                 // 9: maxicloud.v1.KeyValue
+	(DeploymentStatus)(0),           // 0: maxicloud.v1.DeploymentStatus
+	(*Commit)(nil),                  // 1: maxicloud.v1.Commit
+	(*Deployment)(nil),              // 2: maxicloud.v1.Deployment
+	(*RetryDeploymentRequest)(nil),  // 3: maxicloud.v1.RetryDeploymentRequest
+	(*RetryDeploymentResponse)(nil), // 4: maxicloud.v1.RetryDeploymentResponse
+	(*GetDeploymentRequest)(nil),    // 5: maxicloud.v1.GetDeploymentRequest
+	(*GetDeploymentResponse)(nil),   // 6: maxicloud.v1.GetDeploymentResponse
+	(*ListDeploymentsRequest)(nil),  // 7: maxicloud.v1.ListDeploymentsRequest
+	(*ListDeploymentsResponse)(nil), // 8: maxicloud.v1.ListDeploymentsResponse
+	(*timestamppb.Timestamp)(nil),   // 9: google.protobuf.Timestamp
 }
 var file_maxicloud_v1_deployment_proto_depIdxs = []int32{
-	1,  // 0: maxicloud.v1.DeploymentRun.commit:type_name -> maxicloud.v1.Commit
-	0,  // 1: maxicloud.v1.DeploymentRun.status:type_name -> maxicloud.v1.DeploymentStatus
-	9,  // 2: maxicloud.v1.CreateDeploymentRequest.environment:type_name -> maxicloud.v1.KeyValue
-	9,  // 3: maxicloud.v1.CreateDeploymentRequest.secrets:type_name -> maxicloud.v1.KeyValue
-	2,  // 4: maxicloud.v1.CreateDeploymentResponse.deployment:type_name -> maxicloud.v1.DeploymentRun
-	2,  // 5: maxicloud.v1.GetDeploymentResponse.deployment:type_name -> maxicloud.v1.DeploymentRun
-	2,  // 6: maxicloud.v1.ListDeploymentsResponse.deployments:type_name -> maxicloud.v1.DeploymentRun
-	3,  // 7: maxicloud.v1.DeploymentService.CreateDeployment:input_type -> maxicloud.v1.CreateDeploymentRequest
-	5,  // 8: maxicloud.v1.DeploymentService.GetDeployment:input_type -> maxicloud.v1.GetDeploymentRequest
-	7,  // 9: maxicloud.v1.DeploymentService.ListDeployments:input_type -> maxicloud.v1.ListDeploymentsRequest
-	4,  // 10: maxicloud.v1.DeploymentService.CreateDeployment:output_type -> maxicloud.v1.CreateDeploymentResponse
-	6,  // 11: maxicloud.v1.DeploymentService.GetDeployment:output_type -> maxicloud.v1.GetDeploymentResponse
-	8,  // 12: maxicloud.v1.DeploymentService.ListDeployments:output_type -> maxicloud.v1.ListDeploymentsResponse
-	10, // [10:13] is the sub-list for method output_type
-	7,  // [7:10] is the sub-list for method input_type
-	7,  // [7:7] is the sub-list for extension type_name
-	7,  // [7:7] is the sub-list for extension extendee
-	0,  // [0:7] is the sub-list for field type_name
+	9,  // 0: maxicloud.v1.Commit.timestamp:type_name -> google.protobuf.Timestamp
+	1,  // 1: maxicloud.v1.Deployment.commit:type_name -> maxicloud.v1.Commit
+	0,  // 2: maxicloud.v1.Deployment.status:type_name -> maxicloud.v1.DeploymentStatus
+	9,  // 3: maxicloud.v1.Deployment.started_at:type_name -> google.protobuf.Timestamp
+	9,  // 4: maxicloud.v1.Deployment.finished_at:type_name -> google.protobuf.Timestamp
+	2,  // 5: maxicloud.v1.RetryDeploymentResponse.deployment:type_name -> maxicloud.v1.Deployment
+	2,  // 6: maxicloud.v1.GetDeploymentResponse.deployment:type_name -> maxicloud.v1.Deployment
+	2,  // 7: maxicloud.v1.ListDeploymentsResponse.deployments:type_name -> maxicloud.v1.Deployment
+	3,  // 8: maxicloud.v1.DeploymentService.RetryDeployment:input_type -> maxicloud.v1.RetryDeploymentRequest
+	5,  // 9: maxicloud.v1.DeploymentService.GetDeployment:input_type -> maxicloud.v1.GetDeploymentRequest
+	7,  // 10: maxicloud.v1.DeploymentService.ListDeployments:input_type -> maxicloud.v1.ListDeploymentsRequest
+	4,  // 11: maxicloud.v1.DeploymentService.RetryDeployment:output_type -> maxicloud.v1.RetryDeploymentResponse
+	6,  // 12: maxicloud.v1.DeploymentService.GetDeployment:output_type -> maxicloud.v1.GetDeploymentResponse
+	8,  // 13: maxicloud.v1.DeploymentService.ListDeployments:output_type -> maxicloud.v1.ListDeploymentsResponse
+	11, // [11:14] is the sub-list for method output_type
+	8,  // [8:11] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_maxicloud_v1_deployment_proto_init() }
@@ -623,7 +602,7 @@ func file_maxicloud_v1_deployment_proto_init() {
 	if File_maxicloud_v1_deployment_proto != nil {
 		return
 	}
-	file_maxicloud_v1_common_proto_init()
+	file_maxicloud_v1_deployment_proto_msgTypes[1].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

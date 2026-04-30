@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -22,6 +23,9 @@ type deploymentService struct {
 
 type DeploymentService interface {
 	CreateDeployment(ctx context.Context, params CreateDeploymentParams) (string, error)
+	RetryDeployment(ctx context.Context, deploymentID string) (*domain.Deployment, error)
+	GetDeployment(ctx context.Context, deploymentID string) (*domain.Deployment, error)
+	ListDeployments(ctx context.Context, applicationID string) ([]domain.Deployment, error)
 	HandleGitHubEvent(ctx context.Context, event domain.DeploymentEvent) error
 }
 
@@ -50,6 +54,7 @@ func (s *deploymentService) CreateDeployment(ctx context.Context, params CreateD
 		Commit:        params.Commit,
 		PRNumber:      params.PRNumber,
 		Status:        domain.DeploymentStatusQueued,
+		StartedAt:     time.Now(),
 	})
 	if err != nil {
 		return "", err
@@ -83,6 +88,46 @@ func (s *deploymentService) CreateDeployment(ctx context.Context, params CreateD
 	return deployID, nil
 }
 
+func (s *deploymentService) RetryDeployment(ctx context.Context, deploymentID string) (*domain.Deployment, error) {
+	deploy, err := s.deployRepo.GetDeployment(ctx, deploymentID)
+	if err != nil {
+		return nil, fmt.Errorf("get deployment: %w", err)
+	}
+	if deploy == nil {
+		return nil, domain.ValidationError{Message: "deployment not found"}
+	}
+
+	newDeployID, err := s.CreateDeployment(ctx, CreateDeploymentParams{
+		ApplicationID: deploy.ApplicationID,
+		OwnerUserID:   deploy.OwnerUserID,
+		Repo:          deploy.Repo,
+		Commit:        deploy.Commit,
+		PRNumber:      deploy.PRNumber,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("create deployment: %w", err)
+	}
+	return s.deployRepo.GetDeployment(ctx, newDeployID)
+}
+
+func (s *deploymentService) GetDeployment(ctx context.Context, deploymentID string) (*domain.Deployment, error) {
+	deploy, err := s.deployRepo.GetDeployment(ctx, deploymentID)
+	if err != nil {
+		if isNotFoundError(err) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return deploy, nil
+}
+
+func (s *deploymentService) ListDeployments(ctx context.Context, applicationID string) ([]domain.Deployment, error) {
+	if applicationID == "" {
+		return nil, domain.ValidationError{Message: "application_id is required"}
+	}
+	return s.deployRepo.ListDeploymentsByApplication(ctx, applicationID)
+}
+
 func (s *deploymentService) HandleGitHubEvent(ctx context.Context, event domain.DeploymentEvent) error {
 	switch event.Type {
 	case domain.DeploymentEventTypeProductionRequested:
@@ -106,7 +151,7 @@ func (s *deploymentService) handleRepoDeploymentEvent(ctx context.Context, event
 		return fmt.Errorf("get applications by repo: %w", err)
 	}
 	for _, app := range apps {
-		deployID, err := s.CreateDeployment(ctx, CreateDeploymentParams{
+		_, err := s.CreateDeployment(ctx, CreateDeploymentParams{
 			ApplicationID: app.ID,
 			OwnerUserID:   app.OwnerID,
 			Repo:          event.Repo,
@@ -116,19 +161,10 @@ func (s *deploymentService) handleRepoDeploymentEvent(ctx context.Context, event
 		if err != nil {
 			return fmt.Errorf("create deployment for application %s: %w", app.ID, err)
 		}
-
-		if _, err := s.pipelineRepo.CreatePipeline(ctx, domain.DeploymentPipeline{
-			ID:            deployID,
-			ApplicationID: app.ID,
-			OwnerUserID:   app.OwnerID,
-			Repo:          event.Repo,
-			Commit:        event.Commit,
-			PRNumber:      prNumber,
-			Status:        domain.DeploymentStatusQueued,
-			StartedAt:     time.Now(),
-		}); err != nil {
-			return fmt.Errorf("create deployment pipeline for application %s: %w", app.ID, err)
-		}
 	}
 	return nil
+}
+
+func isNotFoundError(err error) bool {
+	return err != nil && strings.Contains(strings.ToLower(err.Error()), "not found")
 }

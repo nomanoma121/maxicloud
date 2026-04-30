@@ -33,9 +33,9 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
-	// DeploymentServiceCreateDeploymentProcedure is the fully-qualified name of the DeploymentService's
-	// CreateDeployment RPC.
-	DeploymentServiceCreateDeploymentProcedure = "/maxicloud.v1.DeploymentService/CreateDeployment"
+	// DeploymentServiceRetryDeploymentProcedure is the fully-qualified name of the DeploymentService's
+	// RetryDeployment RPC.
+	DeploymentServiceRetryDeploymentProcedure = "/maxicloud.v1.DeploymentService/RetryDeployment"
 	// DeploymentServiceGetDeploymentProcedure is the fully-qualified name of the DeploymentService's
 	// GetDeployment RPC.
 	DeploymentServiceGetDeploymentProcedure = "/maxicloud.v1.DeploymentService/GetDeployment"
@@ -46,7 +46,7 @@ const (
 
 // DeploymentServiceClient is a client for the maxicloud.v1.DeploymentService service.
 type DeploymentServiceClient interface {
-	CreateDeployment(context.Context, *v1.CreateDeploymentRequest) (*v1.CreateDeploymentResponse, error)
+	RetryDeployment(context.Context, *v1.RetryDeploymentRequest) (*v1.RetryDeploymentResponse, error)
 	GetDeployment(context.Context, *v1.GetDeploymentRequest) (*v1.GetDeploymentResponse, error)
 	ListDeployments(context.Context, *v1.ListDeploymentsRequest) (*v1.ListDeploymentsResponse, error)
 }
@@ -62,10 +62,10 @@ func NewDeploymentServiceClient(httpClient connect.HTTPClient, baseURL string, o
 	baseURL = strings.TrimRight(baseURL, "/")
 	deploymentServiceMethods := v1.File_maxicloud_v1_deployment_proto.Services().ByName("DeploymentService").Methods()
 	return &deploymentServiceClient{
-		createDeployment: connect.NewClient[v1.CreateDeploymentRequest, v1.CreateDeploymentResponse](
+		retryDeployment: connect.NewClient[v1.RetryDeploymentRequest, v1.RetryDeploymentResponse](
 			httpClient,
-			baseURL+DeploymentServiceCreateDeploymentProcedure,
-			connect.WithSchema(deploymentServiceMethods.ByName("CreateDeployment")),
+			baseURL+DeploymentServiceRetryDeploymentProcedure,
+			connect.WithSchema(deploymentServiceMethods.ByName("RetryDeployment")),
 			connect.WithClientOptions(opts...),
 		),
 		getDeployment: connect.NewClient[v1.GetDeploymentRequest, v1.GetDeploymentResponse](
@@ -85,14 +85,14 @@ func NewDeploymentServiceClient(httpClient connect.HTTPClient, baseURL string, o
 
 // deploymentServiceClient implements DeploymentServiceClient.
 type deploymentServiceClient struct {
-	createDeployment *connect.Client[v1.CreateDeploymentRequest, v1.CreateDeploymentResponse]
-	getDeployment    *connect.Client[v1.GetDeploymentRequest, v1.GetDeploymentResponse]
-	listDeployments  *connect.Client[v1.ListDeploymentsRequest, v1.ListDeploymentsResponse]
+	retryDeployment *connect.Client[v1.RetryDeploymentRequest, v1.RetryDeploymentResponse]
+	getDeployment   *connect.Client[v1.GetDeploymentRequest, v1.GetDeploymentResponse]
+	listDeployments *connect.Client[v1.ListDeploymentsRequest, v1.ListDeploymentsResponse]
 }
 
-// CreateDeployment calls maxicloud.v1.DeploymentService.CreateDeployment.
-func (c *deploymentServiceClient) CreateDeployment(ctx context.Context, req *v1.CreateDeploymentRequest) (*v1.CreateDeploymentResponse, error) {
-	response, err := c.createDeployment.CallUnary(ctx, connect.NewRequest(req))
+// RetryDeployment calls maxicloud.v1.DeploymentService.RetryDeployment.
+func (c *deploymentServiceClient) RetryDeployment(ctx context.Context, req *v1.RetryDeploymentRequest) (*v1.RetryDeploymentResponse, error) {
+	response, err := c.retryDeployment.CallUnary(ctx, connect.NewRequest(req))
 	if response != nil {
 		return response.Msg, err
 	}
@@ -119,7 +119,7 @@ func (c *deploymentServiceClient) ListDeployments(ctx context.Context, req *v1.L
 
 // DeploymentServiceHandler is an implementation of the maxicloud.v1.DeploymentService service.
 type DeploymentServiceHandler interface {
-	CreateDeployment(context.Context, *v1.CreateDeploymentRequest) (*v1.CreateDeploymentResponse, error)
+	RetryDeployment(context.Context, *v1.RetryDeploymentRequest) (*v1.RetryDeploymentResponse, error)
 	GetDeployment(context.Context, *v1.GetDeploymentRequest) (*v1.GetDeploymentResponse, error)
 	ListDeployments(context.Context, *v1.ListDeploymentsRequest) (*v1.ListDeploymentsResponse, error)
 }
@@ -131,10 +131,10 @@ type DeploymentServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewDeploymentServiceHandler(svc DeploymentServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
 	deploymentServiceMethods := v1.File_maxicloud_v1_deployment_proto.Services().ByName("DeploymentService").Methods()
-	deploymentServiceCreateDeploymentHandler := connect.NewUnaryHandlerSimple(
-		DeploymentServiceCreateDeploymentProcedure,
-		svc.CreateDeployment,
-		connect.WithSchema(deploymentServiceMethods.ByName("CreateDeployment")),
+	deploymentServiceRetryDeploymentHandler := connect.NewUnaryHandlerSimple(
+		DeploymentServiceRetryDeploymentProcedure,
+		svc.RetryDeployment,
+		connect.WithSchema(deploymentServiceMethods.ByName("RetryDeployment")),
 		connect.WithHandlerOptions(opts...),
 	)
 	deploymentServiceGetDeploymentHandler := connect.NewUnaryHandlerSimple(
@@ -151,8 +151,8 @@ func NewDeploymentServiceHandler(svc DeploymentServiceHandler, opts ...connect.H
 	)
 	return "/maxicloud.v1.DeploymentService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
-		case DeploymentServiceCreateDeploymentProcedure:
-			deploymentServiceCreateDeploymentHandler.ServeHTTP(w, r)
+		case DeploymentServiceRetryDeploymentProcedure:
+			deploymentServiceRetryDeploymentHandler.ServeHTTP(w, r)
 		case DeploymentServiceGetDeploymentProcedure:
 			deploymentServiceGetDeploymentHandler.ServeHTTP(w, r)
 		case DeploymentServiceListDeploymentsProcedure:
@@ -166,8 +166,8 @@ func NewDeploymentServiceHandler(svc DeploymentServiceHandler, opts ...connect.H
 // UnimplementedDeploymentServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedDeploymentServiceHandler struct{}
 
-func (UnimplementedDeploymentServiceHandler) CreateDeployment(context.Context, *v1.CreateDeploymentRequest) (*v1.CreateDeploymentResponse, error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("maxicloud.v1.DeploymentService.CreateDeployment is not implemented"))
+func (UnimplementedDeploymentServiceHandler) RetryDeployment(context.Context, *v1.RetryDeploymentRequest) (*v1.RetryDeploymentResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("maxicloud.v1.DeploymentService.RetryDeployment is not implemented"))
 }
 
 func (UnimplementedDeploymentServiceHandler) GetDeployment(context.Context, *v1.GetDeploymentRequest) (*v1.GetDeploymentResponse, error) {
