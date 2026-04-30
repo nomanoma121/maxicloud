@@ -1,5 +1,6 @@
 # Image URL to use all building/pushing image targets
 IMG ?= maxicloud:latest
+LOCAL_IMG ?= localhost:5001/maxicloud:latest
 
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
 ifeq (,$(shell go env GOBIN))
@@ -122,6 +123,11 @@ docker-build: ## Build docker image with the manager.
 .PHONY: docker-push
 docker-push: ## Push docker image with the manager.
 	$(CONTAINER_TOOL) push ${IMG}
+
+.PHONY: docker-push-local
+docker-push-local: ## Push docker image with the manager to local registry (i.e. kind-registry:5000).
+	${CONTAINER_TOOL} tag ${IMG} ${LOCAL_IMG}
+	$(CONTAINER_TOOL) push ${LOCAL_IMG}
 
 # PLATFORMS defines the target platforms for the manager image be built to provide support to multiple
 # architectures. (i.e. make docker-buildx IMG=myregistry/mypoperator:0.0.1). To use this option you need to:

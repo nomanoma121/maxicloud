@@ -3,5 +3,4 @@ kind: Kustomization
 resources:
   - gateway.yaml
   - service.yaml
-  - ingress.yaml
   - rbac.yaml

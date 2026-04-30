@@ -6,7 +6,12 @@
 
 ローカルでの開発にはKindを使用してKubernetesクラスタを構築します。
 ```bash
-kind create cluster --name maxicloud
+./hack/setup.sh
+```
+
+Ingress-Nginxをインストールします。
+```bash
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.15.1/deploy/static/provider/cloud/deploy.yaml
 ```
 
 Manifestの適用

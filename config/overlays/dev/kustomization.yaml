@@ -3,6 +3,7 @@ kind: Kustomization
 
 resources:
   - ../../default
+  - ingress.yaml
 
 generatorOptions:
   disableNameSuffixHash: true
