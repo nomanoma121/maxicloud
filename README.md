@@ -30,6 +30,7 @@ make deploy
 変更を反映させるためのコマンド
 ```bash
 # protoを変更したとき
+# buf generateを実行するには./dashboardでpnpm installしておく必要があります。
 buf generate
 # CRDの定義を変更したとき
 make generate

@@ -13,5 +13,10 @@ plugins:
     opt:
       - paths=source_relative
       - simple
+  # TODO: 辛かったらフロントとバックを分ける
+  - local: ./dashboard/node_modules/.bin/protoc-gen-es
+    out: ./dashboard/app/gen
+    include_imports: true
+    opt: target=ts 
 inputs:
   - directory: proto
