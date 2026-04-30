@@ -19,6 +19,10 @@ DockerイメージのビルドとPush
 make docker-build docker-push-local
 ```
 
+[環境変数](./config/overlays/dev/README.md)
+を設定します
+
+
 Manifestの適用
 ```bash
 # CRDをクラスタに適用
