@@ -52,7 +52,12 @@ func (h *ProjectHandler) ListProjects(ctx context.Context, req *v1.ListProjectsR
 }
 
 func (h *ProjectHandler) UpdateProject(ctx context.Context, req *v1.UpdateProjectRequest) (*v1.UpdateProjectResponse, error) {
-	project, err := h.uc.UpdateProject(ctx, req.ProjectId, req.Name, req.Description, req.OwnerUserId)
+	project, err := h.uc.UpdateProject(ctx, usecase.UpdateProjectParams{
+		ID:          req.ProjectId,
+		Name:        req.Name,
+		Description: req.Description,
+		OwnerID:     req.OwnerUserId,
+	})
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
@@ -71,7 +76,7 @@ func toProtoProject(p *domain.Project) *v1.Project {
 		Id:          p.ID,
 		Name:        p.Name,
 		Description: p.Description,
-		OwnerUserId: p.OwnerUserID,
+		OwnerUserId: p.OwnerID,
 		CreatedAt:   timestamppb.New(p.CreatedAt),
 		UpdatedAt:   timestamppb.New(p.UpdatedAt),
 	}

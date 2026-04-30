@@ -7,6 +7,7 @@
 package maxicloudv1
 
 import (
+	_ "github.com/saitamau-maximum/maxicloud/gen/buf/validate"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -381,9 +382,9 @@ func (x *ListProjectsResponse) GetProjects() []*Project {
 type UpdateProjectRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ProjectId     string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
-	OwnerUserId   string                 `protobuf:"bytes,4,opt,name=owner_user_id,json=ownerUserId,proto3" json:"owner_user_id,omitempty"`
+	Name          *string                `protobuf:"bytes,2,opt,name=name,proto3,oneof" json:"name,omitempty"`
+	Description   *string                `protobuf:"bytes,3,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	OwnerUserId   *string                `protobuf:"bytes,4,opt,name=owner_user_id,json=ownerUserId,proto3,oneof" json:"owner_user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -426,22 +427,22 @@ func (x *UpdateProjectRequest) GetProjectId() string {
 }
 
 func (x *UpdateProjectRequest) GetName() string {
-	if x != nil {
-		return x.Name
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
 	return ""
 }
 
 func (x *UpdateProjectRequest) GetDescription() string {
-	if x != nil {
-		return x.Description
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
 
 func (x *UpdateProjectRequest) GetOwnerUserId() string {
-	if x != nil {
-		return x.OwnerUserId
+	if x != nil && x.OwnerUserId != nil {
+		return *x.OwnerUserId
 	}
 	return ""
 }
@@ -574,41 +575,46 @@ var File_maxicloud_v1_project_proto protoreflect.FileDescriptor
 
 const file_maxicloud_v1_project_proto_rawDesc = "" +
 	"\n" +
-	"\x1amaxicloud/v1/project.proto\x12\fmaxicloud.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe9\x01\n" +
-	"\aProject\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
-	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\"\n" +
-	"\rowner_user_id\x18\x04 \x01(\tR\vownerUserId\x129\n" +
+	"\x1amaxicloud/v1/project.proto\x12\fmaxicloud.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa9\x02\n" +
+	"\aProject\x12\x1b\n" +
+	"\x02id\x18\x01 \x01(\tB\v\xbaH\b\xc8\x01\x01r\x03\xb0\x01\x01R\x02id\x12\x1e\n" +
+	"\x04name\x18\x02 \x01(\tB\n" +
+	"\xbaH\a\xc8\x01\x01r\x02\x18dR\x04name\x12*\n" +
+	"\vdescription\x18\x03 \x01(\tB\b\xbaH\x05r\x03\x18\xc8\x01R\vdescription\x12/\n" +
+	"\rowner_user_id\x18\x04 \x01(\tB\v\xbaH\b\xc8\x01\x01r\x03\xb0\x01\x01R\vownerUserId\x12A\n" +
 	"\n" +
-	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xbaH\x03\xc8\x01\x01R\tcreatedAt\x12A\n" +
 	"\n" +
-	"updated_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"p\n" +
-	"\x14CreateProjectRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
-	"\vdescription\x18\x02 \x01(\tR\vdescription\x12\"\n" +
-	"\rowner_user_id\x18\x03 \x01(\tR\vownerUserId\"H\n" +
+	"updated_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xbaH\x03\xc8\x01\x01R\tupdatedAt\"\x8a\x01\n" +
+	"\x14CreateProjectRequest\x12\x1a\n" +
+	"\x04name\x18\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12*\n" +
+	"\vdescription\x18\x02 \x01(\tB\b\xbaH\x05r\x03\x18\xc8\x01R\vdescription\x12*\n" +
+	"\rowner_user_id\x18\x03 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\vownerUserId\"H\n" +
 	"\x15CreateProjectResponse\x12/\n" +
-	"\aproject\x18\x01 \x01(\v2\x15.maxicloud.v1.ProjectR\aproject\"2\n" +
-	"\x11GetProjectRequest\x12\x1d\n" +
+	"\aproject\x18\x01 \x01(\v2\x15.maxicloud.v1.ProjectR\aproject\"?\n" +
+	"\x11GetProjectRequest\x12*\n" +
 	"\n" +
-	"project_id\x18\x01 \x01(\tR\tprojectId\"E\n" +
+	"project_id\x18\x01 \x01(\tB\v\xbaH\b\xc8\x01\x01r\x03\xb0\x01\x01R\tprojectId\"E\n" +
 	"\x12GetProjectResponse\x12/\n" +
 	"\aproject\x18\x01 \x01(\v2\x15.maxicloud.v1.ProjectR\aproject\"\x15\n" +
 	"\x13ListProjectsRequest\"I\n" +
 	"\x14ListProjectsResponse\x121\n" +
-	"\bprojects\x18\x01 \x03(\v2\x15.maxicloud.v1.ProjectR\bprojects\"\x8f\x01\n" +
-	"\x14UpdateProjectRequest\x12\x1d\n" +
+	"\bprojects\x18\x01 \x03(\v2\x15.maxicloud.v1.ProjectR\bprojects\"\xf4\x01\n" +
+	"\x14UpdateProjectRequest\x12*\n" +
 	"\n" +
-	"project_id\x18\x01 \x01(\tR\tprojectId\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
-	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\"\n" +
-	"\rowner_user_id\x18\x04 \x01(\tR\vownerUserId\"H\n" +
+	"project_id\x18\x01 \x01(\tB\v\xbaH\b\xc8\x01\x01r\x03\xb0\x01\x01R\tprojectId\x12#\n" +
+	"\x04name\x18\x02 \x01(\tB\n" +
+	"\xbaH\a\xc8\x01\x01r\x02\x18dH\x00R\x04name\x88\x01\x01\x12/\n" +
+	"\vdescription\x18\x03 \x01(\tB\b\xbaH\x05r\x03\x18\xc8\x01H\x01R\vdescription\x88\x01\x01\x12/\n" +
+	"\rowner_user_id\x18\x04 \x01(\tB\x06\xbaH\x03\xc8\x01\x01H\x02R\vownerUserId\x88\x01\x01B\a\n" +
+	"\x05_nameB\x0e\n" +
+	"\f_descriptionB\x10\n" +
+	"\x0e_owner_user_id\"H\n" +
 	"\x15UpdateProjectResponse\x12/\n" +
-	"\aproject\x18\x01 \x01(\v2\x15.maxicloud.v1.ProjectR\aproject\"5\n" +
-	"\x14DeleteProjectRequest\x12\x1d\n" +
+	"\aproject\x18\x01 \x01(\v2\x15.maxicloud.v1.ProjectR\aproject\"B\n" +
+	"\x14DeleteProjectRequest\x12*\n" +
 	"\n" +
-	"project_id\x18\x01 \x01(\tR\tprojectId\"\x17\n" +
+	"project_id\x18\x01 \x01(\tB\v\xbaH\b\xc8\x01\x01r\x03\xb0\x01\x01R\tprojectId\"\x17\n" +
 	"\x15DeleteProjectResponse2\xc6\x03\n" +
 	"\x0eProjectService\x12X\n" +
 	"\rCreateProject\x12\".maxicloud.v1.CreateProjectRequest\x1a#.maxicloud.v1.CreateProjectResponse\x12O\n" +
@@ -675,6 +681,7 @@ func file_maxicloud_v1_project_proto_init() {
 	if File_maxicloud_v1_project_proto != nil {
 		return
 	}
+	file_maxicloud_v1_project_proto_msgTypes[7].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

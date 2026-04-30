@@ -9,10 +9,10 @@ import (
 )
 
 type ProjectUsecase interface {
-	CreateProject(ctx context.Context, name, description, ownerUserID string) (*domain.Project, error)
+	CreateProject(ctx context.Context, name, description, ownerID string) (*domain.Project, error)
 	GetProject(ctx context.Context, id string) (*domain.Project, error)
 	ListProjects(ctx context.Context) ([]*domain.Project, error)
-	UpdateProject(ctx context.Context, id, name, description, ownerUserID string) (*domain.Project, error)
+	UpdateProject(ctx context.Context, params UpdateProjectParams) (*domain.Project, error)
 	DeleteProject(ctx context.Context, id string) error
 }
 
@@ -24,13 +24,13 @@ func NewProjectUsecase(repo domain.ProjectRepository) ProjectUsecase {
 	return &projectUsecase{repo: repo}
 }
 
-func (u *projectUsecase) CreateProject(ctx context.Context, name, description, ownerUserID string) (*domain.Project, error) {
+func (u *projectUsecase) CreateProject(ctx context.Context, name, description, ownerID string) (*domain.Project, error) {
 	id, err := u.repo.CreateProject(ctx, domain.Project{
 		ID:          uuid.New().String(),
 		Name:        name,
 		Description: description,
-		OwnerUserID: ownerUserID,
-		CreatedAt:   time.Now(),	
+		OwnerID:     ownerID,
+		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
 	})
 	if err != nil {
@@ -47,17 +47,24 @@ func (u *projectUsecase) ListProjects(ctx context.Context) ([]*domain.Project, e
 	return u.repo.ListProjects(ctx)
 }
 
-func (u *projectUsecase) UpdateProject(ctx context.Context, id, name, description, ownerUserID string) (*domain.Project, error) {
-	if err := u.repo.UpdateProject(ctx, domain.Project{
-		ID:          id,
-		Name:        name,
-		Description: description,
-		OwnerUserID: ownerUserID,
+type UpdateProjectParams struct {
+	ID          string
+	Name        *string
+	Description *string
+	OwnerID     *string
+}
+
+func (u *projectUsecase) UpdateProject(ctx context.Context, params UpdateProjectParams) (*domain.Project, error) {
+	if err := u.repo.UpdateProject(ctx, domain.UpdateProjectParams{
+		ID:          params.ID,
+		Name:        params.Name,
+		Description: params.Description,
+		OwnerID:     params.OwnerID,
 		UpdatedAt:   time.Now(),
 	}); err != nil {
 		return nil, err
 	}
-	return u.repo.GetProject(ctx, id)
+	return u.repo.GetProject(ctx, params.ID)
 }
 
 func (u *projectUsecase) DeleteProject(ctx context.Context, id string) error {
