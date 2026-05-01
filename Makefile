@@ -121,11 +121,7 @@ docker-build: ## Build docker image with the manager.
 	$(CONTAINER_TOOL) build -t ${IMG} .
 
 .PHONY: docker-push
-docker-push: ## Push docker image with the manager.
-	$(CONTAINER_TOOL) push ${IMG}
-
-.PHONY: docker-push-local
-docker-push-local: ## Push docker image with the manager to local registry (i.e. kind-registry:5000).
+docker-push: ## Push docker image with the manager to local registry (i.e. kind-registry:5000).
 	${CONTAINER_TOOL} tag ${IMG} ${LOCAL_IMG}
 	$(CONTAINER_TOOL) push ${LOCAL_IMG}
 

@@ -16,7 +16,7 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/cont
 
 DockerイメージのビルドとPush
 ```bash
-make docker-build docker-push-local
+make docker-build docker-push
 ```
 
 [環境変数](./config/overlays/dev/README.md)
@@ -29,6 +29,18 @@ Manifestの適用
 make install
 # Manifestsをクラスタに適用
 make deploy
+```
+
+Podの状態を確認します。
+```bash
+kubectl get pods -n maxicloud-system
+```
+
+以下の二つがRunningとなっていればOKです。
+```bash
+NAME                                            READY   STATUS    RESTARTS   AGE
+maxicloud-controller-manager-58f846777c-2mlr5   1/1     Running   0          57s
+maxicloud-gateway-cfb744f4d-pw6cp               1/1     Running   0          57s
 ```
 
 変更を反映させるためのコマンド
