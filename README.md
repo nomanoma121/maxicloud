@@ -53,3 +53,15 @@ make generate
 # Kubebuilderのマーカを変更したとき
 make manifests
 ```
+
+## GitHub Webhookの受け取り方
+
+smee-clientを使用して、ローカルにWebhookを転送します
+```bash
+npm install --global smee-client
+```
+smee.ioにアクセスしてWebhookを受け取るURLを作成してください。
+
+```bash
+smee --url <作成したURL> --target http://localtest.me:8080/github/webhook
+```
