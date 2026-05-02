@@ -4,35 +4,14 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_buf_validate_validate } from "../../buf/validate/validate_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file maxicloud/v1/common.proto.
  */
 export const file_maxicloud_v1_common: GenFile = /*@__PURE__*/
-  fileDesc("ChltYXhpY2xvdWQvdjEvY29tbW9uLnByb3RvEgxtYXhpY2xvdWQudjEiJgoIS2V5VmFsdWUSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJIikKClJlcG9zaXRvcnkSDAoEbmFtZRgBIAEoCRINCgVvd25lchgCIAEoCUK0AQoQY29tLm1heGljbG91ZC52MUILQ29tbW9uUHJvdG9QAVpCZ2l0aHViLmNvbS9zYWl0YW1hdS1tYXhpbXVtL21heGljbG91ZC9nZW4vbWF4aWNsb3VkL3YxO21heGljbG91ZHYxogIDTVhYqgIMTWF4aWNsb3VkLlYxygIMTWF4aWNsb3VkXFYx4gIYTWF4aWNsb3VkXFYxXEdQQk1ldGFkYXRh6gINTWF4aWNsb3VkOjpWMWIGcHJvdG8z");
-
-/**
- * @generated from message maxicloud.v1.KeyValue
- */
-export type KeyValue = Message<"maxicloud.v1.KeyValue"> & {
-  /**
-   * @generated from field: string key = 1;
-   */
-  key: string;
-
-  /**
-   * @generated from field: string value = 2;
-   */
-  value: string;
-};
-
-/**
- * Describes the message maxicloud.v1.KeyValue.
- * Use `create(KeyValueSchema)` to create a new message.
- */
-export const KeyValueSchema: GenMessage<KeyValue> = /*@__PURE__*/
-  messageDesc(file_maxicloud_v1_common, 0);
+  fileDesc("ChltYXhpY2xvdWQvdjEvY29tbW9uLnByb3RvEgxtYXhpY2xvdWQudjEiOQoKUmVwb3NpdG9yeRIUCgRuYW1lGAEgASgJQga6SAPIAQESFQoFb3duZXIYAiABKAlCBrpIA8gBASJICgZEb21haW4SHQoJc3ViZG9tYWluGAEgASgJQgq6SAfIAQFyAmgBEh8KC3Jvb3RfZG9tYWluGAIgASgJQgq6SAfIAQFyAmgBQrQBChBjb20ubWF4aWNsb3VkLnYxQgtDb21tb25Qcm90b1ABWkJnaXRodWIuY29tL3NhaXRhbWF1LW1heGltdW0vbWF4aWNsb3VkL2dlbi9tYXhpY2xvdWQvdjE7bWF4aWNsb3VkdjGiAgNNWFiqAgxNYXhpY2xvdWQuVjHKAgxNYXhpY2xvdWRcVjHiAhhNYXhpY2xvdWRcVjFcR1BCTWV0YWRhdGHqAg1NYXhpY2xvdWQ6OlYxYgZwcm90bzM", [file_buf_validate_validate]);
 
 /**
  * @generated from message maxicloud.v1.Repository
@@ -54,5 +33,27 @@ export type Repository = Message<"maxicloud.v1.Repository"> & {
  * Use `create(RepositorySchema)` to create a new message.
  */
 export const RepositorySchema: GenMessage<Repository> = /*@__PURE__*/
+  messageDesc(file_maxicloud_v1_common, 0);
+
+/**
+ * @generated from message maxicloud.v1.Domain
+ */
+export type Domain = Message<"maxicloud.v1.Domain"> & {
+  /**
+   * @generated from field: string subdomain = 1;
+   */
+  subdomain: string;
+
+  /**
+   * @generated from field: string root_domain = 2;
+   */
+  rootDomain: string;
+};
+
+/**
+ * Describes the message maxicloud.v1.Domain.
+ * Use `create(DomainSchema)` to create a new message.
+ */
+export const DomainSchema: GenMessage<Domain> = /*@__PURE__*/
   messageDesc(file_maxicloud_v1_common, 1);
 

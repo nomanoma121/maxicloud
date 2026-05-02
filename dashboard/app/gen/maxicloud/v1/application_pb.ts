@@ -7,13 +7,15 @@ import { enumDesc, fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf
 import { file_buf_validate_validate } from "../../buf/validate/validate_pb";
 import type { Timestamp } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
+import type { Domain, Repository } from "./common_pb";
+import { file_maxicloud_v1_common } from "./common_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file maxicloud/v1/application.proto.
  */
 export const file_maxicloud_v1_application: GenFile = /*@__PURE__*/
-  fileDesc("Ch5tYXhpY2xvdWQvdjEvYXBwbGljYXRpb24ucHJvdG8SDG1heGljbG91ZC52MSKxAgoLQXBwbGljYXRpb24SCgoCaWQYASABKAkSEgoKcHJvamVjdF9pZBgCIAEoCRIMCgRuYW1lGAMgASgJEi8KBnNvdXJjZRgEIAEoCzIfLm1heGljbG91ZC52MS5BcHBsaWNhdGlvblNvdXJjZRIOCgZicmFuY2gYBSABKAkSLwoGc3RhdHVzGAYgASgOMh8ubWF4aWNsb3VkLnYxLkFwcGxpY2F0aW9uU3RhdHVzEgsKA3VybBgHIAEoCRIVCg1vd25lcl91c2VyX2lkGAggASgJEi4KCmNyZWF0ZWRfYXQYCSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi4KCnVwZGF0ZWRfYXQYCiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIjkKClJlcG9zaXRvcnkSFAoEbmFtZRgBIAEoCUIGukgDyAEBEhUKBW93bmVyGAIgASgJQga6SAPIAQEiYQoRQXBwbGljYXRpb25Tb3VyY2USNAoKcmVwb3NpdG9yeRgBIAEoCzIYLm1heGljbG91ZC52MS5SZXBvc2l0b3J5Qga6SAPIAQESFgoGYnJhbmNoGAMgASgJQga6SAPIAQEigwEKFURvY2tlcmZpbGVCdWlsZENvbmZpZxI2CgZzb3VyY2UYASABKA4yHi5tYXhpY2xvdWQudjEuRG9ja2VyZmlsZVNvdXJjZUIGukgDyAEBEhcKD2RvY2tlcmZpbGVfcGF0aBgCIAEoCRIZChFkb2NrZXJmaWxlX2lubGluZRgDIAEoCSKFAQoLQnVpbGRDb25maWcSNQoIc3RyYXRlZ3kYASABKA4yGy5tYXhpY2xvdWQudjEuQnVpbGRTdHJhdGVneUIGukgDyAEBEj8KCmRvY2tlcmZpbGUYAiABKAsyIy5tYXhpY2xvdWQudjEuRG9ja2VyZmlsZUJ1aWxkQ29uZmlnQga6SAPIAQEiSAoGRG9tYWluEh0KCXN1YmRvbWFpbhgBIAEoCUIKukgHyAEBcgJoARIfCgtyb290X2RvbWFpbhgCIAEoCUIKukgHyAEBcgJoASJ5CgZBY2Nlc3MSLgoEbW9kZRgBIAEoDjIYLm1heGljbG91ZC52MS5BY2Nlc3NNb2RlQga6SAPIAQESJAoGZG9tYWluGAIgASgLMhQubWF4aWNsb3VkLnYxLkRvbWFpbhIZCgRwb3J0GAMgASgFQgu6SAgaBhj//wMgACLNAwoPQXBwbGljYXRpb25TcGVjEh8KCnByb2plY3RfaWQYASABKAlCC7pICMgBAXIDsAEBEjcKBnNvdXJjZRgDIAEoCzIfLm1heGljbG91ZC52MS5BcHBsaWNhdGlvblNvdXJjZUIGukgDyAEBEjAKBWJ1aWxkGAQgASgLMhkubWF4aWNsb3VkLnYxLkJ1aWxkQ29uZmlnQga6SAPIAQESLAoGYWNjZXNzGAUgASgLMhQubWF4aWNsb3VkLnYxLkFjY2Vzc0IGukgDyAEBElYKFWVudmlyb25tZW50X3ZhcmlhYmxlcxgIIAMoCzI3Lm1heGljbG91ZC52MS5BcHBsaWNhdGlvblNwZWMuRW52aXJvbm1lbnRWYXJpYWJsZXNFbnRyeRI7CgdzZWNyZXRzGAkgAygLMioubWF4aWNsb3VkLnYxLkFwcGxpY2F0aW9uU3BlYy5TZWNyZXRzRW50cnkaOwoZRW52aXJvbm1lbnRWYXJpYWJsZXNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBGi4KDFNlY3JldHNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIooBChhDcmVhdGVBcHBsaWNhdGlvblJlcXVlc3QSGgoEbmFtZRgBIAEoCUIMukgJyAEBcgQQARhkEh0KCG93bmVyX2lkGAIgASgJQgu6SAjIAQFyA7ABARIzCgRzcGVjGAMgASgLMh0ubWF4aWNsb3VkLnYxLkFwcGxpY2F0aW9uU3BlY0IGukgDyAEBIksKGUNyZWF0ZUFwcGxpY2F0aW9uUmVzcG9uc2USLgoLYXBwbGljYXRpb24YASABKAsyGS5tYXhpY2xvdWQudjEuQXBwbGljYXRpb24iNwoVR2V0QXBwbGljYXRpb25SZXF1ZXN0Eh4KDmFwcGxpY2F0aW9uX2lkGAEgASgJQga6SAPIAQEiSAoWR2V0QXBwbGljYXRpb25SZXNwb25zZRIuCgthcHBsaWNhdGlvbhgBIAEoCzIZLm1heGljbG91ZC52MS5BcHBsaWNhdGlvbiI1ChdMaXN0QXBwbGljYXRpb25zUmVxdWVzdBIaCgpwcm9qZWN0X2lkGAEgASgJQga6SAPIAQEiSwoYTGlzdEFwcGxpY2F0aW9uc1Jlc3BvbnNlEi8KDGFwcGxpY2F0aW9ucxgBIAMoCzIZLm1heGljbG91ZC52MS5BcHBsaWNhdGlvbiKfAQoYVXBkYXRlQXBwbGljYXRpb25SZXF1ZXN0Eh4KDmFwcGxpY2F0aW9uX2lkGAEgASgJQga6SAPIAQESFAoEbmFtZRgCIAEoCUIGukgDyAEBEhgKCG93bmVyX2lkGAMgASgJQga6SAPIAQESMwoEc3BlYxgEIAEoCzIdLm1heGljbG91ZC52MS5BcHBsaWNhdGlvblNwZWNCBrpIA8gBASJLChlVcGRhdGVBcHBsaWNhdGlvblJlc3BvbnNlEi4KC2FwcGxpY2F0aW9uGAEgASgLMhkubWF4aWNsb3VkLnYxLkFwcGxpY2F0aW9uIjoKGERlbGV0ZUFwcGxpY2F0aW9uUmVxdWVzdBIeCg5hcHBsaWNhdGlvbl9pZBgBIAEoCUIGukgDyAEBIhsKGURlbGV0ZUFwcGxpY2F0aW9uUmVzcG9uc2UidgoNR2l0UmVwb3NpdG9yeRIKCgJpZBgBIAEoCRIWCg5kZWZhdWx0X2JyYW5jaBgCIAEoCRIQCghicmFuY2hlcxgDIAMoCRIVCg1kZXRlY3RlZF9maWxlGAQgAygJEhgKEGRvY2tlcmZpbGVfcGF0aHMYBSADKAkiHAoaTGlzdEdpdFJlcG9zaXRvcmllc1JlcXVlc3QiUAobTGlzdEdpdFJlcG9zaXRvcmllc1Jlc3BvbnNlEjEKDHJlcG9zaXRvcmllcxgBIAMoCzIbLm1heGljbG91ZC52MS5HaXRSZXBvc2l0b3J5KrsBChFBcHBsaWNhdGlvblN0YXR1cxIiCh5BUFBMSUNBVElPTl9TVEFUVVNfVU5TUEVDSUZJRUQQABIeChpBUFBMSUNBVElPTl9TVEFUVVNfSEVBTFRIWRABEh8KG0FQUExJQ0FUSU9OX1NUQVRVU19ERUdSQURFRBACEiAKHEFQUExJQ0FUSU9OX1NUQVRVU19VTkhFQUxUSFkQAxIfChtBUFBMSUNBVElPTl9TVEFUVVNfU0xFRVBJTkcQBCp4CgpBY2Nlc3NNb2RlEhsKF0FDQ0VTU19NT0RFX1VOU1BFQ0lGSUVEEAASFgoSQUNDRVNTX01PREVfUFVCTElDEAESFwoTQUNDRVNTX01PREVfUFJJVkFURRACEhwKGEFDQ0VTU19NT0RFX01FTUJFUlNfT05MWRADKk4KDUJ1aWxkU3RyYXRlZ3kSHgoaQlVJTERfU1RSQVRFR1lfVU5TUEVDSUZJRUQQABIdChlCVUlMRF9TVFJBVEVHWV9ET0NLRVJGSUxFEAEqbwoQRG9ja2VyZmlsZVNvdXJjZRIhCh1ET0NLRVJGSUxFX1NPVVJDRV9VTlNQRUNJRklFRBAAEhoKFkRPQ0tFUkZJTEVfU09VUkNFX1BBVEgQARIcChhET0NLRVJGSUxFX1NPVVJDRV9JTkxJTkUQAjLyBAoSQXBwbGljYXRpb25TZXJ2aWNlEmQKEUNyZWF0ZUFwcGxpY2F0aW9uEiYubWF4aWNsb3VkLnYxLkNyZWF0ZUFwcGxpY2F0aW9uUmVxdWVzdBonLm1heGljbG91ZC52MS5DcmVhdGVBcHBsaWNhdGlvblJlc3BvbnNlElsKDkdldEFwcGxpY2F0aW9uEiMubWF4aWNsb3VkLnYxLkdldEFwcGxpY2F0aW9uUmVxdWVzdBokLm1heGljbG91ZC52MS5HZXRBcHBsaWNhdGlvblJlc3BvbnNlEmEKEExpc3RBcHBsaWNhdGlvbnMSJS5tYXhpY2xvdWQudjEuTGlzdEFwcGxpY2F0aW9uc1JlcXVlc3QaJi5tYXhpY2xvdWQudjEuTGlzdEFwcGxpY2F0aW9uc1Jlc3BvbnNlEmQKEVVwZGF0ZUFwcGxpY2F0aW9uEiYubWF4aWNsb3VkLnYxLlVwZGF0ZUFwcGxpY2F0aW9uUmVxdWVzdBonLm1heGljbG91ZC52MS5VcGRhdGVBcHBsaWNhdGlvblJlc3BvbnNlEmQKEURlbGV0ZUFwcGxpY2F0aW9uEiYubWF4aWNsb3VkLnYxLkRlbGV0ZUFwcGxpY2F0aW9uUmVxdWVzdBonLm1heGljbG91ZC52MS5EZWxldGVBcHBsaWNhdGlvblJlc3BvbnNlEmoKE0xpc3RHaXRSZXBvc2l0b3JpZXMSKC5tYXhpY2xvdWQudjEuTGlzdEdpdFJlcG9zaXRvcmllc1JlcXVlc3QaKS5tYXhpY2xvdWQudjEuTGlzdEdpdFJlcG9zaXRvcmllc1Jlc3BvbnNlQrkBChBjb20ubWF4aWNsb3VkLnYxQhBBcHBsaWNhdGlvblByb3RvUAFaQmdpdGh1Yi5jb20vc2FpdGFtYXUtbWF4aW11bS9tYXhpY2xvdWQvZ2VuL21heGljbG91ZC92MTttYXhpY2xvdWR2MaICA01YWKoCDE1heGljbG91ZC5WMcoCDE1heGljbG91ZFxWMeICGE1heGljbG91ZFxWMVxHUEJNZXRhZGF0YeoCDU1heGljbG91ZDo6VjFiBnByb3RvMw", [file_buf_validate_validate, file_google_protobuf_timestamp]);
+  fileDesc("Ch5tYXhpY2xvdWQvdjEvYXBwbGljYXRpb24ucHJvdG8SDG1heGljbG91ZC52MSKxAgoLQXBwbGljYXRpb24SCgoCaWQYASABKAkSEgoKcHJvamVjdF9pZBgCIAEoCRIMCgRuYW1lGAMgASgJEi8KBnNvdXJjZRgEIAEoCzIfLm1heGljbG91ZC52MS5BcHBsaWNhdGlvblNvdXJjZRIOCgZicmFuY2gYBSABKAkSLwoGc3RhdHVzGAYgASgOMh8ubWF4aWNsb3VkLnYxLkFwcGxpY2F0aW9uU3RhdHVzEgsKA3VybBgHIAEoCRIVCg1vd25lcl91c2VyX2lkGAggASgJEi4KCmNyZWF0ZWRfYXQYCSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi4KCnVwZGF0ZWRfYXQYCiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wImEKEUFwcGxpY2F0aW9uU291cmNlEjQKCnJlcG9zaXRvcnkYASABKAsyGC5tYXhpY2xvdWQudjEuUmVwb3NpdG9yeUIGukgDyAEBEhYKBmJyYW5jaBgDIAEoCUIGukgDyAEBIoMBChVEb2NrZXJmaWxlQnVpbGRDb25maWcSNgoGc291cmNlGAEgASgOMh4ubWF4aWNsb3VkLnYxLkRvY2tlcmZpbGVTb3VyY2VCBrpIA8gBARIXCg9kb2NrZXJmaWxlX3BhdGgYAiABKAkSGQoRZG9ja2VyZmlsZV9pbmxpbmUYAyABKAkihQEKC0J1aWxkQ29uZmlnEjUKCHN0cmF0ZWd5GAEgASgOMhsubWF4aWNsb3VkLnYxLkJ1aWxkU3RyYXRlZ3lCBrpIA8gBARI/Cgpkb2NrZXJmaWxlGAIgASgLMiMubWF4aWNsb3VkLnYxLkRvY2tlcmZpbGVCdWlsZENvbmZpZ0IGukgDyAEBInkKBkFjY2VzcxIuCgRtb2RlGAEgASgOMhgubWF4aWNsb3VkLnYxLkFjY2Vzc01vZGVCBrpIA8gBARIkCgZkb21haW4YAiABKAsyFC5tYXhpY2xvdWQudjEuRG9tYWluEhkKBHBvcnQYAyABKAVCC7pICBoGGP//AyAAIs0DCg9BcHBsaWNhdGlvblNwZWMSHwoKcHJvamVjdF9pZBgBIAEoCUILukgIyAEBcgOwAQESNwoGc291cmNlGAMgASgLMh8ubWF4aWNsb3VkLnYxLkFwcGxpY2F0aW9uU291cmNlQga6SAPIAQESMAoFYnVpbGQYBCABKAsyGS5tYXhpY2xvdWQudjEuQnVpbGRDb25maWdCBrpIA8gBARIsCgZhY2Nlc3MYBSABKAsyFC5tYXhpY2xvdWQudjEuQWNjZXNzQga6SAPIAQESVgoVZW52aXJvbm1lbnRfdmFyaWFibGVzGAggAygLMjcubWF4aWNsb3VkLnYxLkFwcGxpY2F0aW9uU3BlYy5FbnZpcm9ubWVudFZhcmlhYmxlc0VudHJ5EjsKB3NlY3JldHMYCSADKAsyKi5tYXhpY2xvdWQudjEuQXBwbGljYXRpb25TcGVjLlNlY3JldHNFbnRyeRo7ChlFbnZpcm9ubWVudFZhcmlhYmxlc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEaLgoMU2VjcmV0c0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiigEKGENyZWF0ZUFwcGxpY2F0aW9uUmVxdWVzdBIaCgRuYW1lGAEgASgJQgy6SAnIAQFyBBABGGQSHQoIb3duZXJfaWQYAiABKAlCC7pICMgBAXIDsAEBEjMKBHNwZWMYAyABKAsyHS5tYXhpY2xvdWQudjEuQXBwbGljYXRpb25TcGVjQga6SAPIAQEiSwoZQ3JlYXRlQXBwbGljYXRpb25SZXNwb25zZRIuCgthcHBsaWNhdGlvbhgBIAEoCzIZLm1heGljbG91ZC52MS5BcHBsaWNhdGlvbiI3ChVHZXRBcHBsaWNhdGlvblJlcXVlc3QSHgoOYXBwbGljYXRpb25faWQYASABKAlCBrpIA8gBASJIChZHZXRBcHBsaWNhdGlvblJlc3BvbnNlEi4KC2FwcGxpY2F0aW9uGAEgASgLMhkubWF4aWNsb3VkLnYxLkFwcGxpY2F0aW9uIjUKF0xpc3RBcHBsaWNhdGlvbnNSZXF1ZXN0EhoKCnByb2plY3RfaWQYASABKAlCBrpIA8gBASJLChhMaXN0QXBwbGljYXRpb25zUmVzcG9uc2USLwoMYXBwbGljYXRpb25zGAEgAygLMhkubWF4aWNsb3VkLnYxLkFwcGxpY2F0aW9uIp8BChhVcGRhdGVBcHBsaWNhdGlvblJlcXVlc3QSHgoOYXBwbGljYXRpb25faWQYASABKAlCBrpIA8gBARIUCgRuYW1lGAIgASgJQga6SAPIAQESGAoIb3duZXJfaWQYAyABKAlCBrpIA8gBARIzCgRzcGVjGAQgASgLMh0ubWF4aWNsb3VkLnYxLkFwcGxpY2F0aW9uU3BlY0IGukgDyAEBIksKGVVwZGF0ZUFwcGxpY2F0aW9uUmVzcG9uc2USLgoLYXBwbGljYXRpb24YASABKAsyGS5tYXhpY2xvdWQudjEuQXBwbGljYXRpb24iOgoYRGVsZXRlQXBwbGljYXRpb25SZXF1ZXN0Eh4KDmFwcGxpY2F0aW9uX2lkGAEgASgJQga6SAPIAQEiGwoZRGVsZXRlQXBwbGljYXRpb25SZXNwb25zZSJ2Cg1HaXRSZXBvc2l0b3J5EgoKAmlkGAEgASgJEhYKDmRlZmF1bHRfYnJhbmNoGAIgASgJEhAKCGJyYW5jaGVzGAMgAygJEhUKDWRldGVjdGVkX2ZpbGUYBCADKAkSGAoQZG9ja2VyZmlsZV9wYXRocxgFIAMoCSIcChpMaXN0R2l0UmVwb3NpdG9yaWVzUmVxdWVzdCJQChtMaXN0R2l0UmVwb3NpdG9yaWVzUmVzcG9uc2USMQoMcmVwb3NpdG9yaWVzGAEgAygLMhsubWF4aWNsb3VkLnYxLkdpdFJlcG9zaXRvcnkquwEKEUFwcGxpY2F0aW9uU3RhdHVzEiIKHkFQUExJQ0FUSU9OX1NUQVRVU19VTlNQRUNJRklFRBAAEh4KGkFQUExJQ0FUSU9OX1NUQVRVU19IRUFMVEhZEAESHwobQVBQTElDQVRJT05fU1RBVFVTX0RFR1JBREVEEAISIAocQVBQTElDQVRJT05fU1RBVFVTX1VOSEVBTFRIWRADEh8KG0FQUExJQ0FUSU9OX1NUQVRVU19TTEVFUElORxAEKngKCkFjY2Vzc01vZGUSGwoXQUNDRVNTX01PREVfVU5TUEVDSUZJRUQQABIWChJBQ0NFU1NfTU9ERV9QVUJMSUMQARIXChNBQ0NFU1NfTU9ERV9QUklWQVRFEAISHAoYQUNDRVNTX01PREVfTUVNQkVSU19PTkxZEAMqTgoNQnVpbGRTdHJhdGVneRIeChpCVUlMRF9TVFJBVEVHWV9VTlNQRUNJRklFRBAAEh0KGUJVSUxEX1NUUkFURUdZX0RPQ0tFUkZJTEUQASpvChBEb2NrZXJmaWxlU291cmNlEiEKHURPQ0tFUkZJTEVfU09VUkNFX1VOU1BFQ0lGSUVEEAASGgoWRE9DS0VSRklMRV9TT1VSQ0VfUEFUSBABEhwKGERPQ0tFUkZJTEVfU09VUkNFX0lOTElORRACMvIEChJBcHBsaWNhdGlvblNlcnZpY2USZAoRQ3JlYXRlQXBwbGljYXRpb24SJi5tYXhpY2xvdWQudjEuQ3JlYXRlQXBwbGljYXRpb25SZXF1ZXN0GicubWF4aWNsb3VkLnYxLkNyZWF0ZUFwcGxpY2F0aW9uUmVzcG9uc2USWwoOR2V0QXBwbGljYXRpb24SIy5tYXhpY2xvdWQudjEuR2V0QXBwbGljYXRpb25SZXF1ZXN0GiQubWF4aWNsb3VkLnYxLkdldEFwcGxpY2F0aW9uUmVzcG9uc2USYQoQTGlzdEFwcGxpY2F0aW9ucxIlLm1heGljbG91ZC52MS5MaXN0QXBwbGljYXRpb25zUmVxdWVzdBomLm1heGljbG91ZC52MS5MaXN0QXBwbGljYXRpb25zUmVzcG9uc2USZAoRVXBkYXRlQXBwbGljYXRpb24SJi5tYXhpY2xvdWQudjEuVXBkYXRlQXBwbGljYXRpb25SZXF1ZXN0GicubWF4aWNsb3VkLnYxLlVwZGF0ZUFwcGxpY2F0aW9uUmVzcG9uc2USZAoRRGVsZXRlQXBwbGljYXRpb24SJi5tYXhpY2xvdWQudjEuRGVsZXRlQXBwbGljYXRpb25SZXF1ZXN0GicubWF4aWNsb3VkLnYxLkRlbGV0ZUFwcGxpY2F0aW9uUmVzcG9uc2USagoTTGlzdEdpdFJlcG9zaXRvcmllcxIoLm1heGljbG91ZC52MS5MaXN0R2l0UmVwb3NpdG9yaWVzUmVxdWVzdBopLm1heGljbG91ZC52MS5MaXN0R2l0UmVwb3NpdG9yaWVzUmVzcG9uc2VCuQEKEGNvbS5tYXhpY2xvdWQudjFCEEFwcGxpY2F0aW9uUHJvdG9QAVpCZ2l0aHViLmNvbS9zYWl0YW1hdS1tYXhpbXVtL21heGljbG91ZC9nZW4vbWF4aWNsb3VkL3YxO21heGljbG91ZHYxogIDTVhYqgIMTWF4aWNsb3VkLlYxygIMTWF4aWNsb3VkXFYx4gIYTWF4aWNsb3VkXFYxXEdQQk1ldGFkYXRh6gINTWF4aWNsb3VkOjpWMWIGcHJvdG8z", [file_buf_validate_validate, file_google_protobuf_timestamp, file_maxicloud_v1_common]);
 
 /**
  * @generated from message maxicloud.v1.Application
@@ -78,28 +80,6 @@ export const ApplicationSchema: GenMessage<Application> = /*@__PURE__*/
   messageDesc(file_maxicloud_v1_application, 0);
 
 /**
- * @generated from message maxicloud.v1.Repository
- */
-export type Repository = Message<"maxicloud.v1.Repository"> & {
-  /**
-   * @generated from field: string name = 1;
-   */
-  name: string;
-
-  /**
-   * @generated from field: string owner = 2;
-   */
-  owner: string;
-};
-
-/**
- * Describes the message maxicloud.v1.Repository.
- * Use `create(RepositorySchema)` to create a new message.
- */
-export const RepositorySchema: GenMessage<Repository> = /*@__PURE__*/
-  messageDesc(file_maxicloud_v1_application, 1);
-
-/**
  * @generated from message maxicloud.v1.ApplicationSource
  */
 export type ApplicationSource = Message<"maxicloud.v1.ApplicationSource"> & {
@@ -119,7 +99,7 @@ export type ApplicationSource = Message<"maxicloud.v1.ApplicationSource"> & {
  * Use `create(ApplicationSourceSchema)` to create a new message.
  */
 export const ApplicationSourceSchema: GenMessage<ApplicationSource> = /*@__PURE__*/
-  messageDesc(file_maxicloud_v1_application, 2);
+  messageDesc(file_maxicloud_v1_application, 1);
 
 /**
  * @generated from message maxicloud.v1.DockerfileBuildConfig
@@ -146,7 +126,7 @@ export type DockerfileBuildConfig = Message<"maxicloud.v1.DockerfileBuildConfig"
  * Use `create(DockerfileBuildConfigSchema)` to create a new message.
  */
 export const DockerfileBuildConfigSchema: GenMessage<DockerfileBuildConfig> = /*@__PURE__*/
-  messageDesc(file_maxicloud_v1_application, 3);
+  messageDesc(file_maxicloud_v1_application, 2);
 
 /**
  * @generated from message maxicloud.v1.BuildConfig
@@ -168,29 +148,7 @@ export type BuildConfig = Message<"maxicloud.v1.BuildConfig"> & {
  * Use `create(BuildConfigSchema)` to create a new message.
  */
 export const BuildConfigSchema: GenMessage<BuildConfig> = /*@__PURE__*/
-  messageDesc(file_maxicloud_v1_application, 4);
-
-/**
- * @generated from message maxicloud.v1.Domain
- */
-export type Domain = Message<"maxicloud.v1.Domain"> & {
-  /**
-   * @generated from field: string subdomain = 1;
-   */
-  subdomain: string;
-
-  /**
-   * @generated from field: string root_domain = 2;
-   */
-  rootDomain: string;
-};
-
-/**
- * Describes the message maxicloud.v1.Domain.
- * Use `create(DomainSchema)` to create a new message.
- */
-export const DomainSchema: GenMessage<Domain> = /*@__PURE__*/
-  messageDesc(file_maxicloud_v1_application, 5);
+  messageDesc(file_maxicloud_v1_application, 3);
 
 /**
  * @generated from message maxicloud.v1.Access
@@ -217,7 +175,7 @@ export type Access = Message<"maxicloud.v1.Access"> & {
  * Use `create(AccessSchema)` to create a new message.
  */
 export const AccessSchema: GenMessage<Access> = /*@__PURE__*/
-  messageDesc(file_maxicloud_v1_application, 6);
+  messageDesc(file_maxicloud_v1_application, 4);
 
 /**
  * @generated from message maxicloud.v1.ApplicationSpec
@@ -259,7 +217,7 @@ export type ApplicationSpec = Message<"maxicloud.v1.ApplicationSpec"> & {
  * Use `create(ApplicationSpecSchema)` to create a new message.
  */
 export const ApplicationSpecSchema: GenMessage<ApplicationSpec> = /*@__PURE__*/
-  messageDesc(file_maxicloud_v1_application, 7);
+  messageDesc(file_maxicloud_v1_application, 5);
 
 /**
  * @generated from message maxicloud.v1.CreateApplicationRequest
@@ -286,7 +244,7 @@ export type CreateApplicationRequest = Message<"maxicloud.v1.CreateApplicationRe
  * Use `create(CreateApplicationRequestSchema)` to create a new message.
  */
 export const CreateApplicationRequestSchema: GenMessage<CreateApplicationRequest> = /*@__PURE__*/
-  messageDesc(file_maxicloud_v1_application, 8);
+  messageDesc(file_maxicloud_v1_application, 6);
 
 /**
  * @generated from message maxicloud.v1.CreateApplicationResponse
@@ -303,7 +261,7 @@ export type CreateApplicationResponse = Message<"maxicloud.v1.CreateApplicationR
  * Use `create(CreateApplicationResponseSchema)` to create a new message.
  */
 export const CreateApplicationResponseSchema: GenMessage<CreateApplicationResponse> = /*@__PURE__*/
-  messageDesc(file_maxicloud_v1_application, 9);
+  messageDesc(file_maxicloud_v1_application, 7);
 
 /**
  * @generated from message maxicloud.v1.GetApplicationRequest
@@ -320,7 +278,7 @@ export type GetApplicationRequest = Message<"maxicloud.v1.GetApplicationRequest"
  * Use `create(GetApplicationRequestSchema)` to create a new message.
  */
 export const GetApplicationRequestSchema: GenMessage<GetApplicationRequest> = /*@__PURE__*/
-  messageDesc(file_maxicloud_v1_application, 10);
+  messageDesc(file_maxicloud_v1_application, 8);
 
 /**
  * @generated from message maxicloud.v1.GetApplicationResponse
@@ -337,7 +295,7 @@ export type GetApplicationResponse = Message<"maxicloud.v1.GetApplicationRespons
  * Use `create(GetApplicationResponseSchema)` to create a new message.
  */
 export const GetApplicationResponseSchema: GenMessage<GetApplicationResponse> = /*@__PURE__*/
-  messageDesc(file_maxicloud_v1_application, 11);
+  messageDesc(file_maxicloud_v1_application, 9);
 
 /**
  * @generated from message maxicloud.v1.ListApplicationsRequest
@@ -354,7 +312,7 @@ export type ListApplicationsRequest = Message<"maxicloud.v1.ListApplicationsRequ
  * Use `create(ListApplicationsRequestSchema)` to create a new message.
  */
 export const ListApplicationsRequestSchema: GenMessage<ListApplicationsRequest> = /*@__PURE__*/
-  messageDesc(file_maxicloud_v1_application, 12);
+  messageDesc(file_maxicloud_v1_application, 10);
 
 /**
  * @generated from message maxicloud.v1.ListApplicationsResponse
@@ -371,7 +329,7 @@ export type ListApplicationsResponse = Message<"maxicloud.v1.ListApplicationsRes
  * Use `create(ListApplicationsResponseSchema)` to create a new message.
  */
 export const ListApplicationsResponseSchema: GenMessage<ListApplicationsResponse> = /*@__PURE__*/
-  messageDesc(file_maxicloud_v1_application, 13);
+  messageDesc(file_maxicloud_v1_application, 11);
 
 /**
  * @generated from message maxicloud.v1.UpdateApplicationRequest
@@ -403,7 +361,7 @@ export type UpdateApplicationRequest = Message<"maxicloud.v1.UpdateApplicationRe
  * Use `create(UpdateApplicationRequestSchema)` to create a new message.
  */
 export const UpdateApplicationRequestSchema: GenMessage<UpdateApplicationRequest> = /*@__PURE__*/
-  messageDesc(file_maxicloud_v1_application, 14);
+  messageDesc(file_maxicloud_v1_application, 12);
 
 /**
  * @generated from message maxicloud.v1.UpdateApplicationResponse
@@ -420,7 +378,7 @@ export type UpdateApplicationResponse = Message<"maxicloud.v1.UpdateApplicationR
  * Use `create(UpdateApplicationResponseSchema)` to create a new message.
  */
 export const UpdateApplicationResponseSchema: GenMessage<UpdateApplicationResponse> = /*@__PURE__*/
-  messageDesc(file_maxicloud_v1_application, 15);
+  messageDesc(file_maxicloud_v1_application, 13);
 
 /**
  * @generated from message maxicloud.v1.DeleteApplicationRequest
@@ -437,7 +395,7 @@ export type DeleteApplicationRequest = Message<"maxicloud.v1.DeleteApplicationRe
  * Use `create(DeleteApplicationRequestSchema)` to create a new message.
  */
 export const DeleteApplicationRequestSchema: GenMessage<DeleteApplicationRequest> = /*@__PURE__*/
-  messageDesc(file_maxicloud_v1_application, 16);
+  messageDesc(file_maxicloud_v1_application, 14);
 
 /**
  * @generated from message maxicloud.v1.DeleteApplicationResponse
@@ -450,7 +408,7 @@ export type DeleteApplicationResponse = Message<"maxicloud.v1.DeleteApplicationR
  * Use `create(DeleteApplicationResponseSchema)` to create a new message.
  */
 export const DeleteApplicationResponseSchema: GenMessage<DeleteApplicationResponse> = /*@__PURE__*/
-  messageDesc(file_maxicloud_v1_application, 17);
+  messageDesc(file_maxicloud_v1_application, 15);
 
 /**
  * @generated from message maxicloud.v1.GitRepository
@@ -487,7 +445,7 @@ export type GitRepository = Message<"maxicloud.v1.GitRepository"> & {
  * Use `create(GitRepositorySchema)` to create a new message.
  */
 export const GitRepositorySchema: GenMessage<GitRepository> = /*@__PURE__*/
-  messageDesc(file_maxicloud_v1_application, 18);
+  messageDesc(file_maxicloud_v1_application, 16);
 
 /**
  * @generated from message maxicloud.v1.ListGitRepositoriesRequest
@@ -500,7 +458,7 @@ export type ListGitRepositoriesRequest = Message<"maxicloud.v1.ListGitRepositori
  * Use `create(ListGitRepositoriesRequestSchema)` to create a new message.
  */
 export const ListGitRepositoriesRequestSchema: GenMessage<ListGitRepositoriesRequest> = /*@__PURE__*/
-  messageDesc(file_maxicloud_v1_application, 19);
+  messageDesc(file_maxicloud_v1_application, 17);
 
 /**
  * @generated from message maxicloud.v1.ListGitRepositoriesResponse
@@ -517,7 +475,7 @@ export type ListGitRepositoriesResponse = Message<"maxicloud.v1.ListGitRepositor
  * Use `create(ListGitRepositoriesResponseSchema)` to create a new message.
  */
 export const ListGitRepositoriesResponseSchema: GenMessage<ListGitRepositoriesResponse> = /*@__PURE__*/
-  messageDesc(file_maxicloud_v1_application, 20);
+  messageDesc(file_maxicloud_v1_application, 18);
 
 /**
  * @generated from enum maxicloud.v1.ApplicationStatus
