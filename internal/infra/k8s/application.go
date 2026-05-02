@@ -41,10 +41,11 @@ func (r *applicationRepository) CreateApplication(ctx context.Context, app domai
 	branchLabel := normalizeBranchForLabel(app.Spec.Source.Branch)
 	cr := &maxicloudv1alpha1.Application{
 		ObjectMeta: metav1.ObjectMeta{
-			GenerateName: app.Name + "-",
+			Name: app.Name,
 			Namespace:    projectNamespace(app.Spec.ProjectID),
 			Labels: map[string]string{
-				labelApplicationName:  app.Name,
+				labelApplicationID:  app.ID,
+				labelApplicationName: app.Name,
 				labelApplicationOwner: app.OwnerID,
 				labelSourceRepoOwner:  app.Spec.Source.Repo.Owner,
 				labelSourceRepoName:   app.Spec.Source.Repo.Name,
@@ -148,7 +149,7 @@ func (r *applicationRepository) GetApplicationsByRepo(ctx context.Context, owner
 
 func crToApplication(cr *maxicloudv1alpha1.Application) *domain.Application {
 	return &domain.Application{
-		ID:        cr.Name,
+		ID:        cr.Labels[labelApplicationID],
 		ProjectID: projectIDFromNamespace(cr.Namespace),
 		Name:      cr.Labels[labelApplicationName],
 		OwnerID:   cr.Labels[labelApplicationOwner],
