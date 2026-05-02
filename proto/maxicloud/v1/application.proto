@@ -2,8 +2,8 @@ syntax = "proto3";
 
 package maxicloud.v1;
 
+import "buf/validate/validate.proto";
 import "google/protobuf/timestamp.proto";
-import "maxicloud/v1/common.proto";
 
 enum ApplicationStatus {
   APPLICATION_STATUS_UNSPECIFIED = 0;
@@ -44,49 +44,70 @@ message Application {
   google.protobuf.Timestamp updated_at = 10;
 }
 
+message Repository {
+  string name = 1 [(buf.validate.field).required = true];
+  string owner = 2 [(buf.validate.field).required = true];
+}
+
 message ApplicationSource {
-  Repository repository = 1;
-  string branch = 3;
+  Repository repository = 1 [(buf.validate.field).required = true];
+  string branch = 3 [(buf.validate.field).required = true];
 }
 
 message DockerfileBuildConfig {
-  DockerfileSource source = 1;
+  DockerfileSource source = 1 [(buf.validate.field).required = true];
   string dockerfile_path = 2;
   string dockerfile_inline = 3;
 }
 
 message BuildConfig {
-  BuildStrategy strategy = 1;
-  DockerfileBuildConfig dockerfile = 2;
-}
-
-message AccessConfig {
-  AccessMode mode = 1;
-  string expose_port = 2;
-  string domain_prefix = 3;
-  string domain_suffix = 4;
+  BuildStrategy strategy = 1 [(buf.validate.field).required = true];
+  DockerfileBuildConfig dockerfile = 2 [(buf.validate.field).required = true];
 }
 
 message Domain {
-  string subdomain = 1;
-  string root_domain = 2;
+  string subdomain = 1 [
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.hostname = true
+  ];
+  string root_domain = 2 [
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.hostname = true
+  ];
+}
+
+message Access {
+  AccessMode mode = 1 [(buf.validate.field).required = true];
+  Domain domain = 2;
+  int32 port = 3 [
+    (buf.validate.field).int32.gt = 0,
+    (buf.validate.field).int32.lte = 65535
+  ];
 }
 
 message ApplicationSpec {
-  string project_id = 1;
-  ApplicationSource source = 3;
-  BuildConfig build = 4;
-  AccessConfig access = 5;
-  Domain domain = 6;
-  int32 port = 7;
-  repeated KeyValue environment_variables = 8;
-  repeated KeyValue secrets = 9;
+  string project_id = 1 [
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.uuid = true
+  ];
+  ApplicationSource source = 3 [(buf.validate.field).required = true];
+  BuildConfig build = 4 [(buf.validate.field).required = true];
+  Access access = 5 [(buf.validate.field).required = true];
+  map<string, string> environment_variables = 8;
+  map<string, string> secrets = 9;
 }
 
 message CreateApplicationRequest {
-  string name = 1;
-  string owner_id = 2;
-  ApplicationSpec spec = 3;
+  string name = 1 [
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 100
+  ];
+  string owner_id = 2 [
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.uuid = true
+  ];
+  ApplicationSpec spec = 3 [(buf.validate.field).required = true];
 }
 
 message CreateApplicationResponse {
@@ -94,7 +115,7 @@ message CreateApplicationResponse {
 }
 
 message GetApplicationRequest {
-  string application_id = 1;
+  string application_id = 1 [(buf.validate.field).required = true];
 }
 
 message GetApplicationResponse {
@@ -102,8 +123,7 @@ message GetApplicationResponse {
 }
 
 message ListApplicationsRequest {
-  string query = 1;
-  string project_id = 2;
+  string project_id = 1 [(buf.validate.field).required = true];
 }
 
 message ListApplicationsResponse {
@@ -111,10 +131,10 @@ message ListApplicationsResponse {
 }
 
 message UpdateApplicationRequest {
-  string application_id = 1;
-  string name = 2;
-  string owner_id = 3;
-  ApplicationSpec spec = 4;
+  string application_id = 1 [(buf.validate.field).required = true];
+  string name = 2 [(buf.validate.field).required = true];
+  string owner_id = 3 [(buf.validate.field).required = true];
+  ApplicationSpec spec = 4 [(buf.validate.field).required = true];
 }
 
 message UpdateApplicationResponse {
@@ -122,7 +142,7 @@ message UpdateApplicationResponse {
 }
 
 message DeleteApplicationRequest {
-  string application_id = 1;
+  string application_id = 1 [(buf.validate.field).required = true];
 }
 
 message DeleteApplicationResponse {}
