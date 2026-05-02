@@ -9,6 +9,7 @@ type Registry interface {
 	DockerConfig() string
 	Host() string
 	Token() string
+	BuildOutput(destination string) string
 }
 
 type Provider string
@@ -61,6 +62,10 @@ func (r *ghcr) Token() string {
 	return r.token
 }
 
+func (r *ghcr) BuildOutput(destination string) string {
+	return fmt.Sprintf("type=image,name=%s,push=true", destination)
+}
+
 type localRegistry struct {
 	host     string
 	username string
@@ -86,4 +91,9 @@ func (r *localRegistry) Host() string {
 
 func (r *localRegistry) Token() string {
 	return r.password
+}
+
+// Localではhttpで通信したいので、insecure=trueにする
+func (r *localRegistry) BuildOutput(destination string) string {
+	return fmt.Sprintf("type=image,name=%s,push=true,registry.insecure=true", destination)
 }

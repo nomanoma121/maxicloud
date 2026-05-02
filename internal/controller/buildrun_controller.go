@@ -151,6 +151,7 @@ func (r *BuildRunReconciler) reconcileJob(ctx context.Context, buildRun *maxiclo
 				owner:          owner,
 				repo:           repo,
 				destination:    destination,
+				buildOutput:    r.Registry.BuildOutput(destination),
 			})); err != nil {
 				return ignoreAlreadyExists(err)
 			}

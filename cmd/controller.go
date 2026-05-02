@@ -52,7 +52,7 @@ func runController(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	registry, err := registry.NewFromConfig(registry.Config{
-		Provider: registry.ProviderGHCR,
+		Provider: registry.ProviderLocalRegistry,
 		Host:     cfg.RegistryHost,
 		Password: cfg.RegistryPassword,
 	})

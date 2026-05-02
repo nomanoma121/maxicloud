@@ -49,10 +49,15 @@ EOF
 #
 # We want a consistent name that works from both ends, so we tell containerd to
 # alias localhost:${reg_port} to the registry container when pulling images
-REGISTRY_DIR="/etc/containerd/certs.d/localhost:${reg_port}"
+REGISTRY_DIR_LOCALHOST="/etc/containerd/certs.d/localhost:${reg_port}"
+# クラスタから名前を解決できるようにhostsにkind-registry:5000を追加
+REGISTRY_DIR_CLUSTER="/etc/containerd/certs.d/${reg_name}:5000"
 for node in $(kind get nodes --name maxicloud); do
-  docker exec "${node}" mkdir -p "${REGISTRY_DIR}"
-  cat <<EOF | docker exec -i "${node}" cp /dev/stdin "${REGISTRY_DIR}/hosts.toml"
+  docker exec "${node}" mkdir -p "${REGISTRY_DIR_LOCALHOST}" "${REGISTRY_DIR_CLUSTER}"
+  cat <<EOF | docker exec -i "${node}" cp /dev/stdin "${REGISTRY_DIR_LOCALHOST}/hosts.toml"
+[host."http://${reg_name}:5000"]
+EOF
+  cat <<EOF | docker exec -i "${node}" cp /dev/stdin "${REGISTRY_DIR_CLUSTER}/hosts.toml"
 [host."http://${reg_name}:5000"]
 EOF
 done

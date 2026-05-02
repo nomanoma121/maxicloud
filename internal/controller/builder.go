@@ -155,6 +155,7 @@ type BuildJobParams struct {
 	buildRun       *maxicloudv1alpha1.BuildRun
 	jobName        string
 	destination    string
+	buildOutput    string
 	sha            string
 	repoSecretName string
 	owner          string
@@ -205,7 +206,7 @@ func newBuildJob(params BuildJobParams) *batchv1.Job {
 								"--frontend=dockerfile.v0",
 								"--opt", fmt.Sprintf("context=https://x-access-token:$(GITHUB_TOKEN)@github.com/%s/%s.git#%s", params.owner, params.repo, params.sha),
 								"--opt", fmt.Sprintf("filename=%s", params.buildRun.Spec.Source.DockerfilePath),
-								"--output", fmt.Sprintf("type=image,name=%s,push=true", params.destination),
+								"--output", params.buildOutput,
 							},
 							SecurityContext: &corev1.SecurityContext{
 								Privileged: boolPtr(true),

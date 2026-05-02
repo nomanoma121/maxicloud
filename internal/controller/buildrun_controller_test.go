@@ -38,6 +38,9 @@ type fakeRegistry struct{}
 func (f *fakeRegistry) DockerConfig() string { return `{"auths":{}}` }
 func (f *fakeRegistry) Host() string         { return "ghcr.io/test" }
 func (f *fakeRegistry) Token() string        { return "token" }
+func (f *fakeRegistry) BuildOutput(destination string) string {
+	return "type=image,name=" + destination + ",push=true"
+}
 
 type fakeGitHubClient struct{}
 

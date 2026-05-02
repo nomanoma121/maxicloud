@@ -262,7 +262,7 @@ func (r *DeploymentPipelineReconciler) handlePhaseDeploying(ctx context.Context,
 			Status:     domain.CheckStatusCompleted,
 			Conclusion: domain.CheckConclusionSuccess,
 			Title:      "Deploy succeeded",
-			Summary:    fmt.Sprintf("Successfully deployed %s@%s. Preview available at https://%s", pipeline.Spec.Repo, infragithub.ShortSHA(pipeline.Spec.SHA), appDomain),
+			Summary:    fmt.Sprintf("Successfully deployed %s@%s. Preview available at http://%s:8080", pipeline.Spec.Repo, infragithub.ShortSHA(pipeline.Spec.SHA), appDomain),
 		},
 	}); err != nil {
 		log.Error(err, "failed to update check run")
