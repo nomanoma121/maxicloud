@@ -7,9 +7,11 @@ managed:
 plugins:
   - remote: buf.build/protocolbuffers/go
     out: gen
+    include_imports: true
     opt: paths=source_relative
   - remote: buf.build/connectrpc/gosimple
     out: gen
+    include_imports: true
     opt:
       - paths=source_relative
       - simple

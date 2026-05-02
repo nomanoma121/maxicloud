@@ -109,7 +109,7 @@ func toApplicationSpec(s *v1.ApplicationSpec) (domain.ApplicationSpec, error) {
 	}
 	spec := domain.ApplicationSpec{
 		ProjectID: s.ProjectId,
-		Port:      s.GetPort(),
+		Port:      s.GetAccess().GetPort(),
 	}
 	if s.Source != nil {
 		spec.Source = domain.ApplicationSource{
@@ -159,17 +159,17 @@ func toApplicationSpec(s *v1.ApplicationSpec) (domain.ApplicationSpec, error) {
 			return domain.ApplicationSpec{}, errors.New("invalid access mode")
 		}
 	}
-	if s.GetDomain() != nil {
+	if s.GetAccess().GetDomain() != nil {
 		spec.Domain = &domain.Domain{
-			Subdomain:  s.GetDomain().GetSubdomain(),
-			RootDomain: s.GetDomain().GetRootDomain(),
+			Subdomain:  s.GetAccess().GetDomain().GetSubdomain(),
+			RootDomain: s.GetAccess().GetDomain().GetRootDomain(),
 		}
 	}
-	for _, kv := range s.EnvironmentVariables {
-		spec.Env = append(spec.Env, domain.KeyValue{Key: kv.Key, Value: kv.Value})
+	for key, val := range s.EnvironmentVariables {
+		spec.Env = append(spec.Env, domain.KeyValue{Key: key, Value: val})
 	}
-	for _, kv := range s.Secrets {
-		spec.Secrets = append(spec.Secrets, domain.KeyValue{Key: kv.Key, Value: kv.Value})
+	for key, val := range s.Secrets {
+		spec.Secrets = append(spec.Secrets, domain.KeyValue{Key: key, Value: val})
 	}
 	return spec, nil
 }
