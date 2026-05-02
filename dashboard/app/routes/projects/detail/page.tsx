@@ -72,7 +72,6 @@ export default function ProjectDetailPage() {
           })}
         >
           <Row label="Owner" value={owner?.displayName ?? "-"} />
-          <Row label="Visibility" value={project.visibility} />
           <Row label="Applications" value={String(projectApplications.length)} />
           <Row label="Updated" value={project.updatedAt} />
         </dl>

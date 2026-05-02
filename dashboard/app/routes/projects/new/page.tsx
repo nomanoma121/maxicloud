@@ -10,7 +10,6 @@ import { useCreateProjectMutation } from "~/hooks/use-maxicloud-mutation";
 import { useUsersQuery } from "~/hooks/use-maxicloud-query";
 import { useSession } from "~/hooks/use-session";
 import { Panel } from "~/components/ui/panel";
-import type { ProjectVisibility } from "~/types";
 
 export default function NewProjectPage() {
   const navigate = useNavigate();
@@ -20,7 +19,6 @@ export default function NewProjectPage() {
 
   const [name, setName] = useState("my-project");
   const [description, setDescription] = useState("複数Applicationを管理するProject");
-  const [visibility, setVisibility] = useState<ProjectVisibility>("members");
   const [ownerId, setOwnerId] = useState(currentUser?.id ?? users[0]?.id ?? "");
 
   return (
@@ -43,7 +41,7 @@ export default function NewProjectPage() {
           className={css({ display: "grid", gap: 3 })}
           onSubmit={async (event) => {
             event.preventDefault();
-            await createProject({ name, description, visibility, ownerId });
+            await createProject({ name, description, ownerId });
             navigate("/projects");
           }}
         >
@@ -52,13 +50,6 @@ export default function NewProjectPage() {
           </Field>
           <Field label="Description">
             <Textarea value={description} onChange={(event) => setDescription(event.target.value)} rows={4} />
-          </Field>
-          <Field label="Visibility">
-            <Select value={visibility} onChange={(event) => setVisibility(event.target.value as ProjectVisibility)}>
-              <option value="private">private</option>
-              <option value="members">members</option>
-              <option value="public">public</option>
-            </Select>
           </Field>
           <Field label="Owner">
             <Select value={ownerId} onChange={(event) => setOwnerId(event.target.value)}>

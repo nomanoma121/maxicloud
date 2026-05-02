@@ -1,10 +1,12 @@
-import type { Project, ProjectVisibility } from "~/types";
-import { makeID, nowLabel, sortByUpdatedDesc, state } from "~/repository/shared/state";
+import { ConnectError, Code } from "@connectrpc/connect";
+import type { Project as ProtoProject } from "~/gen/maxicloud/v1/project_pb";
+import type { Project } from "~/types";
+import { connectClient } from "~/utils/connect";
+import { formatTimestamp } from "~/utils/date";
 
 export type CreateProjectInput = {
   name: string;
   description: string;
-  visibility: ProjectVisibility;
   ownerId: string;
 };
 
@@ -14,26 +16,44 @@ export interface IProjectRepository {
   createProject(input: CreateProjectInput): Promise<Project>;
 }
 
+const toProject = (project: ProtoProject): Project => ({
+  id: project.id,
+  name: project.name,
+  description: project.description,
+  ownerId: project.ownerUserId,
+  updatedAt: formatTimestamp(project.updatedAt),
+});
+
 export class ProjectRepository implements IProjectRepository {
   async listProjects(): Promise<Project[]> {
-    return sortByUpdatedDesc(state.projects).map((item) => ({ ...item }));
+    const res = await connectClient.project.listProjects({});
+    return res.projects.map(toProject);
   }
 
   async getProject(id: string): Promise<Project | undefined> {
-    const item = state.projects.find((target) => target.id === id);
-    return item ? { ...item } : undefined;
+    try {
+      const res = await connectClient.project.getProject({ projectId: id });
+      if (!res.project) {
+        return undefined;
+      }
+      return toProject(res.project);
+    } catch (error) {
+      if (error instanceof ConnectError && error.code === Code.NotFound) {
+        return undefined;
+      }
+      throw error;
+    }
   }
 
   async createProject(input: CreateProjectInput): Promise<Project> {
-    const created: Project = {
-      id: makeID("prj"),
+    const res = await connectClient.project.createProject({
       name: input.name.trim(),
       description: input.description.trim(),
-      ownerId: input.ownerId,
-      visibility: input.visibility,
-      updatedAt: nowLabel(),
-    };
-    state.projects.unshift(created);
-    return { ...created };
+      ownerUserId: input.ownerId,
+    });
+    if (!res.project) {
+      throw new Error("CreateProject returned empty project");
+    }
+    return toProject(res.project);
   }
 }

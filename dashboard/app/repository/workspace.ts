@@ -1,4 +1,11 @@
-import { state, type WorkspaceSecret, type WorkspaceSettings } from "~/repository/shared/state";
+export type WorkspaceSettings = {
+  namespace: string;
+  registry: string;
+};
+
+export type WorkspaceSecret = {
+  key: string;
+};
 
 export interface IWorkspaceRepository {
   getWorkspaceSettings(): Promise<WorkspaceSettings>;
@@ -7,10 +14,13 @@ export interface IWorkspaceRepository {
 
 export class WorkspaceRepository implements IWorkspaceRepository {
   async getWorkspaceSettings(): Promise<WorkspaceSettings> {
-    return { ...state.workspaceSettings };
+    return {
+      namespace: "maxicloud-system",
+      registry: "kind-registry:5000",
+    };
   }
 
   async listWorkspaceSecrets(): Promise<WorkspaceSecret[]> {
-    return state.workspaceSecrets.map((item) => ({ ...item }));
+    return [];
   }
 }

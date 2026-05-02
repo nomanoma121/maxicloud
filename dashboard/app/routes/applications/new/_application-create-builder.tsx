@@ -47,6 +47,30 @@ const slugify = (value: string) =>
     .replace(/-+/g, "-")
     .replace(/^-|-$/g, "");
 
+const parseKeyValueLines = (value: string): Record<string, string> => {
+  return value
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0 && line.includes("="))
+    .reduce<Record<string, string>>((acc, line) => {
+      const delimiter = line.indexOf("=");
+      const key = line.slice(0, delimiter).trim();
+      const val = line.slice(delimiter + 1).trim();
+      if (key.length > 0) {
+        acc[key] = val;
+      }
+      return acc;
+    }, {});
+};
+
+const parseRepositoryFullName = (fullName: string) => {
+  const [owner, name] = fullName.split("/", 2);
+  return {
+    owner: owner ?? "",
+    name: name ?? "",
+  };
+};
+
 const runtimeDefaultEnv = (runtime: string) => {
   if (runtime === "Go") return "PORT=8080\nGOMEMLIMIT=512MiB";
   if (runtime === "Python") return "PORT=8000\nPYTHONUNBUFFERED=1";
@@ -72,8 +96,6 @@ export const ApplicationCreateBuilder = () => {
   const [dockerfileSource, setDockerfileSource] = useState<DockerfileSource>("path");
   const [dockerfilePath, setDockerfilePath] = useState("Dockerfile");
   const [dockerfileInline, setDockerfileInline] = useState(DEFAULT_DOCKERFILE);
-  const [buildCommand, setBuildCommand] = useState("pnpm build");
-  const [outputDirectory, setOutputDirectory] = useState("dist");
   const [port, setPort] = useState("3000");
   const [envText, setEnvText] = useState("NODE_ENV=production\nPORT=3000");
   const [secrets, setSecrets] = useState<Array<{ id: string; key: string; value: string }>>([
@@ -117,8 +139,6 @@ export const ApplicationCreateBuilder = () => {
   useEffect(() => {
     if (!repository) return;
     setBranch(repository.defaultBranch);
-    setBuildCommand(repository.buildCommand);
-    setOutputDirectory(repository.outputDirectory);
     setDockerfilePath(repository.dockerfilePaths[0] ?? "Dockerfile");
     setDockerfileSource("path");
     setEnvText(runtimeDefaultEnv(repository.detectedRuntime));
@@ -182,21 +202,32 @@ export const ApplicationCreateBuilder = () => {
               event.preventDefault();
               if (!currentUser || !repository) return;
 
-              const exposure =
-                exposureMode === "private"
-                  ? `${applicationName}.internal.maximum.vc`
-                  : `${domainPrefix}.${domainSuffix}`;
+              const parsedRepository = parseRepositoryFullName(repository.fullName);
+              const parsedSecrets = secrets.reduce<Record<string, string>>((acc, secret) => {
+                const key = secret.key.trim();
+                if (!key) {
+                  return acc;
+                }
+                acc[key] = secret.value;
+                return acc;
+              }, {});
 
               await createApplication({
                 projectId,
                 ownerId: currentUser.id,
                 name: applicationName,
-                repository: repository.fullName,
+                repositoryOwner: parsedRepository.owner,
+                repositoryName: parsedRepository.name,
                 branch,
-                runtime: repository.detectedRuntime,
-                url: `https://${exposure}`,
-                cpu: "0 / 1 vCPU",
-                memory: "0Mi / 512Mi",
+                dockerfileSource,
+                dockerfilePath,
+                dockerfileInline,
+                accessMode: exposureMode,
+                domainSubdomain: exposureMode === "private" ? undefined : domainPrefix,
+                domainRootDomain: exposureMode === "private" ? undefined : domainSuffix,
+                port: Number.parseInt(port, 10),
+                environmentVariables: parseKeyValueLines(envText),
+                secrets: parsedSecrets,
               });
             }}
           >
@@ -227,10 +258,6 @@ export const ApplicationCreateBuilder = () => {
               setBranch={setBranch}
             />
             <BuildSection
-              buildCommand={buildCommand}
-              setBuildCommand={setBuildCommand}
-              outputDirectory={outputDirectory}
-              setOutputDirectory={setOutputDirectory}
               dockerfileSource={dockerfileSource}
               setDockerfileSource={setDockerfileSource}
               dockerfilePath={dockerfilePath}
@@ -362,10 +389,6 @@ const SourceSection = ({
 };
 
 const BuildSection = ({
-  buildCommand,
-  setBuildCommand,
-  outputDirectory,
-  setOutputDirectory,
   dockerfileSource,
   setDockerfileSource,
   dockerfilePath,
@@ -373,10 +396,6 @@ const BuildSection = ({
   dockerfileInline,
   setDockerfileInline,
 }: {
-  buildCommand: string;
-  setBuildCommand: (value: string) => void;
-  outputDirectory: string;
-  setOutputDirectory: (value: string) => void;
   dockerfileSource: DockerfileSource;
   setDockerfileSource: (value: DockerfileSource) => void;
   dockerfilePath: string;
@@ -423,21 +442,6 @@ const BuildSection = ({
           </Field>
         )}
 
-        <div
-          className={css({
-            display: "grid",
-            gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-            gap: 2,
-            mdDown: { gridTemplateColumns: "1fr" },
-          })}
-        >
-          <Field label="Build Command">
-            <Input value={buildCommand} onChange={(event) => setBuildCommand(event.target.value)} />
-          </Field>
-          <Field label="Output Directory">
-            <Input value={outputDirectory} onChange={(event) => setOutputDirectory(event.target.value)} />
-          </Field>
-        </div>
       </div>
     </section>
   );

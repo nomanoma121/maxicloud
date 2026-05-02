@@ -16,6 +16,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("********");
 
   const redirectTo = searchParams.get("redirect_to") || "/";
+  const activeUsers = users.filter((user) => user.status === "active");
 
   useEffect(() => {
     if (isReady && isLoggedIn) {
@@ -62,7 +63,9 @@ export default function LoginPage() {
           className={css({ display: "grid", gap: 3 })}
           onSubmit={(event) => {
             event.preventDefault();
-            loginAs("u-kouta");
+            const firstUser = activeUsers[0];
+            if (!firstUser) return;
+            loginAs(firstUser.id);
             navigate(redirectTo);
           }}
         >
@@ -83,7 +86,7 @@ export default function LoginPage() {
             />
           </label>
 
-          <Button type="submit" variant="primary">
+          <Button type="submit" variant="primary" disabled={activeUsers.length === 0}>
             Sign In (Mock)
           </Button>
         </form>
@@ -91,7 +94,7 @@ export default function LoginPage() {
         <div className={css({ display: "grid", gap: 2 })}>
           <p className={css({ margin: 0, color: "gray.500", fontSize: "xs" })}>Demo login</p>
           <div className={css({ display: "flex", gap: 2, smDown: { flexDirection: "column" } })}>
-            {users.filter((user) => user.status === "active")
+            {activeUsers
               .slice(0, 3)
               .map((user) => (
                 <Button

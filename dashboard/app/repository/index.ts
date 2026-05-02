@@ -1,6 +1,6 @@
+import { ApplicationRepository } from "~/repository/application";
 import { DeploymentRepository } from "~/repository/deployment";
 import { ProjectRepository } from "~/repository/project";
-import { ApplicationRepository } from "~/repository/application";
 import { SourceRepository } from "~/repository/source";
 import { UserRepository } from "~/repository/user";
 import { WorkspaceRepository } from "~/repository/workspace";
@@ -14,10 +14,9 @@ export const DefaultRepositories = {
   workspaceRepository: new WorkspaceRepository(),
 };
 
+export * from "~/repository/application";
 export * from "~/repository/deployment";
 export * from "~/repository/project";
-export * from "~/repository/application";
-export * from "~/repository/shared/state";
 export * from "~/repository/source";
 export * from "~/repository/user";
 export * from "~/repository/workspace";

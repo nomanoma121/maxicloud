@@ -2,7 +2,6 @@ export type UserStatus = "active" | "invited" | "suspended";
 
 export type ApplicationStatus = "healthy" | "degraded" | "unhealthy" | "sleeping";
 export type DeploymentStatus = "success" | "running" | "failed";
-export type ProjectVisibility = "private" | "members" | "public";
 export type JobTrigger = "manual" | "predeploy" | "schedule";
 
 export type UserAccount = {
@@ -19,7 +18,6 @@ export type Project = {
   name: string;
   description: string;
   ownerId: string;
-  visibility: ProjectVisibility;
   updatedAt: string;
 };
 
