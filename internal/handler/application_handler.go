@@ -90,7 +90,6 @@ func toProtoApplication(a *domain.Application) *v1.Application {
 		ProjectId:   a.ProjectID,
 		Name:        a.Name,
 		OwnerUserId: a.OwnerID,
-		Url:         a.URL,
 		Source: &v1.ApplicationSource{
 			Repository: &v1.Repository{
 				Name:  a.Source.Repo.Name,

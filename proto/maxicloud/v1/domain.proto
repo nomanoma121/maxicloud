@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package maxicloud.v1;
+
+import "maxicloud/v1/common.proto";
+import "buf/validate/validate.proto";
+
+message ListAvailableDomainsRequest {} 
+
+message ListAvailableDomainsResponse {
+    repeated string domains = 1;
+}
+
+message CheckDomainAvailabilityRequest {
+    Domain domain = 1 [(buf.validate.field).required = true];
+}
+
+message CheckDomainAvailabilityResponse {
+    bool available = 1;
+}
+
+service DomainService {
+    rpc ListAvailableDomains(ListAvailableDomainsRequest) returns (ListAvailableDomainsResponse);
+    rpc CheckDomainAvailability(CheckDomainAvailabilityRequest) returns (CheckDomainAvailabilityResponse);
+}

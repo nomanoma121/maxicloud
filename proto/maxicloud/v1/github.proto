@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package maxicloud.v1;
+
+import "maxicloud/v1/application.proto";
+import "maxicloud/v1/common.proto";
+
+message ListRepositoriesRequest {}
+
+message ListRepositoriesResponse {
+    repeated Repository repositories = 1;
+}
+
+message ListBranchesRequest {
+    Repository repository = 1;
+}
+
+message ListBranchesResponse {
+    repeated string branches = 1;
+}
+
+service GitHubService {
+    rpc ListRepositories(ListRepositoriesRequest) returns (ListRepositoriesResponse);
+    rpc ListBranches(ListBranchesRequest) returns (ListBranchesResponse);
+}

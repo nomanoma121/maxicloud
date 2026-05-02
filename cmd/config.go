@@ -8,7 +8,8 @@ type ControllerConfig struct {
 	RegistryPassword              string `env:"REGISTRY_PASSWORD,required"`
 	IngressClass           string `env:"INGRESS_CLASS" envDefault:"nginx"`
 	BaseDomain             string `env:"BASE_DOMAIN" envDefault:"maxicloud.maximum.vc"`
-
+	// Maxicloudが管理するドメインのリスト。カンマ区切りで複数指定可能。
+	AvaiableDomains string `env:"AVAILABLE_DOMAINS" envDefault:"localtest.me"`
 	// Downward APIからControllerのPodのNSを渡す
 	Namespace string `env:"POD_NAMESPACE,required"`
 }

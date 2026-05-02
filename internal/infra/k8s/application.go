@@ -61,7 +61,7 @@ func (r *applicationRepository) CreateApplication(ctx context.Context, app domai
 	}
 	if app.Spec.Domain != nil {
 		cr.Spec.Expose = &maxicloudv1alpha1.ExposeConfig{
-			Domain: app.Spec.Domain.FullDomain(),
+			Domain: app.Spec.Domain.FQDN(),
 			Port:   app.Spec.Port,
 			IngressClassName: r.ingressClassName,
 		}
@@ -147,6 +147,19 @@ func (r *applicationRepository) GetApplicationsByRepo(ctx context.Context, owner
 	return apps, nil
 }
 
+func (r *applicationRepository) ExistsByDomain(ctx context.Context, domain string) (bool, error) {
+	var list maxicloudv1alpha1.ApplicationList
+	if err := r.List(ctx, &list); err != nil {
+		return false, fmt.Errorf("list applications: %w", err)
+	}
+	for _, cr := range list.Items {
+		if cr.Spec.Expose != nil && cr.Spec.Expose.Domain == domain {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
 func crToApplication(cr *maxicloudv1alpha1.Application) *domain.Application {
 	return &domain.Application{
 		ID:        cr.Labels[labelApplicationID],
@@ -160,7 +173,6 @@ func crToApplication(cr *maxicloudv1alpha1.Application) *domain.Application {
 			},
 			Branch: cr.Annotations[annotationSourceBranch],
 		},
-		URL:       cr.Status.URL,
 		CreatedAt: cr.CreationTimestamp.Time,
 		UpdatedAt: cr.CreationTimestamp.Time,
 	}

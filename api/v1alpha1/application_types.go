@@ -60,9 +60,6 @@ type ApplicationStatus struct {
 
 	// +optional
 	Image string `json:"image,omitempty"`
-
-	// +optional
-	URL string `json:"url,omitempty"`
 }
 
 // +kubebuilder:object:root=true

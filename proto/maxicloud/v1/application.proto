@@ -4,6 +4,7 @@ package maxicloud.v1;
 
 import "buf/validate/validate.proto";
 import "google/protobuf/timestamp.proto";
+import "maxicloud/v1/common.proto";
 
 enum ApplicationStatus {
   APPLICATION_STATUS_UNSPECIFIED = 0;
@@ -44,11 +45,6 @@ message Application {
   google.protobuf.Timestamp updated_at = 10;
 }
 
-message Repository {
-  string name = 1 [(buf.validate.field).required = true];
-  string owner = 2 [(buf.validate.field).required = true];
-}
-
 message ApplicationSource {
   Repository repository = 1 [(buf.validate.field).required = true];
   string branch = 3 [(buf.validate.field).required = true];
@@ -65,16 +61,6 @@ message BuildConfig {
   DockerfileBuildConfig dockerfile = 2 [(buf.validate.field).required = true];
 }
 
-message Domain {
-  string subdomain = 1 [
-    (buf.validate.field).required = true,
-    (buf.validate.field).string.hostname = true
-  ];
-  string root_domain = 2 [
-    (buf.validate.field).required = true,
-    (buf.validate.field).string.hostname = true
-  ];
-}
 
 message Access {
   AccessMode mode = 1 [(buf.validate.field).required = true];

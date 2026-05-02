@@ -19,6 +19,7 @@ type client struct {
 }
 
 var _ domain.DeploymentReporter = (*client)(nil)
+var _ domain.SourceRepository = (*client)(nil)
 
 func NewClient(appID int64, privateKey []byte) *client {
 	return &client{

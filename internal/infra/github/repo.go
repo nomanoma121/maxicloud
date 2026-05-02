@@ -1,10 +1,32 @@
 package github
 
 import (
+	"context"
 	"errors"
 	"net/url"
 	"strings"
+
+	"github.com/saitamau-maximum/maxicloud/internal/domain"
 )
+
+func (c *client) GetRepositories(ctx context.Context, installationID int64) ([]domain.Repository, error) {
+	ghClient, err := c.newGHClient(installationID)
+	if err != nil {
+		return nil, err
+	}
+	res, _, err := ghClient.Apps.ListRepos(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]domain.Repository, len(res.Repositories))
+	for i, r := range res.Repositories {
+		result[i] = domain.Repository{
+			Owner: r.GetOwner().GetLogin(),
+			Name:  r.GetName(),
+		}
+	}
+	return result, nil
+}
 
 func ParseRepoURL(repoURL string) (owner, repo string, err error) {
 	u, err := url.Parse(repoURL)
