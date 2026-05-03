@@ -29,6 +29,9 @@ func (h *DomainHandler) ListAvailableDomains(ctx context.Context, req *v1.ListAv
 }
 
 func (h *DomainHandler) CheckDomainAvailability(ctx context.Context, req *v1.CheckDomainAvailabilityRequest) (*v1.CheckDomainAvailabilityResponse, error) {
+	if req.Domain == nil {
+		return &v1.CheckDomainAvailabilityResponse{Available: false}, nil
+	}
 	isAvailable, err := h.uc.CheckDomainAvailability(ctx, domain.Domain{
 		Subdomain:  req.Domain.Subdomain,
 		RootDomain: req.Domain.RootDomain,

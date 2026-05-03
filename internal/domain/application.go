@@ -130,4 +130,5 @@ type ApplicationRepository interface {
 	UpdateApplication(ctx context.Context, app Application) error
 	DeleteApplication(ctx context.Context, id string) error
 	GetApplicationsByRepo(ctx context.Context, owner, name, branch string) ([]Application, error)
+	ExistsByDomain(ctx context.Context, domain string) (bool, error)
 }

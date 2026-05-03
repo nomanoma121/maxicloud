@@ -23,3 +23,7 @@ func NewSourceService(srcRepo domain.SourceRepository) SourceService {
 func (s *sourceService) GetRepositories(ctx context.Context) ([]domain.Repository, error) {
 	return s.srcRepo.GetRepositories(ctx)
 }
+
+func (s *sourceService) GetBranches(ctx context.Context, repo domain.Repository) ([]string, error) {
+	return s.srcRepo.GetBranches(ctx, repo)
+}

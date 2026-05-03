@@ -1,12 +1,14 @@
 package handler
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
 
 	gh "github.com/google/go-github/v72/github"
+	v1 "github.com/saitamau-maximum/maxicloud/gen/maxicloud/v1"
 	"github.com/saitamau-maximum/maxicloud/gen/maxicloud/v1/maxicloudv1connect"
 	"github.com/saitamau-maximum/maxicloud/internal/domain"
 	"github.com/saitamau-maximum/maxicloud/internal/usecase"
@@ -24,11 +26,12 @@ type GitHubHandlerConfig struct {
 type GitHubHandler struct {
 	maxicloudv1connect.UnimplementedGitHubServiceHandler
 	deployService usecase.DeploymentService
+	srcService    usecase.SourceService
 	config        GitHubHandlerConfig
 	oauthCfg      *oauth2.Config
 }
 
-func NewGitHubHandler(deploySvc usecase.DeploymentService, config GitHubHandlerConfig) *GitHubHandler {
+func NewGitHubHandler(deploySvc usecase.DeploymentService, srcSvc usecase.SourceService, config GitHubHandlerConfig) *GitHubHandler {
 	oauthCfg := &oauth2.Config{
 		ClientID:     config.ClientID,
 		ClientSecret: config.ClientSecret,
@@ -39,6 +42,7 @@ func NewGitHubHandler(deploySvc usecase.DeploymentService, config GitHubHandlerC
 	}
 	return &GitHubHandler{
 		deployService: deploySvc,
+		srcService:    srcSvc,
 		config:        config,
 		oauthCfg:      oauthCfg,
 	}
@@ -156,4 +160,19 @@ func toDeploymentEvent(event interface{}) (*domain.DeploymentEvent, bool) {
 	default:
 		return nil, false
 	}
+}
+
+func (h *GitHubHandler) ListRepositories(ctx context.Context, req *v1.ListRepositoriesRequest) (*v1.ListRepositoriesResponse, error) {
+	repos, err := h.srcService.GetRepositories(ctx)
+	if err != nil {
+		return nil, err
+	}
+	var responseRepos []*v1.Repository
+	for _, r := range repos {
+		responseRepos = append(responseRepos, &v1.Repository{
+			Owner: r.Owner,
+			Name:  r.Name,
+		})
+	}
+	return &v1.ListRepositoriesResponse{Repositories: responseRepos}, nil
 }

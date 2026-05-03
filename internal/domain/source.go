@@ -23,4 +23,5 @@ type Commit struct {
 
 type SourceRepository interface {
 	GetRepositories(ctx context.Context) ([]Repository, error)
+	GetBranches(ctx context.Context, repo Repository) ([]string, error)
 }

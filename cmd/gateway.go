@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -18,6 +19,7 @@ import (
 
 	"github.com/saitamau-maximum/maxicloud/gen/maxicloud/v1/maxicloudv1connect"
 	"github.com/saitamau-maximum/maxicloud/internal/handler"
+	"github.com/saitamau-maximum/maxicloud/internal/infra/github"
 	"github.com/saitamau-maximum/maxicloud/internal/infra/k8s"
 	"github.com/saitamau-maximum/maxicloud/internal/infra/postgres"
 	"github.com/saitamau-maximum/maxicloud/internal/usecase"
@@ -39,6 +41,11 @@ func runGateway(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	privateKey, err := os.ReadFile(cfg.GitHubPrivateKeyPath)
+	if err != nil {
+		return err
+	}
+
 	k8sClient, err := client.New(ctrl.GetConfigOrDie(), client.Options{Scheme: scheme})
 	if err != nil {
 		return err
@@ -48,12 +55,14 @@ func runGateway(cmd *cobra.Command, args []string) error {
 	prjRepo := k8s.NewProjectRepository(k8sClient)
 	deployRepo := postgres.NewDeploymentRepository()
 	deployPipelineRepo := k8s.NewDeploymentPipelineRepository(k8sClient)
+	srcRepo := github.NewClient(cfg.GitHubAppID, []byte(privateKey), cfg.InstallationID)
 
 	deploySvc := usecase.NewDeploymentService(deployRepo, deployPipelineRepo, appRepo)
 	appSvc := usecase.NewApplicationService(appRepo)
 	prjSvc := usecase.NewProjectUsecase(prjRepo)
+	domainSvc := usecase.NewDomainService(appRepo, strings.Split(cfg.AvailableDomains, ","))
 
-	ghHandler := handler.NewGitHubHandler(deploySvc, handler.GitHubHandlerConfig{
+	ghHandler := handler.NewGitHubHandler(deploySvc, srcRepo, handler.GitHubHandlerConfig{
 		GitHubAppName:  cfg.GitHubAppName,
 		WebhookSecret:  cfg.GitHubWebhookSecret,
 		ClientID:       cfg.GitHubClientID,
@@ -63,6 +72,7 @@ func runGateway(cmd *cobra.Command, args []string) error {
 	prjHandler := handler.NewProjectHandler(prjSvc)
 	appHandler := handler.NewApplicationHandler(appSvc)
 	deployHandler := handler.NewDeploymentHandler(deploySvc)
+	domainHandler := handler.NewDomainHandler(domainSvc)
 
 	r := chi.NewRouter()
 
@@ -84,6 +94,10 @@ func runGateway(cmd *cobra.Command, args []string) error {
 	path, h = maxicloudv1connect.NewApplicationServiceHandler(appHandler)
 	r.Mount(path, h)
 	path, h = maxicloudv1connect.NewDeploymentServiceHandler(deployHandler)
+	r.Mount(path, h)
+	path, h = maxicloudv1connect.NewGitHubServiceHandler(ghHandler)
+	r.Mount(path, h)
+	path, h = maxicloudv1connect.NewDomainServiceHandler(domainHandler)
 	r.Mount(path, h)
 
 	// GitHub App 関連のエンドポイント

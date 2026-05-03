@@ -28,6 +28,22 @@ func (c *client) GetRepositories(ctx context.Context) ([]domain.Repository, erro
 	return result, nil
 }
 
+func (c *client) GetBranches(ctx context.Context, repo domain.Repository) ([]string, error) {
+	ghClient, err := c.newGHClient()
+	if err != nil {
+		return nil, err
+	}
+	branches, _, err := ghClient.Repositories.ListBranches(ctx, repo.Owner, repo.Name, nil)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]string, len(branches))
+	for i, b := range branches {
+		result[i] = b.GetName()
+	}
+	return result, nil
+}
+
 func ParseRepoURL(repoURL string) (owner, repo string, err error) {
 	u, err := url.Parse(repoURL)
 	if err != nil {
