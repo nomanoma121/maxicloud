@@ -1,33 +1,28 @@
 import { Code } from "react-feather";
 import { css } from "styled-system/css";
+import { useFieldArray, useFormContext } from "react-hook-form";
 import { Button } from "~/components/ui/button";
 import { Input, Textarea } from "~/components/ui/form-controls";
-import type { SecretFormItem } from "../hooks/use-application-create-form";
 import { Field } from "./field";
 import { SectionHeading } from "./section-heading";
+import { CreateApplicationInputValues } from "../schema";
 
-type EnvironmentSectionProps = {
-  envText: string;
-  setEnvText: (value: string) => void;
-  secrets: SecretFormItem[];
-  addSecret: () => void;
-  updateSecret: (id: string, field: "key" | "value", next: string) => void;
-  removeSecret: (id: string) => void;
+const createFormItemId = () => {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `secret-${Date.now()}`;
 };
 
-export const EnvironmentSection = ({
-  envText,
-  setEnvText,
-  secrets,
-  addSecret,
-  updateSecret,
-  removeSecret,
-}: EnvironmentSectionProps) => {
+export const EnvironmentSection = () => {
+  const { register, control } = useFormContext<CreateApplicationInputValues>();
+  const { fields, append, remove } = useFieldArray({ control, name: "secrets" });
+
   return (
     <section className={css({ display: "grid", gap: 3 })}>
       <SectionHeading icon={<Code size={15} />} title="5. Environment" description="環境変数の初期値を設定" />
       <Field label="Environment Variables">
-        <Textarea value={envText} rows={6} onChange={(event) => setEnvText(event.target.value)} />
+        <Textarea {...register("envText")} rows={6} />
       </Field>
       <div
         className={css({
@@ -42,14 +37,19 @@ export const EnvironmentSection = ({
       >
         <div className={css({ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 2 })}>
           <p className={css({ margin: 0, color: "gray.700", fontSize: "sm", fontWeight: 600 })}>Secrets</p>
-          <Button type="button" variant="secondary" size="sm" onClick={addSecret}>
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={() => append({ id: createFormItemId(), key: "", value: "" })}
+          >
             Add Secret
           </Button>
         </div>
         <div className={css({ display: "grid", gap: 2 })}>
-          {secrets.map((secret) => (
+          {fields.map((field, index) => (
             <div
-              key={secret.id}
+              key={field.id}
               className={css({
                 display: "grid",
                 gridTemplateColumns: "1fr 1fr auto",
@@ -62,18 +62,10 @@ export const EnvironmentSection = ({
                 mdDown: { gridTemplateColumns: "1fr" },
               })}
             >
-              <Input
-                value={secret.key}
-                onChange={(event) => updateSecret(secret.id, "key", event.target.value)}
-                placeholder="SECRET_KEY"
-              />
-              <Input
-                type="password"
-                value={secret.value}
-                onChange={(event) => updateSecret(secret.id, "value", event.target.value)}
-                placeholder="secret value"
-              />
-              <Button type="button" variant="text" size="sm" onClick={() => removeSecret(secret.id)}>
+              <input type="hidden" {...register(`secrets.${index}.id`)} />
+              <Input {...register(`secrets.${index}.key`)} placeholder="SECRET_KEY" />
+              <Input type="password" {...register(`secrets.${index}.value`)} placeholder="secret value" />
+              <Button type="button" variant="text" size="sm" onClick={() => remove(index)}>
                 Remove
               </Button>
             </div>

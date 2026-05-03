@@ -1,11 +1,6 @@
-import { Layers } from "react-feather";
-import { css } from "styled-system/css";
 import { DeploymentsTable } from "~/components/feature/deployments-table";
 import type { DeploymentRowItem } from "~/components/feature/deployments-table";
-import { DashboardHeader } from "~/components/layout/dashboard-header";
-import { Breadcrumb } from "~/components/ui/breadcrumb";
 import { Panel } from "~/components/ui/panel";
-import { APP_ROUTES } from "~/constant";
 import { useDeploymentsData } from "~/routes/deployments/internal/hooks/use-deployments-data";
 
 export default function DeploymentsPage() {
@@ -25,22 +20,8 @@ export default function DeploymentsPage() {
   });
 
   return (
-    <div className={css({ display: "grid", gap: 4 })}>
-      <Breadcrumb
-        items={[
-          { label: "Dashboard", href: APP_ROUTES.home },
-          { label: "Deployments", icon: <Layers size={14} /> },
-        ]}
-      />
-
-      <DashboardHeader
-        title="Deployments"
-        subtitle="サークル内のデプロイ履歴（全ユーザー）"
-      />
-
-      <Panel>
-        <DeploymentsTable rows={rows} />
-      </Panel>
-    </div>
+    <Panel>
+      <DeploymentsTable rows={rows} />
+    </Panel>
   );
 }

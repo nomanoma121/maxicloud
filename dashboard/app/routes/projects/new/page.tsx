@@ -2,10 +2,6 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import { valibotResolver } from "@hookform/resolvers/valibot";
-import { FolderPlus, Layers } from "react-feather";
-import { css } from "styled-system/css";
-import { DashboardHeader } from "~/components/layout/dashboard-header";
-import { Breadcrumb } from "~/components/ui/breadcrumb";
 import { Button } from "~/components/ui/button";
 import { Form } from "~/components/ui/form";
 import { Panel } from "~/components/ui/panel";
@@ -62,25 +58,11 @@ export default function NewProjectPage() {
   };
 
   return (
-    <div className={css({ display: "grid", gap: 4 })}>
-      <Breadcrumb
-        items={[
-          { label: "Dashboard", href: APP_ROUTES.home },
-          { label: "Projects", href: APP_ROUTES.projects, icon: <Layers size={14} /> },
-          { label: "New", icon: <FolderPlus size={14} /> },
-        ]}
-      />
-
-      <DashboardHeader
-        title="New Project"
-        subtitle="Projectを作成して、その配下に複数Applicationを作成します"
-      />
-
-      <Panel>
-        <form
-          className={css({ display: "grid", gap: 3 })}
-          onSubmit={handleSubmit(onSubmit)}
-        >
+    <Panel>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+      >
+        <Form.FieldSet>
           <Form.Field.TextInput
             label="Project Name"
             required
@@ -113,8 +95,8 @@ export default function NewProjectPage() {
           <Button type="submit" variant="primary" disabled={isPending}>
             {isPending ? "Creating..." : "Create Project"}
           </Button>
-        </form>
-      </Panel>
-    </div>
+        </Form.FieldSet>
+      </form>
+    </Panel>
   );
 }

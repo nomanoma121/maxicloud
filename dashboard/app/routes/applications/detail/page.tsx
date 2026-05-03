@@ -1,25 +1,17 @@
-import { useParams, useSearchParams } from "react-router";
-import { Box } from "react-feather";
+import { useOutletContext, useSearchParams } from "react-router";
 import { css } from "styled-system/css";
 import { DeploymentsTable } from "~/components/feature/deployments-table";
-import { DashboardHeader } from "~/components/layout/dashboard-header";
 import { StatusBadge } from "~/components/ui/badge";
-import { Breadcrumb } from "~/components/ui/breadcrumb";
 import { Panel } from "~/components/ui/panel";
 import { APP_ROUTES } from "~/constant";
-import { useApplicationDetailData } from "~/routes/applications/internal/hooks/use-applications-data";
-import { ApplicationNotFoundState } from "./internal/components/not-found-state";
+import type { ApplicationDetailContext } from "./layout";
 import { SummaryRow } from "./internal/components/summary-row";
 
 export default function ApplicationDetailPage() {
-  const { applicationId = "" } = useParams();
   const [searchParams] = useSearchParams();
-  const { deployments, projectByID, application, userByID } = useApplicationDetailData(applicationId);
+  const { deployments, projectByID, application, userByID } =
+    useOutletContext<ApplicationDetailContext>();
   const deployStartFailed = searchParams.get("deploy_start") === "failed";
-
-  if (!application) {
-    return <ApplicationNotFoundState />;
-  }
 
   const owner = userByID[application.ownerId];
   const project = projectByID[application.projectId];
@@ -37,19 +29,6 @@ export default function ApplicationDetailPage() {
 
   return (
     <div className={css({ display: "grid", gap: 4 })}>
-      <Breadcrumb
-        items={[
-          { label: "Dashboard", href: APP_ROUTES.home },
-          { label: "Applications", href: APP_ROUTES.applications, icon: <Box size={14} /> },
-          { label: application.name },
-        ]}
-      />
-
-      <DashboardHeader
-        title={application.name}
-        subtitle={`${application.repository} (${application.branch})`}
-      />
-
       {deployStartFailed && (
         <Panel title="Deployment Notice">
           <p className={css({ margin: 0, color: "orange.700", fontSize: "sm", fontWeight: 600 })}>
@@ -66,12 +45,11 @@ export default function ApplicationDetailPage() {
             gap: 2,
           })}
         >
-          <SummaryRow label="Project" value={project?.name ?? "-"} href={project ? APP_ROUTES.projectDetail(project.id) : undefined} />
-          <SummaryRow label="Owner" value={owner?.displayName ?? "-"} />
-          <SummaryRow label="Runtime" value={application.runtime} />
+          <SummaryRow label="プロジェクト" value={project?.name ?? "-"} href={project ? APP_ROUTES.projectDetail(project.id) : undefined} />
+          <SummaryRow label="グループ" value={owner?.displayName ?? "-"} />
           <SummaryRow label="CPU" value={application.cpu} />
           <SummaryRow label="Memory" value={application.memory} />
-          <SummaryRow label="Updated" value={application.updatedAt} />
+          <SummaryRow label="最終更新" value={application.updatedAt} />
           <SummaryRow label="URL" value={application.url} href={application.url} />
         </dl>
       </Panel>

@@ -1,28 +1,16 @@
 import { Layers } from "react-feather";
 import { css } from "styled-system/css";
+import { useFormContext, useWatch } from "react-hook-form";
 import { Input, Textarea } from "~/components/ui/form-controls";
-import type { DockerfileSource } from "../hooks/use-application-create-form";
 import { Field } from "./field";
 import { ModeButton } from "./mode-button";
 import { SectionHeading } from "./section-heading";
+import { CreateApplicationInputValues } from "../schema";
 
-type BuildSectionProps = {
-  dockerfileSource: DockerfileSource;
-  setDockerfileSource: (value: DockerfileSource) => void;
-  dockerfilePath: string;
-  setDockerfilePath: (value: string) => void;
-  dockerfileInline: string;
-  setDockerfileInline: (value: string) => void;
-};
+export const BuildSection = () => {
+  const { register, setValue, control } = useFormContext<CreateApplicationInputValues>();
+  const dockerfileSource = useWatch({ control, name: "dockerfileSource" });
 
-export const BuildSection = ({
-  dockerfileSource,
-  setDockerfileSource,
-  dockerfilePath,
-  setDockerfilePath,
-  dockerfileInline,
-  setDockerfileInline,
-}: BuildSectionProps) => {
   return (
     <section className={css({ display: "grid", gap: 3 })}>
       <SectionHeading icon={<Layers size={15} />} title="3. Build Strategy" description="Dockerfile と build 設定を指定" />
@@ -39,34 +27,26 @@ export const BuildSection = ({
           active={dockerfileSource === "path"}
           title="Specify Path"
           description="検知済みPathを基準に使う"
-          onClick={() => setDockerfileSource("path")}
+          onClick={() => setValue("dockerfileSource", "path", { shouldDirty: true })}
         />
         <ModeButton
           active={dockerfileSource === "inline"}
           title="Inline Edit"
           description="Dockerfile本文を直接入力"
-          onClick={() => setDockerfileSource("inline")}
+          onClick={() => setValue("dockerfileSource", "inline", { shouldDirty: true })}
         />
       </div>
 
       <div className={css({ display: "grid", gap: 2 })}>
         {dockerfileSource === "path" && (
           <Field label="Dockerfile Path">
-            <Input
-              value={dockerfilePath}
-              onChange={(event) => setDockerfilePath(event.target.value)}
-              placeholder="deploy/Dockerfile"
-            />
+            <Input {...register("dockerfilePath")} placeholder="deploy/Dockerfile" />
           </Field>
         )}
 
         {dockerfileSource === "inline" && (
           <Field label="Dockerfile Inline">
-            <Textarea
-              value={dockerfileInline}
-              rows={9}
-              onChange={(event) => setDockerfileInline(event.target.value)}
-            />
+            <Textarea {...register("dockerfileInline")} rows={9} />
           </Field>
         )}
       </div>

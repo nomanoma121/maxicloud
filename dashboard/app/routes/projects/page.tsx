@@ -1,8 +1,4 @@
 import { useNavigate } from "react-router";
-import { Folder } from "react-feather";
-import { css } from "styled-system/css";
-import { DashboardHeader } from "~/components/layout/dashboard-header";
-import { Breadcrumb } from "~/components/ui/breadcrumb";
 import { Panel } from "~/components/ui/panel";
 import { APP_ROUTES } from "~/constant";
 import { ProjectsTable } from "~/routes/projects/internal/components/projects-table";
@@ -15,31 +11,17 @@ export default function ProjectsPage() {
     useProjectsListView();
 
   return (
-    <div className={css({ display: "grid", gap: 4 })}>
-      <Breadcrumb
-        items={[
-          { label: "Dashboard", href: APP_ROUTES.home },
-          { label: "Projects", icon: <Folder size={14} /> },
-        ]}
+    <Panel>
+      <ProjectsToolbar
+        keyword={keyword}
+        onKeywordChange={setKeyword}
+        onCreateProject={() => navigate(APP_ROUTES.projectNew)}
       />
-
-      <DashboardHeader
-        title="Projects"
-        subtitle="ProjectごとにApplicationをまとめて管理します"
+      <ProjectsTable
+        projects={filteredProjects}
+        projectCountByID={projectCountByID}
+        userByID={userByID}
       />
-
-      <Panel>
-        <ProjectsToolbar
-          keyword={keyword}
-          onKeywordChange={setKeyword}
-          onCreateProject={() => navigate(APP_ROUTES.projectNew)}
-        />
-        <ProjectsTable
-          projects={filteredProjects}
-          projectCountByID={projectCountByID}
-          userByID={userByID}
-        />
-      </Panel>
-    </div>
+    </Panel>
   );
 }

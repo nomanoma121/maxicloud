@@ -1,8 +1,4 @@
 import { useNavigate } from "react-router";
-import { Box } from "react-feather";
-import { css } from "styled-system/css";
-import { DashboardHeader } from "~/components/layout/dashboard-header";
-import { Breadcrumb } from "~/components/ui/breadcrumb";
 import { Panel } from "~/components/ui/panel";
 import { APP_ROUTES } from "~/constant";
 import { ApplicationsTable } from "~/routes/applications/internal/components/applications-table";
@@ -33,27 +29,13 @@ export default function ApplicationsPage() {
   }));
 
   return (
-    <div className={css({ display: "grid", gap: 4 })}>
-      <Breadcrumb
-        items={[
-          { label: "Dashboard", href: APP_ROUTES.home },
-          { label: "Applications", icon: <Box size={14} /> },
-        ]}
+    <Panel>
+      <ApplicationsToolbar
+        keyword={keyword}
+        onKeywordChange={setKeyword}
+        onCreateApplication={() => navigate(APP_ROUTES.applicationNew)}
       />
-
-      <DashboardHeader
-        title="Applications"
-        subtitle="全ProjectのApplicationを横断で確認できます"
-      />
-
-      <Panel>
-        <ApplicationsToolbar
-          keyword={keyword}
-          onKeywordChange={setKeyword}
-          onCreateApplication={() => navigate(APP_ROUTES.applicationNew)}
-        />
-        <ApplicationsTable rows={rows} />
-      </Panel>
-    </div>
+      <ApplicationsTable rows={rows} />
+    </Panel>
   );
 }
