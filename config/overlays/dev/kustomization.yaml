@@ -42,4 +42,6 @@ secretGenerator:
   name: manager-secret
 - envs:
   - secret.env
+  files:
+  - private-key.pem=private-key.pem
   name: gateway-secret

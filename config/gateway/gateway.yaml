@@ -39,6 +39,11 @@ spec:
                 name: maxicloud-gateway-config
             - secretRef:
                 name: maxicloud-gateway-secret
+          volumeMounts:
+            - name: github-private-key
+              mountPath: /etc/maxicloud/github/private-key.pem
+              subPath: private-key.pem
+              readOnly: true
           ports:
             - name: http
               containerPort: 8080
@@ -56,5 +61,12 @@ spec:
             requests:
               cpu: 10m
               memory: 64Mi
+      volumes:
+        - name: github-private-key
+          secret:
+            secretName: maxicloud-gateway-secret
+            items:
+              - key: private-key.pem
+                path: private-key.pem
       serviceAccountName: gateway
       terminationGracePeriodSeconds: 10
