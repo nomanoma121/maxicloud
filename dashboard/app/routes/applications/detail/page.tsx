@@ -7,40 +7,15 @@ import { Breadcrumb } from "~/components/ui/breadcrumb";
 import { Panel } from "~/components/ui/panel";
 import { Table } from "~/components/ui/table";
 import { useApplicationDetailData } from "~/routes/applications/internal/hooks/use-applications-data";
+import { ApplicationNotFoundState } from "./internal/components/not-found-state";
+import { SummaryRow } from "./internal/components/summary-row";
 
 export default function ApplicationDetailPage() {
   const { applicationId = "" } = useParams();
   const { deployments, projectByID, application, userByID } = useApplicationDetailData(applicationId);
 
   if (!application) {
-    return (
-      <div className={css({ display: "grid", gap: 4 })}>
-        <Breadcrumb
-          items={[
-            { label: "Dashboard", href: "/" },
-            { label: "Applications", href: "/applications", icon: <Box size={14} /> },
-            { label: "Not Found" },
-          ]}
-        />
-
-        <DashboardHeader
-          title="Application Not Found"
-          subtitle="指定されたApplicationは存在しません"
-        />
-
-        <Panel>
-          <p className={css({ margin: 0, color: "gray.600", fontSize: "sm" })}>
-            URL を確認してください。Application一覧に戻って選び直せます。
-          </p>
-          <Link
-            to="/applications"
-            className={css({ marginTop: 3, display: "inline-block", color: "green.700", fontSize: "sm" })}
-          >
-            Back to Applications
-          </Link>
-        </Panel>
-      </div>
-    );
+    return <ApplicationNotFoundState />;
   }
 
   const owner = userByID[application.ownerId];
@@ -70,13 +45,13 @@ export default function ApplicationDetailPage() {
             gap: 2,
           })}
         >
-          <Row label="Project" value={project?.name ?? "-"} href={project ? `/projects/${project.id}` : undefined} />
-          <Row label="Owner" value={owner?.displayName ?? "-"} />
-          <Row label="Runtime" value={application.runtime} />
-          <Row label="CPU" value={application.cpu} />
-          <Row label="Memory" value={application.memory} />
-          <Row label="Updated" value={application.updatedAt} />
-          <Row label="URL" value={application.url} href={application.url} />
+          <SummaryRow label="Project" value={project?.name ?? "-"} href={project ? `/projects/${project.id}` : undefined} />
+          <SummaryRow label="Owner" value={owner?.displayName ?? "-"} />
+          <SummaryRow label="Runtime" value={application.runtime} />
+          <SummaryRow label="CPU" value={application.cpu} />
+          <SummaryRow label="Memory" value={application.memory} />
+          <SummaryRow label="Updated" value={application.updatedAt} />
+          <SummaryRow label="URL" value={application.url} href={application.url} />
         </dl>
       </Panel>
 
@@ -115,33 +90,3 @@ export default function ApplicationDetailPage() {
     </div>
   );
 }
-
-const Row = ({ label, value, href }: { label: string; value: string; href?: string }) => (
-  <div
-    className={css({
-      display: "grid",
-      gridTemplateColumns: "100px 1fr",
-      gap: 2,
-      borderBottom: "1px solid",
-      borderBottomColor: "gray.100",
-      paddingBottom: 2,
-    })}
-  >
-    <dt className={css({ color: "gray.500", fontSize: "xs", textTransform: "uppercase" })}>{label}</dt>
-    <dd className={css({ margin: 0, color: "gray.700", fontSize: "sm" })}>
-      {href ? (
-        href.startsWith("/") ? (
-          <Link to={href} className={css({ color: "green.700", textDecoration: "none" })}>
-            {value}
-          </Link>
-        ) : (
-          <a href={href} className={css({ color: "green.700", textDecoration: "none" })}>
-            {value}
-          </a>
-        )
-      ) : (
-        value
-      )}
-    </dd>
-  </div>
-);

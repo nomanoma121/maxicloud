@@ -7,40 +7,15 @@ import { Breadcrumb } from "~/components/ui/breadcrumb";
 import { Panel } from "~/components/ui/panel";
 import { Table } from "~/components/ui/table";
 import { useProjectDetailData } from "~/routes/projects/internal/hooks/use-projects-data";
+import { ProjectNotFoundState } from "./internal/components/not-found-state";
+import { SummaryRow } from "./internal/components/summary-row";
 
 export default function ProjectDetailPage() {
   const { projectId = "" } = useParams();
   const { deployments, project, applications, userByID } = useProjectDetailData(projectId);
 
   if (!project) {
-    return (
-      <div className={css({ display: "grid", gap: 4 })}>
-        <Breadcrumb
-          items={[
-            { label: "Dashboard", href: "/" },
-            { label: "Projects", href: "/projects", icon: <Folder size={14} /> },
-            { label: "Not Found" },
-          ]}
-        />
-
-        <DashboardHeader
-          title="Project Not Found"
-          subtitle="指定されたProjectは存在しません"
-        />
-
-        <Panel>
-          <p className={css({ margin: 0, color: "gray.600", fontSize: "sm" })}>
-            URL を確認してください。Project一覧に戻って選び直せます。
-          </p>
-          <Link
-            to="/projects"
-            className={css({ marginTop: 3, display: "inline-block", color: "green.700", fontSize: "sm" })}
-          >
-            Back to Projects
-          </Link>
-        </Panel>
-      </div>
-    );
+    return <ProjectNotFoundState />;
   }
 
   const owner = userByID[project.ownerId];
@@ -71,9 +46,9 @@ export default function ProjectDetailPage() {
             gap: 2,
           })}
         >
-          <Row label="Owner" value={owner?.displayName ?? "-"} />
-          <Row label="Applications" value={String(projectApplications.length)} />
-          <Row label="Updated" value={project.updatedAt} />
+          <SummaryRow label="Owner" value={owner?.displayName ?? "-"} />
+          <SummaryRow label="Applications" value={String(projectApplications.length)} />
+          <SummaryRow label="Updated" value={project.updatedAt} />
         </dl>
       </Panel>
 
@@ -177,19 +152,3 @@ export default function ProjectDetailPage() {
     </div>
   );
 }
-
-const Row = ({ label, value }: { label: string; value: string }) => (
-  <div
-    className={css({
-      display: "grid",
-      gridTemplateColumns: "100px 1fr",
-      gap: 2,
-      borderBottom: "1px solid",
-      borderBottomColor: "gray.100",
-      paddingBottom: 2,
-    })}
-  >
-    <dt className={css({ color: "gray.500", fontSize: "xs", textTransform: "uppercase" })}>{label}</dt>
-    <dd className={css({ margin: 0, color: "gray.700", fontSize: "sm" })}>{value}</dd>
-  </div>
-);

@@ -9,3 +9,12 @@ export const useGitHubRepositoriesQuery = () => {
     queryFn: () => sourceRepository.listGitHubRepositories(),
   });
 };
+
+export const useGitHubBranchesQuery = (fullName: string) => {
+  const { sourceRepository } = useRepository();
+  return useQuery({
+    queryKey: maxicloudQueryKeys.githubRepositoryBranches(fullName),
+    enabled: fullName.length > 0,
+    queryFn: () => sourceRepository.listGitHubBranches(fullName),
+  });
+};

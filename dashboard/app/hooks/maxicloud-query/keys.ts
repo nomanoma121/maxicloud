@@ -9,6 +9,11 @@ export const maxicloudQueryKeys = {
   deployEvents: (deploymentId: string) =>
     ["deployments", deploymentId, "events"] as const,
   githubRepositories: ["github-repositories"] as const,
+  githubRepositoryBranches: (fullName: string) =>
+    ["github-repositories", fullName, "branches"] as const,
+  availableDomains: ["available-domains"] as const,
+  domainAvailability: (subdomain: string, rootDomain: string) =>
+    ["domain-availability", subdomain, rootDomain] as const,
   workspaceSettings: ["workspace-settings"] as const,
   workspaceSecrets: ["workspace-secrets"] as const,
 };

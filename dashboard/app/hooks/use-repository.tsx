@@ -1,6 +1,7 @@
 import { createContext, useContext } from "react";
 import { DefaultRepositories } from "~/repository";
 import type { IDeploymentRepository } from "~/repository/deployment";
+import type { IDomainRepository } from "~/repository/domain";
 import type { IProjectRepository } from "~/repository/project";
 import type { IApplicationRepository } from "~/repository/application";
 import type { ISourceRepository } from "~/repository/source";
@@ -12,6 +13,7 @@ export interface RepositoryContextProps {
   projectRepository: IProjectRepository;
   applicationRepository: IApplicationRepository;
   deploymentRepository: IDeploymentRepository;
+  domainRepository: IDomainRepository;
   sourceRepository: ISourceRepository;
   workspaceRepository: IWorkspaceRepository;
 }
