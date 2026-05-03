@@ -168,6 +168,7 @@ func (r *ApplicationReconciler) reconcileIngress(ctx context.Context, applicatio
 	var ingress networkingv1.Ingress
 	err := r.Get(ctx, types.NamespacedName{Name: application.Name, Namespace: application.Namespace}, &ingress)
 	if errors.IsNotFound(err) {
+		// 感想: BaseDomainいらんくね？
 		return r.Create(ctx, newIngress(application, r.Config.BaseDomain, r.Config.IngressClass))
 	}
 	if err != nil {

@@ -7,8 +7,8 @@ import (
 	"github.com/saitamau-maximum/maxicloud/internal/domain"
 )
 
-func (c *client) GetDeploymentSummary(ctx context.Context, installationID int64, owner, repo string, commentID int64) (*domain.DeploymentSummary, error) {
-	ghClient, err := c.newGHClient(installationID)
+func (c *client) GetDeploymentSummary(ctx context.Context, owner, repo string, commentID int64) (*domain.DeploymentSummary, error) {
+	ghClient, err := c.newGHClient()
 	if err != nil {
 		return nil, err
 	}
@@ -24,7 +24,7 @@ func (c *client) GetDeploymentSummary(ctx context.Context, installationID int64,
 }
 
 func (c *client) CreateDeploymentSummary(ctx context.Context, params domain.CreateDeploymentSummaryParams) (int64, error) {
-	ghClient, err := c.newGHClient(params.InstallationID)
+	ghClient, err := c.newGHClient()
 	if err != nil {
 		return 0, err
 	}
@@ -39,7 +39,7 @@ func (c *client) CreateDeploymentSummary(ctx context.Context, params domain.Crea
 }
 
 func (c *client) UpdateDeploymentSummary(ctx context.Context, params domain.UpdateDeploymentSummaryParams) error {
-	ghClient, err := c.newGHClient(params.InstallationID)
+	ghClient, err := c.newGHClient()
 	if err != nil {
 		return err
 	}

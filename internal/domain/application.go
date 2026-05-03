@@ -50,8 +50,8 @@ func (d Domain) Validate() error {
 	return nil
 }
 
-// FullDomain returns the full domain name in the format "subdomain.rootdomain"
-func (d Domain) FullDomain() string {
+// FQDN returns the full domain name in the format "subdomain.rootdomain"
+func (d Domain) FQDN() string {
 	return d.Subdomain + "." + d.RootDomain
 }
 

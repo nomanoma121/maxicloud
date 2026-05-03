@@ -48,18 +48,17 @@ func runGateway(cmd *cobra.Command, args []string) error {
 	prjRepo := k8s.NewProjectRepository(k8sClient)
 	deployRepo := postgres.NewDeploymentRepository()
 	deployPipelineRepo := k8s.NewDeploymentPipelineRepository(k8sClient)
-	secretRepo := k8s.NewSecretRepository(k8sClient, cfg.Namespace)
 
 	deploySvc := usecase.NewDeploymentService(deployRepo, deployPipelineRepo, appRepo)
 	appSvc := usecase.NewApplicationService(appRepo)
 	prjSvc := usecase.NewProjectUsecase(prjRepo)
-	ghSvc := usecase.NewGitHubService(secretRepo)
 
-	ghHandler := handler.NewGitHubHandler(ghSvc, deploySvc, handler.GitHubHandlerConfig{
-		GitHubAppName: cfg.GitHubAppName,
-		WebhookSecret: cfg.GitHubWebhookSecret,
-		ClientID:      cfg.GitHubClientID,
-		ClientSecret:  cfg.GitHubClientSecret,
+	ghHandler := handler.NewGitHubHandler(deploySvc, handler.GitHubHandlerConfig{
+		GitHubAppName:  cfg.GitHubAppName,
+		WebhookSecret:  cfg.GitHubWebhookSecret,
+		ClientID:       cfg.GitHubClientID,
+		ClientSecret:   cfg.GitHubClientSecret,
+		InstallationID: cfg.InstallationID,
 	})
 	prjHandler := handler.NewProjectHandler(prjSvc)
 	appHandler := handler.NewApplicationHandler(appSvc)
@@ -73,7 +72,7 @@ func runGateway(cmd *cobra.Command, args []string) error {
 	r.Use(middleware.Recoverer)
 	// TODO: 公開前にちゃんと設定する
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins: []string{"https://*", "http://*"},
+		AllowedOrigins:   []string{"https://*", "http://*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"*"},
 		ExposedHeaders:   []string{"*"},

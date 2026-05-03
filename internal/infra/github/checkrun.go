@@ -9,7 +9,7 @@ import (
 )
 
 func (c *client) CreateCommitStatus(ctx context.Context, params domain.CreateCommitStatusParams) (int64, error) {
-	ghClient, err := c.newGHClient(params.InstallationID)
+	ghClient, err := c.newGHClient()
 	if err != nil {
 		return 0, err
 	}
@@ -32,7 +32,7 @@ func (c *client) CreateCommitStatus(ctx context.Context, params domain.CreateCom
 }
 
 func (c *client) UpdateCommitStatus(ctx context.Context, params domain.UpdateCommitStatusParams) error {
-	ghClient, err := c.newGHClient(params.InstallationID)
+	ghClient, err := c.newGHClient()
 	if err != nil {
 		return err
 	}

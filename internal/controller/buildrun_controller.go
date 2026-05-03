@@ -33,7 +33,6 @@ import (
 
 	maxicloudv1alpha1 "github.com/saitamau-maximum/maxicloud/api/v1alpha1"
 	"github.com/saitamau-maximum/maxicloud/internal/config"
-	"github.com/saitamau-maximum/maxicloud/internal/domain"
 	"github.com/saitamau-maximum/maxicloud/internal/infra/github"
 	"github.com/saitamau-maximum/maxicloud/internal/infra/registry"
 	batchv1 "k8s.io/api/batch/v1"
@@ -41,14 +40,13 @@ import (
 
 // ここでしか使わないのでcontroller側で定義しちゃう
 type gitHubClient interface {
-	GetInstallationAccessToken(ctx context.Context, installationID int64) (string, error)
+	GetInstallationAccessToken(ctx context.Context) (string, error)
 }
 
 type BuildRunReconciler struct {
 	client.Client
 	Scheme       *runtime.Scheme
 	Registry     registry.Registry
-	SecretRepo   domain.SecretRepository
 	GitHubClient gitHubClient
 }
 
@@ -88,13 +86,9 @@ func (r *BuildRunReconciler) reconcileSecret(ctx context.Context, buildRun *maxi
 	log := logf.FromContext(ctx)
 	secretName := buildRun.Name
 
-	installationID, err := r.SecretRepo.GetRepositoryIntegrationID(ctx)
+	token, err := r.GitHubClient.GetInstallationAccessToken(ctx)
 	if err != nil {
-		return fmt.Errorf("failed to get installation ID: %w", err)
-	}
-	token, err := r.GitHubClient.GetInstallationAccessToken(ctx, installationID)
-	if err != nil {
-		log.Error(err, "failed to get installation access token", "installationID", installationID)
+		log.Error(err, "failed to get installation access token")
 		return err
 	}
 

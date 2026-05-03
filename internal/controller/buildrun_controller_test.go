@@ -45,9 +45,8 @@ func (f *fakeRegistry) BuildOutput(destination string) string {
 type fakeGitHubClient struct{}
 
 var _ domain.DeploymentReporter = (*fakeGitHubClient)(nil)
-var _ domain.SecretRepository = (*fakeSecretRepository)(nil)
 
-func (f *fakeGitHubClient) GetInstallationAccessToken(_ context.Context, _ int64) (string, error) {
+func (f *fakeGitHubClient) GetInstallationAccessToken(_ context.Context) (string, error) {
 	return "fake-token", nil
 }
 func (f *fakeGitHubClient) CreateCommitStatus(_ context.Context, _ domain.CreateCommitStatusParams) (int64, error) {
@@ -56,7 +55,7 @@ func (f *fakeGitHubClient) CreateCommitStatus(_ context.Context, _ domain.Create
 func (f *fakeGitHubClient) UpdateCommitStatus(_ context.Context, _ domain.UpdateCommitStatusParams) error {
 	return nil
 }
-func (f *fakeGitHubClient) GetDeploymentSummary(_ context.Context, _ int64, _, _ string, _ int64) (*domain.DeploymentSummary, error) {
+func (f *fakeGitHubClient) GetDeploymentSummary(_ context.Context, _, _ string, _ int64) (*domain.DeploymentSummary, error) {
 	return nil, nil
 }
 func (f *fakeGitHubClient) CreateDeploymentSummary(_ context.Context, _ domain.CreateDeploymentSummaryParams) (int64, error) {
@@ -66,43 +65,13 @@ func (f *fakeGitHubClient) UpdateDeploymentSummary(_ context.Context, _ domain.U
 	return nil
 }
 
-type fakeSecretRepository struct {
-	integrationID int64
-}
-
-func (f *fakeSecretRepository) SaveRepositoryIntegrationID(_ context.Context, integrationID int64) error {
-	f.integrationID = integrationID
-	return nil
-}
-
-func (f *fakeSecretRepository) GetRepositoryIntegrationID(_ context.Context) (int64, error) {
-	if f.integrationID == 0 {
-		return 12345, nil
-	}
-	return f.integrationID, nil
-}
-
 func newTestReconciler(maxHistory int) *BuildRunReconciler {
 	return &BuildRunReconciler{
 		Client:       k8sClient,
 		Scheme:       k8sClient.Scheme(),
 		Registry:     &fakeRegistry{},
-		SecretRepo:   &fakeSecretRepository{integrationID: 12345},
 		GitHubClient: &fakeGitHubClient{},
 	}
-}
-
-func createInstallationSecret(ctx context.Context, namespace string) {
-	secret := &corev1.Secret{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      config.SecretName,
-			Namespace: namespace,
-		},
-		Data: map[string][]byte{
-			config.InstallationIDKey: []byte("12345"),
-		},
-	}
-	_ = k8sClient.Create(ctx, secret)
 }
 
 func newTestBuildRun(name, namespace, appName string) *maxicloudv1alpha1.BuildRun {
@@ -128,16 +97,6 @@ func newTestBuildRun(name, namespace, appName string) *maxicloudv1alpha1.BuildRu
 var _ = Describe("BuildRun Controller", func() {
 	ctx := context.Background()
 	const ns = "default"
-
-	BeforeEach(func() {
-		createInstallationSecret(ctx, ns)
-	})
-
-	AfterEach(func() {
-		_ = k8sClient.Delete(ctx, &corev1.Secret{
-			ObjectMeta: metav1.ObjectMeta{Name: config.SecretName, Namespace: ns},
-		})
-	})
 
 	Context("Jobの作成", func() {
 		const name = "buildrun-job-create"

@@ -22,5 +22,5 @@ type Commit struct {
 }
 
 type SourceRepository interface {
-	GetRepositories(ctx context.Context, installationID int64) ([]Repository, error)
+	GetRepositories(ctx context.Context) ([]Repository, error)
 }

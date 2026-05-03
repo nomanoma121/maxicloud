@@ -3,7 +3,6 @@ package github
 import (
 	"context"
 	"net/http"
-	"sync"
 
 	"github.com/bradleyfalzon/ghinstallation/v2"
 	gh "github.com/google/go-github/v72/github"
@@ -11,48 +10,36 @@ import (
 )
 
 type client struct {
-	appID      int64
-	privateKey []byte
-
-	mu         sync.Mutex
-	transports map[int64]*ghinstallation.Transport
+	appID          int64
+	privateKey     []byte
+	installationID int64
 }
 
 var _ domain.DeploymentReporter = (*client)(nil)
 var _ domain.SourceRepository = (*client)(nil)
 
-func NewClient(appID int64, privateKey []byte) *client {
+func NewClient(appID int64, privateKey []byte, installationID int64) *client {
 	return &client{
-		appID:      appID,
-		privateKey: privateKey,
-		transports: make(map[int64]*ghinstallation.Transport),
+		appID:          appID,
+		privateKey:     privateKey,
+		installationID: installationID,
 	}
 }
 
-func (c *client) transportFor(installationID int64) (*ghinstallation.Transport, error) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	if itr, ok := c.transports[installationID]; ok {
-		return itr, nil
-	}
-	itr, err := ghinstallation.New(http.DefaultTransport, c.appID, installationID, c.privateKey)
-	if err != nil {
-		return nil, err
-	}
-	c.transports[installationID] = itr
-	return itr, nil
+func (c *client) newTransport() (*ghinstallation.Transport, error) {
+	return ghinstallation.New(http.DefaultTransport, c.appID, c.installationID, c.privateKey)
 }
 
-func (c *client) GetInstallationAccessToken(ctx context.Context, installationID int64) (string, error) {
-	itr, err := c.transportFor(installationID)
+func (c *client) GetInstallationAccessToken(ctx context.Context) (string, error) {
+	itr, err := c.newTransport()
 	if err != nil {
 		return "", err
 	}
 	return itr.Token(ctx)
 }
 
-func (c *client) newGHClient(installationID int64) (*gh.Client, error) {
-	itr, err := c.transportFor(installationID)
+func (c *client) newGHClient() (*gh.Client, error) {
+	itr, err := c.newTransport()
 	if err != nil {
 		return nil, err
 	}

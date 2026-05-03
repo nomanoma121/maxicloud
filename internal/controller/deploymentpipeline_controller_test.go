@@ -69,10 +69,9 @@ var _ = Describe("DeploymentPipeline Controller", func() {
 		It("should successfully reconcile the resource", func() {
 			By("Reconciling the created resource")
 			controllerReconciler := &DeploymentPipelineReconciler{
-				Client:     k8sClient,
-				Scheme:     k8sClient.Scheme(),
-				SecretRepo: &fakeSecretRepository{integrationID: 12345},
-				Reporter:   &fakeGitHubClient{},
+				Client:   k8sClient,
+				Scheme:   k8sClient.Scheme(),
+				Reporter: &fakeGitHubClient{},
 			}
 
 			_, err := controllerReconciler.Reconcile(ctx, reconcile.Request{

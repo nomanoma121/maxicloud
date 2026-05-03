@@ -7,26 +7,28 @@ import (
 	"strings"
 
 	gh "github.com/google/go-github/v72/github"
+	"github.com/saitamau-maximum/maxicloud/gen/maxicloud/v1/maxicloudv1connect"
 	"github.com/saitamau-maximum/maxicloud/internal/domain"
 	"github.com/saitamau-maximum/maxicloud/internal/usecase"
 	"golang.org/x/oauth2"
 )
 
 type GitHubHandlerConfig struct {
-	GitHubAppName string
-	WebhookSecret string
-	ClientSecret  string
-	ClientID      string
+	GitHubAppName  string
+	WebhookSecret  string
+	ClientSecret   string
+	ClientID       string
+	InstallationID int64
 }
 
 type GitHubHandler struct {
-	gitHubService usecase.GitHubService
+	maxicloudv1connect.UnimplementedGitHubServiceHandler
 	deployService usecase.DeploymentService
 	config        GitHubHandlerConfig
 	oauthCfg      *oauth2.Config
 }
 
-func NewGitHubHandler(gitHubSvc usecase.GitHubService, deploySvc usecase.DeploymentService, config GitHubHandlerConfig) *GitHubHandler {
+func NewGitHubHandler(deploySvc usecase.DeploymentService, config GitHubHandlerConfig) *GitHubHandler {
 	oauthCfg := &oauth2.Config{
 		ClientID:     config.ClientID,
 		ClientSecret: config.ClientSecret,
@@ -36,7 +38,6 @@ func NewGitHubHandler(gitHubSvc usecase.GitHubService, deploySvc usecase.Deploym
 		},
 	}
 	return &GitHubHandler{
-		gitHubService: gitHubSvc,
 		deployService: deploySvc,
 		config:        config,
 		oauthCfg:      oauthCfg,
@@ -65,8 +66,8 @@ func (h *GitHubHandler) Callback(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid installation_id", http.StatusBadRequest)
 		return
 	}
-	if err := h.gitHubService.SaveInstallation(r.Context(), installationID); err != nil {
-		http.Error(w, "failed to save installation", http.StatusInternalServerError)
+	if installationID != h.config.InstallationID {
+		http.Error(w, "installation_id does not match configured installation", http.StatusBadRequest)
 		return
 	}
 	w.WriteHeader(http.StatusOK)

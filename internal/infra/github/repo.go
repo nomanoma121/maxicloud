@@ -9,8 +9,8 @@ import (
 	"github.com/saitamau-maximum/maxicloud/internal/domain"
 )
 
-func (c *client) GetRepositories(ctx context.Context, installationID int64) ([]domain.Repository, error) {
-	ghClient, err := c.newGHClient(installationID)
+func (c *client) GetRepositories(ctx context.Context) ([]domain.Repository, error) {
+	ghClient, err := c.newGHClient()
 	if err != nil {
 		return nil, err
 	}

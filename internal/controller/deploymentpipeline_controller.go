@@ -45,7 +45,6 @@ type DeploymentPipelineReconciler struct {
 	Scheme *runtime.Scheme
 
 	DeployRepo domain.DeploymentRepository
-	SecretRepo domain.SecretRepository
 	Reporter   domain.DeploymentReporter
 }
 
@@ -102,15 +101,9 @@ func (r *DeploymentPipelineReconciler) notifyDeploymentStarted(ctx context.Conte
 	}
 	log := logf.FromContext(ctx)
 
-	installationID, err := r.SecretRepo.GetRepositoryIntegrationID(ctx)
-	if err != nil {
-		log.Error(err, "failed to get installation ID")
-		return err
-	}
 	checkRunID, err := r.Reporter.CreateCommitStatus(ctx, domain.CreateCommitStatusParams{
-		InstallationID: installationID,
-		Owner:          pipeline.Spec.Owner,
-		Repo:           pipeline.Spec.Repo,
+		Owner: pipeline.Spec.Owner,
+		Repo:  pipeline.Spec.Repo,
 		CreateStatusOptions: domain.CreateStatusOptions{
 			Name:    "MaxiCloud Deploy",
 			HeadSHA: pipeline.Spec.SHA,
@@ -202,16 +195,10 @@ func (r *DeploymentPipelineReconciler) handleBuildSucceeded(ctx context.Context,
 func (r *DeploymentPipelineReconciler) handleBuildFailedOrCanceled(ctx context.Context, pipeline *maxicloudv1alpha1.DeploymentPipeline) (ctrl.Result, error) {
 	log := logf.FromContext(ctx)
 
-	installationID, err := r.SecretRepo.GetRepositoryIntegrationID(ctx)
-	if err != nil {
-		log.Error(err, "failed to get installation ID")
-		return ctrl.Result{}, err
-	}
 	if err := r.Reporter.UpdateCommitStatus(ctx, domain.UpdateCommitStatusParams{
-		InstallationID: installationID,
-		Owner:          pipeline.Spec.Owner,
-		Repo:           pipeline.Spec.Repo,
-		CheckRunID:     pipeline.Status.CheckRunID,
+		Owner:      pipeline.Spec.Owner,
+		Repo:       pipeline.Spec.Repo,
+		CheckRunID: pipeline.Status.CheckRunID,
 		UpdateStatusOptions: domain.UpdateCommitStatusOptions{
 			Name:       "MaxiCloud Deploy",
 			Status:     domain.CheckStatusCompleted,
@@ -234,12 +221,6 @@ func (r *DeploymentPipelineReconciler) handleBuildFailedOrCanceled(ctx context.C
 func (r *DeploymentPipelineReconciler) handlePhaseDeploying(ctx context.Context, pipeline *maxicloudv1alpha1.DeploymentPipeline) (ctrl.Result, error) {
 	log := logf.FromContext(ctx)
 
-	installationID, err := r.SecretRepo.GetRepositoryIntegrationID(ctx)
-	if err != nil {
-		log.Error(err, "failed to get installation ID")
-		return ctrl.Result{}, err
-	}
-	
 	// HACK: 一旦普通にCRからDomainを読み取る
 	var app maxicloudv1alpha1.Application
 	if err := r.Get(ctx, types.NamespacedName{Name: pipeline.Spec.ApplicationName, Namespace: pipeline.Namespace}, &app); err != nil {
@@ -253,10 +234,9 @@ func (r *DeploymentPipelineReconciler) handlePhaseDeploying(ctx context.Context,
 	}
 
 	if err := r.Reporter.UpdateCommitStatus(ctx, domain.UpdateCommitStatusParams{
-		InstallationID: installationID,
-		Owner:          pipeline.Spec.Owner,
-		Repo:           pipeline.Spec.Repo,
-		CheckRunID:     pipeline.Status.CheckRunID,
+		Owner:      pipeline.Spec.Owner,
+		Repo:       pipeline.Spec.Repo,
+		CheckRunID: pipeline.Status.CheckRunID,
 		UpdateStatusOptions: domain.UpdateCommitStatusOptions{
 			Name:       "MaxiCloud Deploy",
 			Status:     domain.CheckStatusCompleted,
