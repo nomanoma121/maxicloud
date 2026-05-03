@@ -28,10 +28,17 @@ export type CreateApplicationInput = {
   secrets: Record<string, string>;
 };
 
+export type CreateApplicationResult = {
+  application: Application;
+  initialDeploymentID?: string;
+  initialDeploymentStarted: boolean;
+  initialDeploymentError?: string;
+};
+
 export interface IApplicationRepository {
   listApplications(): Promise<Application[]>;
   getApplication(id: string): Promise<Application | undefined>;
-  createApplication(input: CreateApplicationInput): Promise<Application>;
+  createApplication(input: CreateApplicationInput): Promise<CreateApplicationResult>;
 }
 
 const mapStatus = (status: ApplicationStatus): Application["status"] => {
@@ -123,7 +130,7 @@ export class ApplicationRepository implements IApplicationRepository {
     }
   }
 
-  async createApplication(input: CreateApplicationInput): Promise<Application> {
+  async createApplication(input: CreateApplicationInput): Promise<CreateApplicationResult> {
     const res = await connectClient.application.createApplication({
       name: input.name.trim(),
       ownerId: input.ownerId,
@@ -167,6 +174,11 @@ export class ApplicationRepository implements IApplicationRepository {
       throw new Error("CreateApplication returned empty application");
     }
 
-    return toApplication(res.application);
+    return {
+      application: toApplication(res.application),
+      initialDeploymentID: res.initialDeploymentId,
+      initialDeploymentStarted: res.initialDeploymentStarted,
+      initialDeploymentError: res.initialDeploymentError,
+    };
   }
 }

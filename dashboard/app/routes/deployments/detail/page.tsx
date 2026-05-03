@@ -1,27 +1,29 @@
-import { Link, useParams } from "react-router";
+import { useParams } from "react-router";
 import { Layers } from "react-feather";
 import { css } from "styled-system/css";
 import { DashboardHeader } from "~/components/layout/dashboard-header";
-import { StatusBadge } from "~/components/ui/badge";
 import { Breadcrumb } from "~/components/ui/breadcrumb";
 import { Panel } from "~/components/ui/panel";
+import { APP_ROUTES } from "~/constant";
 import { useDeploymentDetailData } from "~/routes/deployments/internal/hooks/use-deployments-data";
+import { BuildLog } from "./internal/components/build-log";
+import { StatusPanel } from "./internal/components/status-panel";
+import { SummaryPanel } from "./internal/components/summary-panel";
 
 export default function DeploymentDetailPage() {
   const { deploymentId = "" } = useParams();
-  const { deployment, events, applicationByID, userByID } = useDeploymentDetailData(deploymentId);
+  const { deployment, applicationByID, userByID } = useDeploymentDetailData(deploymentId);
 
   if (!deployment) {
     return (
       <div className={css({ display: "grid", gap: 4 })}>
         <Breadcrumb
           items={[
-            { label: "Dashboard", href: "/" },
-            { label: "Deployments", href: "/deployments", icon: <Layers size={14} /> },
+            { label: "Dashboard", href: APP_ROUTES.home },
+            { label: "Deployments", href: APP_ROUTES.deployments, icon: <Layers size={14} /> },
             { label: "Not Found" },
           ]}
         />
-
         <DashboardHeader title="Deployment Not Found" subtitle="指定されたデプロイは存在しません" />
       </div>
     );
@@ -29,81 +31,51 @@ export default function DeploymentDetailPage() {
 
   const application = applicationByID[deployment.applicationId];
   const owner = userByID[deployment.ownerId];
+  const repository = application?.repository ?? "-";
 
   return (
-    <div className={css({ display: "grid", gap: 4 })}>
+    <div className={css({ display: "grid", gap: 5 })}>
       <Breadcrumb
         items={[
-          { label: "Dashboard", href: "/" },
-          { label: "Deployments", href: "/deployments", icon: <Layers size={14} /> },
+          { label: "Dashboard", href: APP_ROUTES.home },
+          { label: "Deployments", href: APP_ROUTES.deployments, icon: <Layers size={14} /> },
           { label: deployment.revision },
         ]}
       />
 
       <DashboardHeader
-        title={deployment.revision}
-        subtitle={`${application?.name ?? "-"} ・ ${owner?.displayName ?? "-"}`}
+        title={deployment.commitMessage || "Commit message unavailable"}
+        subtitle={`${application?.name ?? "-"} ・ ${application?.branch ?? "-"} ・ ${deployment.revision}`}
       />
 
-      <Panel title="Deployment Summary" rightSlot={<StatusBadge status={deployment.status} />}>
-        <div
-          className={css({
-            display: "grid",
-            gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
-            gap: 3,
-            mdDown: { gridTemplateColumns: "1fr" },
-          })}
-        >
-          <KpiItem label="Application" value={application?.name ?? "-"} />
-          <KpiItem label="Owner" value={owner?.displayName ?? "-"} />
-          <KpiItem label="Started At" value={deployment.startedAt} />
-          <KpiItem label="Duration" value={deployment.duration} />
-        </div>
+      <StatusPanel
+        status={deployment.status}
+        duration={deployment.duration}
+        finishedAt={deployment.finishedAt}
+      />
+
+      <Panel title="Summary">
+        <SummaryPanel
+          applicationName={application?.name ?? "-"}
+          ownerName={owner?.displayName ?? "-"}
+          repository={repository}
+          repoURL={buildGitHubRepoURL(repository)}
+          appURL={application?.url ?? "-"}
+          branch={application?.branch ?? "-"}
+          commit={deployment.revision}
+        />
       </Panel>
 
-      <Panel title="Timeline" subtitle="イベントログ（モック）">
-        <ol className={css({ margin: 0, paddingLeft: 5, display: "grid", gap: 2 })}>
-          {events.map((event) => (
-            <li key={event.id}>
-              <p className={css({ margin: 0, color: "gray.700", fontWeight: 600, fontSize: "sm" })}>
-                {event.title}
-              </p>
-              <p className={css({ marginTop: 1, marginBottom: 0, color: "gray.500", fontSize: "xs" })}>
-                {event.timestamp}
-              </p>
-              <p className={css({ marginTop: 1, marginBottom: 0, color: "gray.600", fontSize: "sm" })}>
-                {event.detail}
-              </p>
-            </li>
-          ))}
-        </ol>
-      </Panel>
-
-      <Panel title="Operation Note">
-        <p className={css({ marginTop: 0, color: "gray.600", fontSize: "sm" })}>
-          実運用では、この画面から再デプロイ・ロールバック・ログストリームを操作できる想定です。
-        </p>
-        <Link to="/deployments" className={css({ color: "green.700", fontSize: "sm" })}>
-          Back to deployments
-        </Link>
+      <Panel title="Build Log" subtitle="ダミー — ログストリームは未実装">
+        <BuildLog />
       </Panel>
     </div>
   );
 }
 
-const KpiItem = ({ label, value }: { label: string; value: string }) => (
-  <div
-    className={css({
-      border: "1px solid",
-      borderColor: "gray.100",
-      borderRadius: "md",
-      padding: 3,
-      background: "white",
-      display: "grid",
-      gap: 1,
-    })}
-  >
-    <span className={css({ color: "gray.500", fontSize: "xs", textTransform: "uppercase" })}>{label}</span>
-    <strong className={css({ color: "gray.700", fontSize: "sm" })}>{value}</strong>
-  </div>
-);
+const buildGitHubRepoURL = (repository: string): string | undefined => {
+  if (!repository || repository === "-" || !repository.includes("/")) {
+    return undefined;
+  }
+  return `https://github.com/${repository}`;
+};

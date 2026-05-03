@@ -7,6 +7,7 @@ import { Breadcrumb } from "~/components/ui/breadcrumb";
 import { MetricCard } from "~/components/ui/metric-card";
 import { Panel } from "~/components/ui/panel";
 import { Table } from "~/components/ui/table";
+import { APP_ROUTES } from "~/constant";
 import { useHomeData } from "~/routes/home/internal/hooks/use-home-data";
 
 export default function HomePage() {
@@ -17,7 +18,7 @@ export default function HomePage() {
     <div className={css({ display: "grid", gap: 4 })}>
       <Breadcrumb
         items={[
-          { label: "Dashboard", href: "/" },
+          { label: "Dashboard", href: APP_ROUTES.home },
           { label: "Overview", icon: <Home size={14} /> },
         ]}
       />
@@ -69,7 +70,7 @@ export default function HomePage() {
                 </Table.Td>
                 <Table.Td>{deployment.startedAt}</Table.Td>
                 <Table.Td>
-                  <Link to={`/deployments/${deployment.id}`} className={css({ color: "green.700", fontSize: "sm" })}>
+                  <Link to={APP_ROUTES.deploymentDetail(deployment.id)} className={css({ color: "green.700", fontSize: "sm" })}>
                     View
                   </Link>
                 </Table.Td>

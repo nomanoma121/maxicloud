@@ -710,10 +710,13 @@ func (x *CreateApplicationRequest) GetSpec() *ApplicationSpec {
 }
 
 type CreateApplicationResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Application   *Application           `protobuf:"bytes,1,opt,name=application,proto3" json:"application,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                    protoimpl.MessageState `protogen:"open.v1"`
+	Application              *Application           `protobuf:"bytes,1,opt,name=application,proto3" json:"application,omitempty"`
+	InitialDeploymentId      *string                `protobuf:"bytes,2,opt,name=initial_deployment_id,json=initialDeploymentId,proto3,oneof" json:"initial_deployment_id,omitempty"`
+	InitialDeploymentStarted bool                   `protobuf:"varint,3,opt,name=initial_deployment_started,json=initialDeploymentStarted,proto3" json:"initial_deployment_started,omitempty"`
+	InitialDeploymentError   *string                `protobuf:"bytes,4,opt,name=initial_deployment_error,json=initialDeploymentError,proto3,oneof" json:"initial_deployment_error,omitempty"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *CreateApplicationResponse) Reset() {
@@ -751,6 +754,27 @@ func (x *CreateApplicationResponse) GetApplication() *Application {
 		return x.Application
 	}
 	return nil
+}
+
+func (x *CreateApplicationResponse) GetInitialDeploymentId() string {
+	if x != nil && x.InitialDeploymentId != nil {
+		return *x.InitialDeploymentId
+	}
+	return ""
+}
+
+func (x *CreateApplicationResponse) GetInitialDeploymentStarted() bool {
+	if x != nil {
+		return x.InitialDeploymentStarted
+	}
+	return false
+}
+
+func (x *CreateApplicationResponse) GetInitialDeploymentError() string {
+	if x != nil && x.InitialDeploymentError != nil {
+		return *x.InitialDeploymentError
+	}
+	return ""
 }
 
 type GetApplicationRequest struct {
@@ -1332,9 +1356,14 @@ const file_maxicloud_v1_application_proto_rawDesc = "" +
 	"\x18CreateApplicationRequest\x12 \n" +
 	"\x04name\x18\x01 \x01(\tB\f\xbaH\t\xc8\x01\x01r\x04\x10\x01\x18dR\x04name\x12&\n" +
 	"\bowner_id\x18\x02 \x01(\tB\v\xbaH\b\xc8\x01\x01r\x03\xb0\x01\x01R\aownerId\x129\n" +
-	"\x04spec\x18\x03 \x01(\v2\x1d.maxicloud.v1.ApplicationSpecB\x06\xbaH\x03\xc8\x01\x01R\x04spec\"X\n" +
+	"\x04spec\x18\x03 \x01(\v2\x1d.maxicloud.v1.ApplicationSpecB\x06\xbaH\x03\xc8\x01\x01R\x04spec\"\xc5\x02\n" +
 	"\x19CreateApplicationResponse\x12;\n" +
-	"\vapplication\x18\x01 \x01(\v2\x19.maxicloud.v1.ApplicationR\vapplication\"F\n" +
+	"\vapplication\x18\x01 \x01(\v2\x19.maxicloud.v1.ApplicationR\vapplication\x127\n" +
+	"\x15initial_deployment_id\x18\x02 \x01(\tH\x00R\x13initialDeploymentId\x88\x01\x01\x12<\n" +
+	"\x1ainitial_deployment_started\x18\x03 \x01(\bR\x18initialDeploymentStarted\x12=\n" +
+	"\x18initial_deployment_error\x18\x04 \x01(\tH\x01R\x16initialDeploymentError\x88\x01\x01B\x18\n" +
+	"\x16_initial_deployment_idB\x1b\n" +
+	"\x19_initial_deployment_error\"F\n" +
 	"\x15GetApplicationRequest\x12-\n" +
 	"\x0eapplication_id\x18\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\rapplicationId\"U\n" +
 	"\x16GetApplicationResponse\x12;\n" +
@@ -1483,6 +1512,7 @@ func file_maxicloud_v1_application_proto_init() {
 		return
 	}
 	file_maxicloud_v1_common_proto_init()
+	file_maxicloud_v1_application_proto_msgTypes[7].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

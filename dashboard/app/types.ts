@@ -42,8 +42,12 @@ export type DeploymentRun = {
   ownerId: string;
   revision: string;
   commit: string;
+  commitMessage: string;
+  commitAuthor: string;
+  commitTimestamp: string;
   status: DeploymentStatus;
   startedAt: string;
+  finishedAt: string;
   duration: string;
 };
 

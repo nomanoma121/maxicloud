@@ -78,8 +78,10 @@ func (r *DeploymentPipelineReconciler) Reconcile(ctx context.Context, req ctrl.R
 }
 
 func (r *DeploymentPipelineReconciler) handlePhaseQueued(ctx context.Context, pipeline *maxicloudv1alpha1.DeploymentPipeline) (ctrl.Result, error) {
+	log := logf.FromContext(ctx)
 	if err := r.notifyDeploymentStarted(ctx, pipeline); err != nil {
-		return ctrl.Result{}, err
+		// GitHub CheckRunの作成失敗はデプロイ本体を止めない
+		log.Error(err, "Could not create check run, continuing deployment")
 	}
 	if err := r.triggerBuild(ctx, pipeline); err != nil {
 		return ctrl.Result{}, err
@@ -195,20 +197,22 @@ func (r *DeploymentPipelineReconciler) handleBuildSucceeded(ctx context.Context,
 func (r *DeploymentPipelineReconciler) handleBuildFailedOrCanceled(ctx context.Context, pipeline *maxicloudv1alpha1.DeploymentPipeline) (ctrl.Result, error) {
 	log := logf.FromContext(ctx)
 
-	if err := r.Reporter.UpdateCommitStatus(ctx, domain.UpdateCommitStatusParams{
-		Owner:      pipeline.Spec.Owner,
-		Repo:       pipeline.Spec.Repo,
-		CheckRunID: pipeline.Status.CheckRunID,
-		UpdateStatusOptions: domain.UpdateCommitStatusOptions{
-			Name:       "MaxiCloud Deploy",
-			Status:     domain.CheckStatusCompleted,
-			Conclusion: domain.CheckConclusionFailure,
-			Title:      "Build failed",
-			Summary:    fmt.Sprintf("Build failed for %s@%s", pipeline.Spec.Repo, infragithub.ShortSHA(pipeline.Spec.SHA)),
-		},
-	}); err != nil {
-		log.Error(err, "failed to update check run")
-		return ctrl.Result{}, err
+	if pipeline.Status.CheckRunID != 0 {
+		if err := r.Reporter.UpdateCommitStatus(ctx, domain.UpdateCommitStatusParams{
+			Owner:      pipeline.Spec.Owner,
+			Repo:       pipeline.Spec.Repo,
+			CheckRunID: pipeline.Status.CheckRunID,
+			UpdateStatusOptions: domain.UpdateCommitStatusOptions{
+				Name:       "MaxiCloud Deploy",
+				Status:     domain.CheckStatusCompleted,
+				Conclusion: domain.CheckConclusionFailure,
+				Title:      "Build failed",
+				Summary:    fmt.Sprintf("Build failed for %s@%s", pipeline.Spec.Repo, infragithub.ShortSHA(pipeline.Spec.SHA)),
+			},
+		}); err != nil {
+			// GitHub CheckRun更新失敗はパイプライン状態反映を止めない
+			log.Error(err, "Could not update check run, marking pipeline as failed")
+		}
 	}
 
 	now := metav1.Now()
@@ -233,20 +237,22 @@ func (r *DeploymentPipelineReconciler) handlePhaseDeploying(ctx context.Context,
 		appDomain = app.Spec.Expose.Domain
 	}
 
-	if err := r.Reporter.UpdateCommitStatus(ctx, domain.UpdateCommitStatusParams{
-		Owner:      pipeline.Spec.Owner,
-		Repo:       pipeline.Spec.Repo,
-		CheckRunID: pipeline.Status.CheckRunID,
-		UpdateStatusOptions: domain.UpdateCommitStatusOptions{
-			Name:       "MaxiCloud Deploy",
-			Status:     domain.CheckStatusCompleted,
-			Conclusion: domain.CheckConclusionSuccess,
-			Title:      "Deploy succeeded",
-			Summary:    fmt.Sprintf("Successfully deployed %s@%s. Preview available at http://%s:8080", pipeline.Spec.Repo, infragithub.ShortSHA(pipeline.Spec.SHA), appDomain),
-		},
-	}); err != nil {
-		log.Error(err, "failed to update check run")
-		return ctrl.Result{}, err
+	if pipeline.Status.CheckRunID != 0 {
+		if err := r.Reporter.UpdateCommitStatus(ctx, domain.UpdateCommitStatusParams{
+			Owner:      pipeline.Spec.Owner,
+			Repo:       pipeline.Spec.Repo,
+			CheckRunID: pipeline.Status.CheckRunID,
+			UpdateStatusOptions: domain.UpdateCommitStatusOptions{
+				Name:       "MaxiCloud Deploy",
+				Status:     domain.CheckStatusCompleted,
+				Conclusion: domain.CheckConclusionSuccess,
+				Title:      "Deploy succeeded",
+				Summary:    fmt.Sprintf("Successfully deployed %s@%s. Preview available at http://%s:8080", pipeline.Spec.Repo, infragithub.ShortSHA(pipeline.Spec.SHA), appDomain),
+			},
+		}); err != nil {
+			// GitHub CheckRun更新失敗は成功ステータス反映を止めない
+			log.Error(err, "Could not update check run, marking pipeline as succeeded")
+		}
 	}
 
 	now := metav1.Now()

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useLocation } from "react-router";
 import { css } from "styled-system/css";
+import { APP_NAME } from "~/constant";
 import { useSession } from "~/hooks/use-session";
 import { SidebarBackdrop } from "./backdrop";
 import { SidebarHamburgerButton } from "./hamburger-button";
@@ -9,7 +9,6 @@ import { SidebarProfile } from "./profile";
 
 export const Sidebar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const location = useLocation();
   const { currentUser } = useSession();
 
   const closeMenu = () => setIsMenuOpen(false);
@@ -57,13 +56,13 @@ export const Sidebar = () => {
               letterSpacing: "0.1em",
             })}
           >
-            MaxiCloud
+            {APP_NAME}
           </p>
           <h1 className={css({ marginTop: 1, marginBottom: 6, fontSize: "2xl" })}>
-            MaxiCloud
+            {APP_NAME}
           </h1>
 
-          <SidebarNavigation pathname={location.pathname} onNavigate={closeMenu} />
+          <SidebarNavigation onNavigate={closeMenu} />
         </div>
 
         <SidebarProfile user={currentUser ?? undefined} />

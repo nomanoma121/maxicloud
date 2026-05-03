@@ -4,22 +4,23 @@ import { DashboardHeader } from "~/components/layout/dashboard-header";
 import { Breadcrumb } from "~/components/ui/breadcrumb";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/form-controls";
-import { useWorkspaceData } from "~/routes/settings/internal/hooks/use-workspace-data";
+import { APP_ROUTES } from "~/constant";
+import { useSettingsData } from "~/routes/settings/internal/hooks/use-settings-data";
 import { Panel } from "~/components/ui/panel";
 
 export default function SettingsPage() {
-  const { secrets, settings } = useWorkspaceData();
+  const { secrets, settings } = useSettingsData();
 
   return (
     <div className={css({ display: "grid", gap: 4 })}>
       <Breadcrumb
         items={[
-          { label: "Dashboard", href: "/" },
-          { label: "Workspace", icon: <Settings size={14} /> },
+          { label: "Dashboard", href: APP_ROUTES.home },
+          { label: "Settings", icon: <Settings size={14} /> },
         ]}
       />
 
-      <DashboardHeader title="Workspace" subtitle="運用設定とシークレット管理" />
+      <DashboardHeader title="Settings" subtitle="運用設定とシークレット管理" />
 
       <div
         className={css({
@@ -29,7 +30,7 @@ export default function SettingsPage() {
           lgDown: { gridTemplateColumns: "1fr" },
         })}
       >
-        <Panel title="Workspace Settings">
+        <Panel title="Platform Settings">
           <div className={css({ display: "grid", gap: 3 })}>
             <SettingField label="Namespace" defaultValue={settings?.namespace ?? "maxicloud-prod"} />
             <SettingField label="Container Registry" defaultValue={settings?.registry ?? "ghcr.io/maximum"} />

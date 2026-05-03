@@ -1,21 +1,15 @@
-import { css, cx } from "styled-system/css";
+import type { ReactNode } from "react";
+import { Form } from "~/components/ui/form";
 
 type FieldProps = {
   label: string;
-  children: React.ReactNode;
+  children: ReactNode;
   labelClassName?: string;
+  required?: boolean;
 };
 
-export const Field = ({ label, children, labelClassName }: FieldProps) => (
-  <label className={css({ display: "grid", gap: 1 })}>
-    <span
-      className={cx(
-        css({ fontSize: "sm", fontWeight: 600, color: "gray.600" }),
-        labelClassName,
-      )}
-    >
-      {label}
-    </span>
-    {children}
-  </label>
+export const Field = ({ label, children, labelClassName, required }: FieldProps) => (
+  <Form.Field.WithLabel label={label} required={required} labelClassName={labelClassName}>
+    {() => children}
+  </Form.Field.WithLabel>
 );

@@ -6,6 +6,7 @@ import { StatusBadge } from "~/components/ui/badge";
 import { Breadcrumb } from "~/components/ui/breadcrumb";
 import { Panel } from "~/components/ui/panel";
 import { Table } from "~/components/ui/table";
+import { APP_ROUTES } from "~/constant";
 import { useDeploymentsData } from "~/routes/deployments/internal/hooks/use-deployments-data";
 
 export default function DeploymentsPage() {
@@ -15,7 +16,7 @@ export default function DeploymentsPage() {
     <div className={css({ display: "grid", gap: 4 })}>
       <Breadcrumb
         items={[
-          { label: "Dashboard", href: "/" },
+          { label: "Dashboard", href: APP_ROUTES.home },
           { label: "Deployments", icon: <Layers size={14} /> },
         ]}
       />
@@ -53,7 +54,7 @@ export default function DeploymentsPage() {
                 <Table.Td>{deployment.startedAt}</Table.Td>
                 <Table.Td>{deployment.duration}</Table.Td>
                 <Table.Td>
-                  <Link to={`/deployments/${deployment.id}`} className={css({ color: "green.700", fontSize: "sm" })}>
+                  <Link to={APP_ROUTES.deploymentDetail(deployment.id)} className={css({ color: "green.700", fontSize: "sm" })}>
                     View
                   </Link>
                 </Table.Td>

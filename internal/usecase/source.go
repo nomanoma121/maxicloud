@@ -9,6 +9,7 @@ import (
 type SourceService interface {
 	GetRepositories(ctx context.Context) ([]domain.Repository, error)
 	GetBranches(ctx context.Context, repo domain.Repository) ([]string, error)
+	GetHeadCommit(ctx context.Context, repo domain.Repository, branch string) (domain.Commit, error)
 }
 
 type sourceService struct {
@@ -27,4 +28,8 @@ func (s *sourceService) GetRepositories(ctx context.Context) ([]domain.Repositor
 
 func (s *sourceService) GetBranches(ctx context.Context, repo domain.Repository) ([]string, error) {
 	return s.srcRepo.GetBranches(ctx, repo)
+}
+
+func (s *sourceService) GetHeadCommit(ctx context.Context, repo domain.Repository, branch string) (domain.Commit, error) {
+	return s.srcRepo.GetHeadCommit(ctx, repo, branch)
 }

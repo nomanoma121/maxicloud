@@ -43,16 +43,28 @@ export const SessionProvider = ({ children }: { children: React.ReactNode }) => 
       setUsers(nextUsers);
 
       const raw = window.localStorage.getItem(STORAGE_KEY);
+      let nextSession: SessionState | null = null;
+
       if (raw) {
         try {
           const parsed = JSON.parse(raw) as SessionState;
           if (parsed?.userId) {
-            setSession(parsed);
+            nextSession = parsed;
           }
         } catch {
           window.localStorage.removeItem(STORAGE_KEY);
         }
       }
+
+      if (!nextSession) {
+        const fallbackUser = nextUsers.find((user) => user.status === "active") ?? nextUsers[0];
+        if (fallbackUser) {
+          nextSession = { userId: fallbackUser.id };
+          window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextSession));
+        }
+      }
+
+      setSession(nextSession);
 
       setIsReady(true);
     };

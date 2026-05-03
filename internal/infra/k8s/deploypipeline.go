@@ -53,7 +53,8 @@ func (r *deploymentPipelineRepository) CreatePipeline(ctx context.Context, pipel
 			},
 		},
 		Spec: maxicloudv1alpha1.DeploymentPipelineSpec{
-			ApplicationName: pipeline.ApplicationID,
+			// Application CR name is required by the controller reconcile flow.
+			ApplicationName: appList.Items[0].Name,
 			Owner:           pipeline.Repo.Owner,
 			Repo:            pipeline.Repo.Name,
 			SHA:             pipeline.Commit.SHA,
@@ -129,7 +130,7 @@ func crToPipeline(cr *maxicloudv1alpha1.DeploymentPipeline) *domain.DeploymentPi
 	}
 	return &domain.DeploymentPipeline{
 		ID:            cr.Labels[labelPipelineID],
-		ApplicationID: cr.Spec.ApplicationName,
+		ApplicationID: cr.Labels[labelAppID],
 		OwnerUserID:   cr.Labels[labelOwnerUserID],
 		Repo: domain.Repository{
 			Owner: cr.Spec.Owner,

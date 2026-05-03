@@ -3,6 +3,7 @@ import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 import { css } from "styled-system/css";
 import { RepositoryProvider } from "~/hooks/use-repository";
 import { SessionProvider } from "~/hooks/use-session";
+import { ToastProvider } from "~/hooks/use-toast/toast-provider";
 import stylesheet from "./app.css?url";
 
 export const links = () => [
@@ -68,9 +69,11 @@ export default function App() {
   return (
     <RepositoryProvider>
       <QueryClientProvider client={queryClient}>
-        <SessionProvider>
-          <Outlet />
-        </SessionProvider>
+        <ToastProvider>
+          <SessionProvider>
+            <Outlet />
+          </SessionProvider>
+        </ToastProvider>
       </QueryClientProvider>
     </RepositoryProvider>
   );

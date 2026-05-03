@@ -17,9 +17,14 @@ type Application struct {
 	Name      string
 	Source    ApplicationSource
 	OwnerID   string
-	URL       string
 	CreatedAt time.Time
 	UpdatedAt time.Time
+}
+
+type ApplicationStatus struct {
+	Phase            string
+	URL              string
+	LatestDeploymentID string
 }
 
 type ApplicationSource struct {

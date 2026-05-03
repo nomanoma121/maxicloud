@@ -4,7 +4,7 @@ import {
   useProjectsQuery,
   useApplicationsQuery,
   useUsersQuery,
-} from "~/hooks/use-maxicloud-query";
+} from "~/hooks";
 import { indexByID } from "~/utils/collection";
 
 export const useHomeData = () => {

@@ -98,6 +98,9 @@ message CreateApplicationRequest {
 
 message CreateApplicationResponse {
   Application application = 1;
+  optional string initial_deployment_id = 2;
+  bool initial_deployment_started = 3;
+  optional string initial_deployment_error = 4;
 }
 
 message GetApplicationRequest {

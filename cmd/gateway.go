@@ -58,10 +58,10 @@ func runGateway(cmd *cobra.Command, args []string) error {
 	srcRepo := github.NewClient(cfg.GitHubAppID, []byte(privateKey), cfg.InstallationID)
 
 	deploySvc := usecase.NewDeploymentService(deployRepo, deployPipelineRepo, appRepo)
-	appSvc := usecase.NewApplicationService(appRepo)
 	prjSvc := usecase.NewProjectUsecase(prjRepo)
 	domainSvc := usecase.NewDomainService(appRepo, strings.Split(cfg.AvailableDomains, ","))
 	srcSvc := usecase.NewSourceService(srcRepo)
+	appSvc := usecase.NewApplicationService(appRepo, deploySvc, srcSvc)
 
 	ghHandler := handler.NewGitHubHandler(deploySvc, srcSvc, handler.GitHubHandlerConfig{
 		GitHubAppName:  cfg.GitHubAppName,

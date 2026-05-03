@@ -26,7 +26,7 @@ func (h *ApplicationHandler) CreateApplication(ctx context.Context, req *v1.Crea
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, err)
 	}
-	app, err := h.uc.CreateApplication(ctx, usecase.CreateApplicationParams{
+	result, err := h.uc.CreateApplication(ctx, usecase.CreateApplicationParams{
 		Name:    req.Name,
 		OwnerID: req.OwnerId,
 		Spec:    spec,
@@ -34,7 +34,12 @@ func (h *ApplicationHandler) CreateApplication(ctx context.Context, req *v1.Crea
 	if err != nil {
 		return nil, toConnectError(err)
 	}
-	return &v1.CreateApplicationResponse{Application: toProtoApplication(app)}, nil
+	return &v1.CreateApplicationResponse{
+		Application:              toProtoApplication(result.Application),
+		InitialDeploymentId:      optionalString(result.InitialDeploymentID),
+		InitialDeploymentStarted: result.InitialDeploymentStarted,
+		InitialDeploymentError:   optionalString(result.InitialDeploymentError),
+	}, nil
 }
 
 func (h *ApplicationHandler) GetApplication(ctx context.Context, req *v1.GetApplicationRequest) (*v1.GetApplicationResponse, error) {
@@ -171,4 +176,11 @@ func toApplicationSpec(s *v1.ApplicationSpec) (domain.ApplicationSpec, error) {
 		spec.Secrets = append(spec.Secrets, domain.KeyValue{Key: key, Value: val})
 	}
 	return spec, nil
+}
+
+func optionalString(value string) *string {
+	if value == "" {
+		return nil
+	}
+	return &value
 }

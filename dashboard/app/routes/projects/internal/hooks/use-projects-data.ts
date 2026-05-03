@@ -1,11 +1,11 @@
 import { useMemo } from "react";
 import {
   useDeploymentsQuery,
-  useProjectQuery,
   useProjectsQuery,
   useApplicationsQuery,
   useUsersQuery,
-} from "~/hooks/use-maxicloud-query";
+} from "~/hooks";
+import { useProject } from "~/routes/projects/internal/hooks/use-project";
 import { indexByID } from "~/utils/collection";
 
 export const useProjectsData = () => {
@@ -23,7 +23,7 @@ export const useProjectsData = () => {
 
 export const useProjectDetailData = (projectId: string) => {
   const { data: users = [] } = useUsersQuery();
-  const { data: project } = useProjectQuery(projectId);
+  const { data: project } = useProject(projectId);
   const { data: applications = [] } = useApplicationsQuery();
   const { data: deployments = [] } = useDeploymentsQuery();
 

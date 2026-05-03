@@ -21,7 +21,7 @@ export const formatDuration = (startedAt?: Timestamp, finishedAt?: Timestamp): s
     return "-";
   }
   if (!finishedAt) {
-    return "running";
+    return "-";
   }
   const ms = timestampDate(finishedAt).getTime() - timestampDate(startedAt).getTime();
   if (ms < 1000) {

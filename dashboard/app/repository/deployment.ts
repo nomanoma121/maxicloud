@@ -35,8 +35,12 @@ const toDeployment = (deployment: ProtoDeployment): DeploymentRun => {
     ownerId: deployment.ownerUserId,
     revision: shortSHA || "-",
     commit: sha || "-",
+    commitMessage: deployment.commit?.message || "-",
+    commitAuthor: deployment.commit?.authorName || "-",
+    commitTimestamp: formatTimestamp(deployment.commit?.timestamp),
     status: mapStatus(deployment.status),
     startedAt: formatTimestamp(deployment.startedAt),
+    finishedAt: formatTimestamp(deployment.finishedAt),
     duration: formatDuration(deployment.startedAt, deployment.finishedAt),
   };
 };

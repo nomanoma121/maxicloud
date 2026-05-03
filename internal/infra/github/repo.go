@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/url"
 	"strings"
+	"time"
 
 	gh "github.com/google/go-github/v72/github"
 	"github.com/saitamau-maximum/maxicloud/internal/domain"
@@ -58,6 +59,36 @@ func (c *client) GetBranches(ctx context.Context, repo domain.Repository) ([]str
 		result[i] = b.GetName()
 	}
 	return result, nil
+}
+
+func (c *client) GetHeadCommit(ctx context.Context, repo domain.Repository, branch string) (domain.Commit, error) {
+	ghClient, err := c.newGHClient()
+	if err != nil {
+		return domain.Commit{}, err
+	}
+	commit, _, err := ghClient.Repositories.GetCommit(ctx, repo.Owner, repo.Name, branch, nil)
+	if err != nil {
+		return domain.Commit{}, err
+	}
+
+	authorName := ""
+	timestamp := time.Now()
+	if commit.GetCommit() != nil && commit.GetCommit().GetAuthor() != nil {
+		authorName = commit.GetCommit().GetAuthor().GetName()
+		if date := commit.GetCommit().GetAuthor().GetDate(); !date.Time.IsZero() {
+			timestamp = date.Time
+		}
+	}
+	if authorName == "" && commit.GetAuthor() != nil {
+		authorName = commit.GetAuthor().GetLogin()
+	}
+
+	return domain.Commit{
+		SHA:        commit.GetSHA(),
+		Message:    commit.GetCommit().GetMessage(),
+		AuthorName: authorName,
+		Timestamp:  timestamp,
+	}, nil
 }
 
 func ParseRepoURL(repoURL string) (owner, repo string, err error) {

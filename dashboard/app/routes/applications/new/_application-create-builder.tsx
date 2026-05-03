@@ -3,6 +3,7 @@ import { css } from "styled-system/css";
 import { DashboardHeader } from "~/components/layout/dashboard-header";
 import { Breadcrumb } from "~/components/ui/breadcrumb";
 import { Panel } from "~/components/ui/panel";
+import { APP_ROUTES } from "~/constant";
 import {
   ActionRow,
   BuildSection,
@@ -62,8 +63,8 @@ export const ApplicationCreateBuilder = () => {
     <div className={css({ display: "grid", gap: 4 })}>
       <Breadcrumb
         items={[
-          { label: "Dashboard", href: "/" },
-          { label: "Applications", href: "/applications", icon: <Box size={14} /> },
+          { label: "Dashboard", href: APP_ROUTES.home },
+          { label: "Applications", href: APP_ROUTES.applications, icon: <Box size={14} /> },
           { label: "New", icon: <PlusCircle size={14} /> },
         ]}
       />

@@ -118,14 +118,28 @@ func (s *deploymentService) GetDeployment(ctx context.Context, deploymentID stri
 		}
 		return nil, err
 	}
-	return deploy, nil
+	return s.withPipelineStatus(ctx, deploy)
 }
 
 func (s *deploymentService) ListDeployments(ctx context.Context, applicationID string) ([]domain.Deployment, error) {
 	if applicationID == "" {
 		return nil, domain.ValidationError{Message: "application_id is required"}
 	}
-	return s.deployRepo.ListDeploymentsByApplication(ctx, applicationID)
+	deployments, err := s.deployRepo.ListDeploymentsByApplication(ctx, applicationID)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]domain.Deployment, 0, len(deployments))
+	for i := range deployments {
+		merged, err := s.withPipelineStatus(ctx, &deployments[i])
+		if err != nil {
+			return nil, err
+		}
+		if merged != nil {
+			result = append(result, *merged)
+		}
+	}
+	return result, nil
 }
 
 func (s *deploymentService) HandleGitHubEvent(ctx context.Context, event domain.DeploymentEvent) error {
@@ -167,4 +181,25 @@ func (s *deploymentService) handleRepoDeploymentEvent(ctx context.Context, event
 
 func isNotFoundError(err error) bool {
 	return err != nil && strings.Contains(strings.ToLower(err.Error()), "not found")
+}
+
+func (s *deploymentService) withPipelineStatus(ctx context.Context, deploy *domain.Deployment) (*domain.Deployment, error) {
+	if deploy == nil {
+		return nil, nil
+	}
+	pipeline, err := s.pipelineRepo.GetPipeline(ctx, deploy.ID)
+	if err != nil {
+		return nil, fmt.Errorf("get deployment pipeline: %w", err)
+	}
+	if pipeline == nil {
+		return deploy, nil
+	}
+
+	merged := *deploy
+	merged.Status = pipeline.Status
+	if !pipeline.StartedAt.IsZero() {
+		merged.StartedAt = pipeline.StartedAt
+	}
+	merged.FinishedAt = pipeline.FinishedAt
+	return &merged, nil
 }

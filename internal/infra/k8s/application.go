@@ -41,11 +41,11 @@ func (r *applicationRepository) CreateApplication(ctx context.Context, app domai
 	branchLabel := normalizeBranchForLabel(app.Spec.Source.Branch)
 	cr := &maxicloudv1alpha1.Application{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: app.Name,
-			Namespace:    projectNamespace(app.Spec.ProjectID),
+			Name:      app.Name,
+			Namespace: projectNamespace(app.Spec.ProjectID),
 			Labels: map[string]string{
-				labelApplicationID:  app.ID,
-				labelApplicationName: app.Name,
+				labelApplicationID:    app.ID,
+				labelApplicationName:  app.Name,
 				labelApplicationOwner: app.OwnerID,
 				labelSourceRepoOwner:  app.Spec.Source.Repo.Owner,
 				labelSourceRepoName:   app.Spec.Source.Repo.Name,
@@ -61,17 +61,13 @@ func (r *applicationRepository) CreateApplication(ctx context.Context, app domai
 	}
 	if app.Spec.Domain != nil {
 		cr.Spec.Expose = &maxicloudv1alpha1.ExposeConfig{
-			Domain: app.Spec.Domain.FQDN(),
-			Port:   app.Spec.Port,
+			Domain:           app.Spec.Domain.FQDN(),
+			Port:             app.Spec.Port,
 			IngressClassName: r.ingressClassName,
 		}
 	}
 	if err := r.Create(ctx, cr); err != nil {
 		return nil, fmt.Errorf("create application: %w", err)
-	}
-	cr.Labels[labelApplicationID] = cr.Name
-	if err := r.Update(ctx, cr); err != nil {
-		return nil, fmt.Errorf("set app-id label: %w", err)
 	}
 	return crToApplication(cr), nil
 }

@@ -1,14 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router";
-import { useCreateApplicationMutation } from "~/hooks/use-maxicloud-mutation";
-import {
-  useAvailableDomainsQuery,
-  useDomainAvailabilityQuery,
-  useGitHubBranchesQuery,
-  useGitHubRepositoriesQuery,
-  useProjectsQuery,
-} from "~/hooks/use-maxicloud-query";
+import { useNavigate, useSearchParams } from "react-router";
+import { APP_ROUTES } from "~/constant";
+import { useProjectsQuery } from "~/hooks";
 import { useSession } from "~/hooks/use-session";
+import { useToast } from "~/hooks/use-toast";
+import { useCreateApplication } from "./use-create-application";
+import { useAvailableDomains, useDomainAvailability } from "./use-domain";
+import { useGitHubBranches, useGitHubRepositories } from "./use-source";
 
 export type DockerfileSource = "path" | "inline";
 export type ExposureMode = "public" | "private" | "idp";
@@ -84,11 +82,13 @@ const isValidPort = (value: string) => {
 };
 
 export const useApplicationCreateForm = () => {
+  const navigate = useNavigate();
+  const { pushToast } = useToast();
   const { currentUser } = useSession();
   const { data: projects = [] } = useProjectsQuery();
-  const { data: githubRepositories = [] } = useGitHubRepositoriesQuery();
-  const { data: availableDomains = [] } = useAvailableDomainsQuery();
-  const { mutateAsync: createApplication, isPending } = useCreateApplicationMutation();
+  const { data: githubRepositories = [] } = useGitHubRepositories();
+  const { data: availableDomains = [] } = useAvailableDomains();
+  const { mutateAsync: createApplication, isPending } = useCreateApplication();
 
   const [searchParams] = useSearchParams();
   const [projectId, setProjectId] = useState("");
@@ -121,8 +121,8 @@ export const useApplicationCreateForm = () => {
     trimmedDomainPrefix.length > 0 &&
     trimmedDomainSuffix.length > 0;
 
-  const { data: branches = [] } = useGitHubBranchesQuery(repository?.fullName ?? "");
-  const domainAvailabilityQuery = useDomainAvailabilityQuery({
+  const { data: branches = [] } = useGitHubBranches(repository?.fullName ?? "");
+  const domainAvailabilityQuery = useDomainAvailability({
     subdomain: trimmedDomainPrefix,
     rootDomain: trimmedDomainSuffix,
     enabled: false,
@@ -225,6 +225,11 @@ export const useApplicationCreateForm = () => {
     if (exposureMode !== "private") {
       const available = await checkDomainAvailability();
       if (available !== true) {
+        pushToast({
+          type: "error",
+          title: "Domain is unavailable",
+          description: "指定したドメインは現在利用できません",
+        });
         return;
       }
     }
@@ -239,23 +244,57 @@ export const useApplicationCreateForm = () => {
       return acc;
     }, {});
 
-    await createApplication({
-      projectId,
-      ownerId: currentUser.id,
-      name: applicationName,
-      repositoryOwner: parsedRepository.owner,
-      repositoryName: parsedRepository.name,
-      branch,
-      dockerfileSource,
-      dockerfilePath,
-      dockerfileInline,
-      accessMode: exposureMode,
-      domainSubdomain: exposureMode === "private" ? undefined : trimmedDomainPrefix,
-      domainRootDomain: exposureMode === "private" ? undefined : trimmedDomainSuffix,
-      port: parsePort(port),
-      environmentVariables: parseKeyValueLines(envText),
-      secrets: parsedSecrets,
-    });
+    try {
+      const result = await createApplication({
+        projectId,
+        ownerId: currentUser.id,
+        name: applicationName,
+        repositoryOwner: parsedRepository.owner,
+        repositoryName: parsedRepository.name,
+        branch,
+        dockerfileSource,
+        dockerfilePath,
+        dockerfileInline,
+        accessMode: exposureMode,
+        domainSubdomain: exposureMode === "private" ? undefined : trimmedDomainPrefix,
+        domainRootDomain: exposureMode === "private" ? undefined : trimmedDomainSuffix,
+        port: parsePort(port),
+        environmentVariables: parseKeyValueLines(envText),
+        secrets: parsedSecrets,
+      });
+
+      if (result.initialDeploymentStarted && result.initialDeploymentID) {
+        pushToast({
+          type: "success",
+          title: "Deployment started",
+          description: "初回デプロイを開始しました",
+        });
+        navigate(APP_ROUTES.deploymentDetail(result.initialDeploymentID));
+        return;
+      }
+
+      if (result.initialDeploymentError) {
+        pushToast({
+          type: "info",
+          title: "Application created",
+          description: "初回デプロイの開始に失敗しました",
+        });
+        navigate(`${APP_ROUTES.applicationDetail(result.application.id)}?deploy_start=failed`);
+        return;
+      }
+
+      pushToast({
+        type: "success",
+        title: "Application created",
+      });
+      navigate(APP_ROUTES.applicationDetail(result.application.id));
+    } catch (error) {
+      pushToast({
+        type: "error",
+        title: "Failed to create application",
+        description: error instanceof Error ? error.message : "unknown error",
+      });
+    }
   };
 
   const canSubmit =
