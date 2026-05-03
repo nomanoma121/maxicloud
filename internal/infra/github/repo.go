@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"strings"
 
+	gh "github.com/google/go-github/v72/github"
 	"github.com/saitamau-maximum/maxicloud/internal/domain"
 )
 
@@ -14,17 +15,32 @@ func (c *client) GetRepositories(ctx context.Context) ([]domain.Repository, erro
 	if err != nil {
 		return nil, err
 	}
-	res, _, err := ghClient.Apps.ListRepos(ctx, nil)
-	if err != nil {
-		return nil, err
+	// TODO: ページング対応
+	opt := &gh.ListOptions{
+		Page:    1,
+		PerPage: 100,
 	}
-	result := make([]domain.Repository, len(res.Repositories))
-	for i, r := range res.Repositories {
-		result[i] = domain.Repository{
-			Owner: r.GetOwner().GetLogin(),
-			Name:  r.GetName(),
+	result := make([]domain.Repository, 0, 100)
+
+	for {
+		res, resp, err := ghClient.Apps.ListRepos(ctx, opt)
+		if err != nil {
+			return nil, err
 		}
+
+		for _, r := range res.Repositories {
+			result = append(result, domain.Repository{
+				Owner: r.GetOwner().GetLogin(),
+				Name:  r.GetName(),
+			})
+		}
+
+		if resp.NextPage == 0 {
+			break
+		}
+		opt.Page = resp.NextPage
 	}
+
 	return result, nil
 }
 
