@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import type { Application } from "~/types";
 import { useProjectDetailData } from "~/routes/projects/internal/hooks/use-projects-data";
 
 export const useProjectDetailView = (projectId: string) => {
@@ -11,11 +12,11 @@ export const useProjectDetailView = (projectId: string) => {
     return applications.filter((application) => application.projectId === project.id);
   }, [applications, project]);
 
-  const applicationNameByID = useMemo(
+  const applicationByID = useMemo(
     () =>
       Object.fromEntries(
-        projectApplications.map((application) => [application.id, application.name] as const),
-      ),
+        projectApplications.map((application) => [application.id, application] as [string, Application]),
+      ) as Record<string, Application | undefined>,
     [projectApplications],
   );
 
@@ -24,6 +25,11 @@ export const useProjectDetailView = (projectId: string) => {
     return deployments.filter((deployment) => applicationIDSet.has(deployment.applicationId));
   }, [deployments, projectApplications]);
 
+  const projectByID = useMemo(
+    () => (project ? { [project.id]: project } : {}) as Record<string, typeof project>,
+    [project],
+  );
+
   const ownerName = project ? userByID[project.ownerId]?.displayName ?? "-" : "-";
 
   return {
@@ -31,7 +37,8 @@ export const useProjectDetailView = (projectId: string) => {
     ownerName,
     userByID,
     projectApplications,
-    applicationNameByID,
+    applicationByID,
+    projectByID,
     projectDeployments,
   };
 };

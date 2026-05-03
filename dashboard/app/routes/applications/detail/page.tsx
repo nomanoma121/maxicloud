@@ -1,11 +1,11 @@
-import { Link, useParams, useSearchParams } from "react-router";
+import { useParams, useSearchParams } from "react-router";
 import { Box } from "react-feather";
 import { css } from "styled-system/css";
+import { DeploymentsTable } from "~/components/feature/deployments-table";
 import { DashboardHeader } from "~/components/layout/dashboard-header";
 import { StatusBadge } from "~/components/ui/badge";
 import { Breadcrumb } from "~/components/ui/breadcrumb";
 import { Panel } from "~/components/ui/panel";
-import { Table } from "~/components/ui/table";
 import { APP_ROUTES } from "~/constant";
 import { useApplicationDetailData } from "~/routes/applications/internal/hooks/use-applications-data";
 import { ApplicationNotFoundState } from "./internal/components/not-found-state";
@@ -23,7 +23,17 @@ export default function ApplicationDetailPage() {
 
   const owner = userByID[application.ownerId];
   const project = projectByID[application.projectId];
-  const applicationDeployments = deployments.filter((deployment) => deployment.applicationId === application.id);
+  const deploymentRows = deployments
+    .filter((d) => d.applicationId === application.id)
+    .map((d) => ({
+      id: d.id,
+      projectName: project?.name ?? "-",
+      applicationName: application.name,
+      ownerName: userByID[d.ownerId]?.displayName ?? "-",
+      status: d.status,
+      startedAt: d.startedAt,
+      duration: d.duration,
+    }));
 
   return (
     <div className={css({ display: "grid", gap: 4 })}>
@@ -67,36 +77,7 @@ export default function ApplicationDetailPage() {
       </Panel>
 
       <Panel title="Recent Deployments" subtitle="このApplicationに紐づく履歴">
-        <Table.Root>
-          <thead>
-            <Table.Tr>
-              <Table.Th>Revision</Table.Th>
-              <Table.Th>Commit</Table.Th>
-              <Table.Th>Status</Table.Th>
-              <Table.Th>Started</Table.Th>
-              <Table.Th>Duration</Table.Th>
-              <Table.Th>Detail</Table.Th>
-            </Table.Tr>
-          </thead>
-          <tbody>
-            {applicationDeployments.map((deployment) => (
-              <Table.Tr key={deployment.id}>
-                <Table.Td>{deployment.revision}</Table.Td>
-                <Table.Td>{deployment.commit}</Table.Td>
-                <Table.Td>
-                  <StatusBadge status={deployment.status} />
-                </Table.Td>
-                <Table.Td>{deployment.startedAt}</Table.Td>
-                <Table.Td>{deployment.duration}</Table.Td>
-                <Table.Td>
-                  <Link to={APP_ROUTES.deploymentDetail(deployment.id)} className={css({ color: "green.700", fontSize: "sm" })}>
-                    View
-                  </Link>
-                </Table.Td>
-              </Table.Tr>
-            ))}
-          </tbody>
-        </Table.Root>
+        <DeploymentsTable rows={deploymentRows} />
       </Panel>
     </div>
   );

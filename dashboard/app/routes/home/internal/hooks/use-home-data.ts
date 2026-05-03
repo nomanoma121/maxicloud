@@ -18,16 +18,15 @@ export const useHomeData = () => {
     [users],
   );
 
-  const applicationByID = useMemo(
-    () => indexByID(applications),
-    [applications],
-  );
+  const projectByID = useMemo(() => indexByID(projects), [projects]);
+  const applicationByID = useMemo(() => indexByID(applications), [applications]);
 
   return {
     projects,
     applications,
     deployments,
     userByID,
+    projectByID,
     applicationByID,
   };
 };

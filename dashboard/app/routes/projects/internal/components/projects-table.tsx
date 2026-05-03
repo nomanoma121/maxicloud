@@ -23,12 +23,11 @@ export const ProjectsTable = ({
     <Table.Root>
       <thead>
         <Table.Tr>
-          <Table.Th>Project</Table.Th>
-          <Table.Th>Owner</Table.Th>
-          <Table.Th>Applications</Table.Th>
-          <Table.Th>Healthy</Table.Th>
-          <Table.Th>Updated</Table.Th>
-          <Table.Th>Detail</Table.Th>
+          <Table.Th>プロジェクト</Table.Th>
+          <Table.Th>グループ</Table.Th>
+          <Table.Th>アプリケーション</Table.Th>
+          <Table.Th>最終更新</Table.Th>
+          <Table.Th>詳細</Table.Th>
         </Table.Tr>
       </thead>
       <tbody>
@@ -37,20 +36,16 @@ export const ProjectsTable = ({
 
           return (
             <Table.Tr key={project.id}>
-              <Table.Td>
-                <strong>{project.name}</strong>
-                <div className={css({ color: "gray.500", fontSize: "xs" })}>{project.description}</div>
-              </Table.Td>
+              <Table.Td>{project.name}</Table.Td>
               <Table.Td>{userByID[project.ownerId]?.displayName}</Table.Td>
               <Table.Td>{count?.total ?? 0}</Table.Td>
-              <Table.Td>{count?.healthy ?? 0}</Table.Td>
               <Table.Td>{project.updatedAt}</Table.Td>
               <Table.Td>
                 <Link
                   to={APP_ROUTES.projectDetail(project.id)}
                   className={css({ color: "green.700", fontSize: "sm", textDecoration: "none" })}
                 >
-                  Detail
+                  詳細
                 </Link>
               </Table.Td>
             </Table.Tr>

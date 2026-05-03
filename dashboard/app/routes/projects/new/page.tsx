@@ -35,8 +35,8 @@ export default function NewProjectPage() {
   } = useForm<CreateProjectInput, unknown, CreateProjectOutput>({
     resolver: valibotResolver(CreateProjectSchema),
     defaultValues: {
-      name: "my-project",
-      description: "複数Applicationを管理するProject",
+      name: "",
+      description: "",
       ownerId: "",
     },
   });

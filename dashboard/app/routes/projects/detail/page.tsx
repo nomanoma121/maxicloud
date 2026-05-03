@@ -17,7 +17,8 @@ export default function ProjectDetailPage() {
     ownerName,
     userByID,
     projectApplications,
-    applicationNameByID,
+    applicationByID,
+    projectByID,
     projectDeployments,
   } = useProjectDetailView(projectId);
 
@@ -48,13 +49,16 @@ export default function ProjectDetailPage() {
 
       <ProjectApplicationsPanel
         projectId={project.id}
+        projectName={project.name}
         applications={projectApplications}
         userByID={userByID}
       />
 
       <ProjectDeploymentsPanel
         deployments={projectDeployments}
-        applicationNameByID={applicationNameByID}
+        applicationByID={applicationByID}
+        projectByID={projectByID}
+        userByID={userByID}
       />
     </div>
   );

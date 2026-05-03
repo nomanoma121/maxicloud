@@ -1,22 +1,36 @@
 import { Link } from "react-router";
 import { css } from "styled-system/css";
-import { StatusBadge } from "~/components/ui/badge";
+import { ApplicationsTable } from "~/components/feature/applications-table";
+import type { ApplicationRowItem } from "~/components/feature/applications-table";
 import { Panel } from "~/components/ui/panel";
-import { Table } from "~/components/ui/table";
 import { APP_ROUTES } from "~/constant";
 import type { Application, UserAccount } from "~/types";
 
 type ProjectApplicationsPanelProps = {
   projectId: string;
+  projectName: string;
   applications: Application[];
   userByID: Record<string, UserAccount | undefined>;
 };
 
 export const ProjectApplicationsPanel = ({
   projectId,
+  projectName,
   applications,
   userByID,
 }: ProjectApplicationsPanelProps) => {
+  const rows: ApplicationRowItem[] = applications.map((a) => ({
+    id: a.id,
+    name: a.name,
+    projectId: a.projectId,
+    projectName,
+    ownerName: userByID[a.ownerId]?.displayName ?? "-",
+    status: a.status,
+    cpu: a.cpu,
+    memory: a.memory,
+    updatedAt: a.updatedAt,
+  }));
+
   return (
     <Panel
       title="Applications"
@@ -46,44 +60,7 @@ export const ProjectApplicationsPanel = ({
         </Link>
       )}
     >
-      <Table.Root>
-        <thead>
-          <Table.Tr>
-            <Table.Th>Name</Table.Th>
-            <Table.Th>Repository</Table.Th>
-            <Table.Th>Owner</Table.Th>
-            <Table.Th>Status</Table.Th>
-            <Table.Th>CPU</Table.Th>
-            <Table.Th>Memory</Table.Th>
-            <Table.Th>Detail</Table.Th>
-          </Table.Tr>
-        </thead>
-        <tbody>
-          {applications.map((application) => (
-            <Table.Tr key={application.id}>
-              <Table.Td>
-                <strong>{application.name}</strong>
-                <div className={css({ color: "gray.500", fontSize: "xs" })}>{application.branch}</div>
-              </Table.Td>
-              <Table.Td>{application.repository}</Table.Td>
-              <Table.Td>{userByID[application.ownerId]?.displayName}</Table.Td>
-              <Table.Td>
-                <StatusBadge status={application.status} />
-              </Table.Td>
-              <Table.Td>{application.cpu}</Table.Td>
-              <Table.Td>{application.memory}</Table.Td>
-              <Table.Td>
-                <Link
-                  to={APP_ROUTES.applicationDetail(application.id)}
-                  className={css({ color: "green.700", fontSize: "sm" })}
-                >
-                  View
-                </Link>
-              </Table.Td>
-            </Table.Tr>
-          ))}
-        </tbody>
-      </Table.Root>
+      <ApplicationsTable rows={rows} />
     </Panel>
   );
 };

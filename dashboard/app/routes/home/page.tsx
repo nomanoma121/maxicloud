@@ -1,18 +1,30 @@
-import { Link } from "react-router";
 import { Home } from "react-feather";
 import { css } from "styled-system/css";
+import { DeploymentsTable } from "~/components/feature/deployments-table";
+import type { DeploymentRowItem } from "~/components/feature/deployments-table";
 import { DashboardHeader } from "~/components/layout/dashboard-header";
-import { StatusBadge } from "~/components/ui/badge";
 import { Breadcrumb } from "~/components/ui/breadcrumb";
 import { MetricCard } from "~/components/ui/metric-card";
 import { Panel } from "~/components/ui/panel";
-import { Table } from "~/components/ui/table";
 import { APP_ROUTES } from "~/constant";
 import { useHomeData } from "~/routes/home/internal/hooks/use-home-data";
 
 export default function HomePage() {
-  const { deployments, projects, applications, applicationByID, userByID } = useHomeData();
+  const { deployments, projects, applications, projectByID, applicationByID, userByID } = useHomeData();
   const healthyApplications = applications.filter((application) => application.status === "healthy").length;
+
+  const rows: DeploymentRowItem[] = deployments.slice(0, 6).map((d) => {
+    const application = applicationByID[d.applicationId];
+    return {
+      id: d.id,
+      projectName: projectByID[application?.projectId ?? ""]?.name ?? "-",
+      applicationName: application?.name ?? "-",
+      ownerName: userByID[d.ownerId]?.displayName ?? "-",
+      status: d.status,
+      startedAt: d.startedAt,
+      duration: d.duration,
+    };
+  });
 
   return (
     <div className={css({ display: "grid", gap: 4 })}>
@@ -43,41 +55,7 @@ export default function HomePage() {
       </div>
 
       <Panel title="Recent Deployments" subtitle="直近の実行履歴">
-        <Table.Root>
-          <thead>
-            <Table.Tr>
-              <Table.Th>Revision</Table.Th>
-              <Table.Th>Application</Table.Th>
-              <Table.Th>Project</Table.Th>
-              <Table.Th>Owner</Table.Th>
-              <Table.Th>Status</Table.Th>
-              <Table.Th>Started</Table.Th>
-              <Table.Th>Detail</Table.Th>
-            </Table.Tr>
-          </thead>
-          <tbody>
-            {deployments.slice(0, 6).map((deployment) => (
-              <Table.Tr key={deployment.id}>
-                <Table.Td>
-                  <strong>{deployment.revision}</strong>
-                  <div className={css({ color: "gray.500", fontSize: "xs" })}>{deployment.commit}</div>
-                </Table.Td>
-                <Table.Td>{applicationByID[deployment.applicationId]?.name}</Table.Td>
-                <Table.Td>{projects.find((item) => item.id === applicationByID[deployment.applicationId]?.projectId)?.name}</Table.Td>
-                <Table.Td>{userByID[deployment.ownerId]?.displayName}</Table.Td>
-                <Table.Td>
-                  <StatusBadge status={deployment.status} />
-                </Table.Td>
-                <Table.Td>{deployment.startedAt}</Table.Td>
-                <Table.Td>
-                  <Link to={APP_ROUTES.deploymentDetail(deployment.id)} className={css({ color: "green.700", fontSize: "sm" })}>
-                    View
-                  </Link>
-                </Table.Td>
-              </Table.Tr>
-            ))}
-          </tbody>
-        </Table.Root>
+        <DeploymentsTable rows={rows} />
       </Panel>
     </div>
   );
