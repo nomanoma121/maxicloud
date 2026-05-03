@@ -288,8 +288,6 @@ spec:
                 x-kubernetes-list-type: map
               image:
                 type: string
-              url:
-                type: string
             type: object
         required:
         - spec
