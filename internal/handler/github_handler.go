@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"connectrpc.com/connect"
 	gh "github.com/google/go-github/v72/github"
 	v1 "github.com/saitamau-maximum/maxicloud/gen/maxicloud/v1"
 	"github.com/saitamau-maximum/maxicloud/gen/maxicloud/v1/maxicloudv1connect"
@@ -175,4 +176,23 @@ func (h *GitHubHandler) ListRepositories(ctx context.Context, req *v1.ListReposi
 		})
 	}
 	return &v1.ListRepositoriesResponse{Repositories: responseRepos}, nil
+}
+
+func (h *GitHubHandler) ListBranches(ctx context.Context, req *v1.ListBranchesRequest) (*v1.ListBranchesResponse, error) {
+	repo := req.GetRepository()
+	if repo == nil {
+		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("repository is required"))
+	}
+	if repo.GetOwner() == "" || repo.GetName() == "" {
+		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("repository owner and name are required"))
+	}
+
+	branches, err := h.srcService.GetBranches(ctx, domain.Repository{
+		Owner: repo.GetOwner(),
+		Name:  repo.GetName(),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &v1.ListBranchesResponse{Branches: branches}, nil
 }

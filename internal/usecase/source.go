@@ -8,6 +8,7 @@ import (
 
 type SourceService interface {
 	GetRepositories(ctx context.Context) ([]domain.Repository, error)
+	GetBranches(ctx context.Context, repo domain.Repository) ([]string, error)
 }
 
 type sourceService struct {
