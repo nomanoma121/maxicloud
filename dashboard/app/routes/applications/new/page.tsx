@@ -1,9 +1,7 @@
-import { useNavigate } from "react-router";
 import { valibotResolver } from "@hookform/resolvers/valibot";
 import { FormProvider, useForm } from "react-hook-form";
 import { css } from "styled-system/css";
 import { Panel } from "~/components/ui/panel";
-import { APP_ROUTES } from "~/constant";
 import { useSession } from "~/hooks/use-session";
 import { useCreateApplication } from "./internal/hooks/use-create-application";
 import { useGitHubRepositories } from "./internal/hooks/use-source";
@@ -51,9 +49,8 @@ const parseRepositoryFullName = (fullName: string) => {
 };
 
 export default function NewApplicationPage() {
-  const navigate = useNavigate();
   const { currentUser } = useSession();
-  const { mutateAsync: createApplication, isPending } = useCreateApplication();
+  const { mutate: createApplication, isPending } = useCreateApplication();
   const { data: githubRepositories = [] } = useGitHubRepositories();
 
   const methods = useForm<CreateApplicationInputValues, unknown, CreateApplicationOutput>({
@@ -71,8 +68,8 @@ export default function NewApplicationPage() {
       domainSuffix: "",
       domainEdited: false,
       port: "3000",
-      envText: "NODE_ENV=production\nPORT=3000",
-      secrets: [{ id: "secret-1", key: "", value: "" }],
+      envText: "",
+      secrets: [],
     },
   });
 
@@ -81,7 +78,7 @@ export default function NewApplicationPage() {
     formState: { isValid },
   } = methods;
 
-  const onSubmit = async (data: CreateApplicationOutput) => {
+  const onSubmit = (data: CreateApplicationOutput) => {
     const ownerId = currentUser?.id;
     if (!ownerId) return;
 
@@ -104,7 +101,7 @@ export default function NewApplicationPage() {
     );
     const enableDomain = data.exposureMode !== "private";
 
-    await createApplication({
+    createApplication({
       projectId: data.projectId,
       ownerId,
       name: data.applicationName,
@@ -121,7 +118,6 @@ export default function NewApplicationPage() {
       environmentVariables,
       secrets,
     });
-    navigate(APP_ROUTES.applications);
   };
 
   return (
