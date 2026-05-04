@@ -1,14 +1,13 @@
 import { Folder } from "react-feather";
 import { css } from "styled-system/css";
 import { useFormContext } from "react-hook-form";
-import { Select } from "~/components/ui/form-controls";
+import { Form } from "~/components/ui/form";
 import { useProjectsQuery } from "~/hooks";
-import { Field } from "./field";
 import { SectionHeading } from "./section-heading";
 import { CreateApplicationInputValues } from "../schema";
 
 export const ProjectSection = () => {
-  const { register } = useFormContext<CreateApplicationInputValues>();
+  const { register, formState: { errors } } = useFormContext<CreateApplicationInputValues>();
   const { data: projects = [] } = useProjectsQuery();
 
   return (
@@ -18,16 +17,19 @@ export const ProjectSection = () => {
         title="0. Project"
         description="Applicationを追加するProject"
       />
-      <Field label="Project">
-        <Select {...register("projectId")}>
-          <option value="">選択してください</option>
-          {projects.map((project) => (
-            <option key={project.id} value={project.id}>
-              {project.name}
-            </option>
-          ))}
-        </Select>
-      </Field>
+      <Form.Field.Select
+        label="Project"
+        required
+        error={errors.projectId?.message}
+        {...register("projectId")}
+      >
+        <option value="">選択してください</option>
+        {projects.map((project) => (
+          <option key={project.id} value={project.id}>
+            {project.name}
+          </option>
+        ))}
+      </Form.Field.Select>
     </section>
   );
 };

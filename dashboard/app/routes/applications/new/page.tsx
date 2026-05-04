@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router";
 import { valibotResolver } from "@hookform/resolvers/valibot";
-import { FormProvider, useForm, useWatch } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import { css } from "styled-system/css";
 import { Panel } from "~/components/ui/panel";
 import { APP_ROUTES } from "~/constant";
@@ -18,7 +18,7 @@ import {
 import {
   CreateApplicationSchema,
   type CreateApplicationInputValues,
-  getPortError,
+  type CreateApplicationOutput,
 } from "~/routes/applications/new/internal/schema";
 import { useCreateApplication } from "./internal/hooks/use-create-application";
 import { useGitHubRepositories } from "./internal/hooks/use-source";
@@ -58,7 +58,7 @@ export default function NewApplicationPage() {
   const { mutateAsync: createApplication, isPending } = useCreateApplication();
   const { data: githubRepositories = [] } = useGitHubRepositories();
 
-  const methods = useForm<CreateApplicationInputValues>({
+  const methods = useForm<CreateApplicationInputValues, unknown, CreateApplicationOutput>({
     resolver: valibotResolver(CreateApplicationSchema),
     defaultValues: {
       projectId: "",
@@ -80,12 +80,10 @@ export default function NewApplicationPage() {
 
   const {
     handleSubmit,
-    control,
     formState: { isValid },
   } = methods;
-  const port = useWatch({ control, name: "port" }) ?? "";
 
-  const onSubmit = async (data: CreateApplicationInputValues) => {
+  const onSubmit = async (data: CreateApplicationOutput) => {
     const ownerId = currentUser?.id;
     if (!ownerId) {
       pushToast({ type: "error", title: "User is not available" });
@@ -106,7 +104,7 @@ export default function NewApplicationPage() {
     const secrets = data.secrets.reduce<Record<string, string>>(
       (
         acc: Record<string, string>,
-        item: CreateApplicationInputValues["secrets"][number],
+        item: CreateApplicationOutput["secrets"][number],
       ) => {
         if (item.key.trim().length > 0) {
           acc[item.key] = item.value;
@@ -115,7 +113,6 @@ export default function NewApplicationPage() {
       },
       {},
     );
-    const portNumber = Number.parseInt(data.port, 10);
     const enableDomain = data.exposureMode !== "private";
 
     try {
@@ -132,7 +129,7 @@ export default function NewApplicationPage() {
         accessMode: data.exposureMode,
         domainSubdomain: enableDomain ? data.domainPrefix : undefined,
         domainRootDomain: enableDomain ? data.domainSuffix : undefined,
-        port: portNumber,
+        port: data.port, // number (valibotのtransformで変換済み)
         environmentVariables,
         secrets,
       });
@@ -147,9 +144,6 @@ export default function NewApplicationPage() {
     }
   };
 
-  const portError = getPortError(port);
-  const canSubmit = isValid && !portError;
-
   return (
     <Panel>
       <FormProvider {...methods}>
@@ -160,7 +154,7 @@ export default function NewApplicationPage() {
           <BuildSection />
           <ExposeSection />
           <EnvironmentSection />
-          <ActionRow isPending={isPending} canSubmit={canSubmit} />
+          <ActionRow isPending={isPending} canSubmit={isValid} />
         </form>
       </FormProvider>
     </Panel>

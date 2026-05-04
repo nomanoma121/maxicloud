@@ -1,20 +1,18 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Sliders } from "react-feather";
 import { css } from "styled-system/css";
 import { useFormContext, useWatch } from "react-hook-form";
-import { Input, Select } from "~/components/ui/form-controls";
-import { Field } from "./field";
+import { Form } from "~/components/ui/form";
 import { ModeButton } from "./mode-button";
 import { SectionHeading } from "./section-heading";
-import { CreateApplicationInputValues, getPortError } from "../schema";
+import { CreateApplicationInputValues } from "../schema";
 import { useAvailableDomains, useDomainAvailability } from "../hooks/use-domain";
 
 export const ExposeSection = () => {
-  const { register, setValue, control } = useFormContext<CreateApplicationInputValues>();
+  const { register, setValue, control, formState: { errors } } = useFormContext<CreateApplicationInputValues>();
   const exposureMode = useWatch({ control, name: "exposureMode" });
   const domainPrefix = useWatch({ control, name: "domainPrefix" }) ?? "";
   const domainSuffix = useWatch({ control, name: "domainSuffix" }) ?? "";
-  const port = useWatch({ control, name: "port" }) ?? "";
   const { data: availableDomains = [] } = useAvailableDomains();
   const [checkedDomainKey, setCheckedDomainKey] = useState("");
 
@@ -42,8 +40,6 @@ export const ExposeSection = () => {
   const isDomainAvailable =
     checkedDomainKey === currentDomainKey ? domainAvailabilityQuery.data : undefined;
 
-  const portError = useMemo(() => getPortError(port), [port]);
-
   const domainPrefixField = register("domainPrefix", {
     onChange: () => setValue("domainEdited", true, { shouldDirty: true }),
   });
@@ -52,35 +48,37 @@ export const ExposeSection = () => {
   return (
     <section className={css({ display: "grid", gap: 3 })}>
       <SectionHeading icon={<Sliders size={15} />} title="4. Access" description="公開範囲と公開ポートを設定" />
-      <Field label="Access">
-        <div
-          className={css({
-            display: "grid",
-            gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-            gap: 2,
-            mdDown: { gridTemplateColumns: "1fr" },
-          })}
-        >
-          <ModeButton
-            active={exposureMode === "public"}
-            title="Public"
-            description="誰でもアクセス可能"
-            onClick={() => setValue("exposureMode", "public", { shouldDirty: true })}
-          />
-          <ModeButton
-            active={exposureMode === "idp"}
-            title="Members Only"
-            description="IdP認証済み会員のみ許可"
-            onClick={() => setValue("exposureMode", "idp", { shouldDirty: true })}
-          />
-          <ModeButton
-            active={exposureMode === "private"}
-            title="Private"
-            description="外部公開しない"
-            onClick={() => setValue("exposureMode", "private", { shouldDirty: true })}
-          />
-        </div>
-      </Field>
+      <Form.Field.WithLabel label="Access">
+        {() => (
+          <div
+            className={css({
+              display: "grid",
+              gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+              gap: 2,
+              mdDown: { gridTemplateColumns: "1fr" },
+            })}
+          >
+            <ModeButton
+              active={exposureMode === "public"}
+              title="Public"
+              description="誰でもアクセス可能"
+              onClick={() => setValue("exposureMode", "public", { shouldDirty: true })}
+            />
+            <ModeButton
+              active={exposureMode === "idp"}
+              title="Members Only"
+              description="IdP認証済み会員のみ許可"
+              onClick={() => setValue("exposureMode", "idp", { shouldDirty: true })}
+            />
+            <ModeButton
+              active={exposureMode === "private"}
+              title="Private"
+              description="外部公開しない"
+              onClick={() => setValue("exposureMode", "private", { shouldDirty: true })}
+            />
+          </div>
+        )}
+      </Form.Field.WithLabel>
       {exposureMode !== "private" && (
         <>
           <div className={css({ display: "grid", gap: 2 })}>
@@ -95,31 +93,39 @@ export const ExposeSection = () => {
                 mdDown: { gridTemplateColumns: "1fr" },
               })}
             >
-              <Field label="Subdomain" labelClassName={css({ fontSize: "xs", color: "gray.500" })}>
-                <Input
-                  {...domainPrefixField}
-                  onBlur={(event) => {
-                    domainPrefixField.onBlur(event);
-                    void checkDomainAvailability();
-                  }}
-                />
-              </Field>
-              <Field label="Zone" labelClassName={css({ fontSize: "xs", color: "gray.500" })}>
-                <Select
-                  {...domainSuffixField}
-                  onBlur={(event) => {
-                    domainSuffixField.onBlur(event);
-                    void checkDomainAvailability();
-                  }}
-                >
-                  <option value="">選択してください</option>
-                  {availableDomains.map((suffix) => (
-                    <option key={suffix} value={suffix}>
-                      {suffix}
-                    </option>
-                  ))}
-                </Select>
-              </Field>
+              <Form.Field.WithLabel label="Subdomain">
+                {(id) => (
+                  <Form.Input
+                    id={id}
+                    {...domainPrefixField}
+                    onBlur={(event) => {
+                      domainPrefixField.onBlur(event);
+                      void checkDomainAvailability();
+                    }}
+                  />
+                )}
+              </Form.Field.WithLabel>
+              <Form.Field.WithLabel label="Zone">
+                {(id) => (
+                  <>
+                    <Form.Select
+                      id={id}
+                      {...domainSuffixField}
+                      onBlur={(event) => {
+                        domainSuffixField.onBlur(event);
+                        void checkDomainAvailability();
+                      }}
+                    >
+                      <option value="">選択してください</option>
+                      {availableDomains.map((suffix) => (
+                        <option key={suffix} value={suffix}>
+                          {suffix}
+                        </option>
+                      ))}
+                    </Form.Select>
+                  </>
+                )}
+              </Form.Field.WithLabel>
             </div>
             {isDomainAvailable !== undefined && (
               <p
@@ -134,14 +140,13 @@ export const ExposeSection = () => {
               </p>
             )}
           </div>
-          <Field label="Expose Port">
-            <Input {...register("port")} placeholder="3000" />
-          </Field>
-          {portError && (
-            <p className={css({ margin: 0, color: "red.700", fontSize: "xs", fontWeight: 600 })}>
-              {portError}
-            </p>
-          )}
+          <Form.Field.TextInput
+            label="Expose Port"
+            required
+            error={errors.port?.message}
+            placeholder="3000"
+            {...register("port")}
+          />
         </>
       )}
     </section>

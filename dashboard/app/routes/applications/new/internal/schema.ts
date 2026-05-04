@@ -19,6 +19,10 @@ export const CreateApplicationSchema = v.object({
     v.string(),
     v.minLength(1, "ポート番号を入力してください"),
     v.regex(/^\d+$/, "ポート番号は数字で入力してください"),
+    v.transform(Number),
+    v.integer("ポート番号は整数で入力してください"),
+    v.minValue(1, "ポート番号は1〜65535の範囲で指定してください"),
+    v.maxValue(65535, "ポート番号は1〜65535の範囲で指定してください"),
   ),
   envText: v.string(),
   secrets: v.array(
@@ -31,14 +35,4 @@ export const CreateApplicationSchema = v.object({
 });
 
 export type CreateApplicationInputValues = v.InferInput<typeof CreateApplicationSchema>;
-
-export const getPortError = (value: string) => {
-  const trimmed = value.trim();
-  if (!trimmed) return "ポート番号を入力してください";
-  if (!/^\d+$/.test(trimmed)) return "ポート番号は数字で入力してください";
-  const port = Number.parseInt(trimmed, 10);
-  if (port < 1 || port > 65535) return "ポート番号は1〜65535の範囲で指定してください";
-  return undefined;
-};
-
-export const isValidPort = (value: string) => !getPortError(value);
+export type CreateApplicationOutput = v.InferOutput<typeof CreateApplicationSchema>;

@@ -1,14 +1,13 @@
 import { Layers } from "react-feather";
 import { css } from "styled-system/css";
 import { useFormContext, useWatch } from "react-hook-form";
-import { Input, Textarea } from "~/components/ui/form-controls";
-import { Field } from "./field";
+import { Form } from "~/components/ui/form";
 import { ModeButton } from "./mode-button";
 import { SectionHeading } from "./section-heading";
 import { CreateApplicationInputValues } from "../schema";
 
 export const BuildSection = () => {
-  const { register, setValue, control } = useFormContext<CreateApplicationInputValues>();
+  const { register, setValue, control, formState: { errors } } = useFormContext<CreateApplicationInputValues>();
   const dockerfileSource = useWatch({ control, name: "dockerfileSource" });
 
   return (
@@ -39,15 +38,21 @@ export const BuildSection = () => {
 
       <div className={css({ display: "grid", gap: 2 })}>
         {dockerfileSource === "path" && (
-          <Field label="Dockerfile Path">
-            <Input {...register("dockerfilePath")} placeholder="deploy/Dockerfile" />
-          </Field>
+          <Form.Field.TextInput
+            label="Dockerfile Path"
+            error={errors.dockerfilePath?.message}
+            placeholder="deploy/Dockerfile"
+            {...register("dockerfilePath")}
+          />
         )}
 
         {dockerfileSource === "inline" && (
-          <Field label="Dockerfile Inline">
-            <Textarea {...register("dockerfileInline")} rows={9} />
-          </Field>
+          <Form.Field.TextArea
+            label="Dockerfile Inline"
+            error={errors.dockerfileInline?.message}
+            rows={9}
+            {...register("dockerfileInline")}
+          />
         )}
       </div>
     </section>
