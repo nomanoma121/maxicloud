@@ -31,11 +31,6 @@ export default function ApplicationDetailPage() {
       duration: d.duration,
     }));
 
-  const onDelete = async () => {
-    await deleteApplication(application.id);
-    navigate(APP_ROUTES.applications);
-  };
-
   return (
     <div className={css({ display: "grid", gap: 4 })}>
       {deployStartFailed && (
@@ -47,7 +42,7 @@ export default function ApplicationDetailPage() {
       )}
 
       <div className={css({ display: "flex", justifyContent: "flex-end" })}>
-        <Button type="button" variant="danger" size="sm" onClick={onDelete} disabled={isPending}>
+        <Button type="button" variant="danger" size="sm" onClick={() => deleteApplication(application.id)} disabled={isPending}>
           {isPending ? "Deleting..." : "Delete Application"}
         </Button>
       </div>

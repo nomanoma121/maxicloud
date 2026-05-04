@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import type { Application, UserAccount } from "~/types";
+import type { Application } from "~/types";
 import { useApplicationsData } from "~/routes/applications/internal/hooks/use-applications-data";
 
 export const useApplicationsListView = () => {
@@ -25,7 +25,7 @@ export const useApplicationsListView = () => {
     setKeyword,
     filteredApplications,
     projectByID,
-    userByID: userByID as Record<string, UserAccount | undefined>,
+    userByID,
   };
 };
 

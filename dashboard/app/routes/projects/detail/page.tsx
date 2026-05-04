@@ -9,7 +9,6 @@ import { ProjectSummaryPanel } from "./internal/components/project-summary-panel
 import type { ProjectDetailContext } from "./layout";
 
 export default function ProjectDetailPage() {
-  const navigate = useNavigate();
   const { mutateAsync: deleteProject, isPending } = useDeleteProject();
   const {
     project,
@@ -21,15 +20,10 @@ export default function ProjectDetailPage() {
     projectDeployments,
   } = useOutletContext<ProjectDetailContext>();
 
-  const onDelete = async () => {
-    await deleteProject(project.id);
-    navigate(APP_ROUTES.projects);
-  };
-
   return (
     <>
       <div className={css({ display: "flex", justifyContent: "flex-end" })}>
-        <Button type="button" variant="danger" size="sm" onClick={onDelete} disabled={isPending}>
+        <Button type="button" variant="danger" size="sm" onClick={() => deleteProject(project.id)} disabled={isPending}>
           {isPending ? "Deleting..." : "Delete Project"}
         </Button>
       </div>

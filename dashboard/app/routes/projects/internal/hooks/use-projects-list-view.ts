@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import type { Project, UserAccount } from "~/types";
+import type { Project } from "~/types";
 import { useProjectsData } from "~/routes/projects/internal/hooks/use-projects-data";
 
 export type ProjectCount = {
@@ -48,7 +48,7 @@ export const useProjectsListView = () => {
     setKeyword,
     filteredProjects,
     projectCountByID,
-    userByID: userByID as Record<string, UserAccount | undefined>,
+    userByID,
   };
 };
 

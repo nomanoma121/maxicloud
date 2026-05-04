@@ -11,7 +11,7 @@ export const useDeleteProject = () => {
   return useMutation({
     mutationFn: (projectId: string) => projectRepository.deleteProject(projectId),
     onSuccess: () => {
-      pushToast({ type: "success", title: "Project deleted" });
+      pushToast({ type: "success", title: "プロジェクトが削除されました" });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.projects });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.applications });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.deployments });
@@ -19,7 +19,7 @@ export const useDeleteProject = () => {
     onError: (error) => {
       pushToast({
         type: "error",
-        title: "Failed to delete project",
+        title: "プロジェクトの削除に失敗しました",
         description: error instanceof Error ? error.message : "unknown error",
       });
     },
