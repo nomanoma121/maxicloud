@@ -11,7 +11,7 @@ import { useHomeData } from "~/routes/home/internal/hooks/use-home-data";
 
 export default function HomePage() {
   const { deployments, projects, applications, projectByID, applicationByID, userByID } = useHomeData();
-  const healthyApplications = applications.filter((application) => application.status === "healthy").length;
+  const healthyApplications = applications.filter((application) => application.status === "running").length;
 
   const rows: DeploymentRowItem[] = deployments.slice(0, 6).map((d) => {
     const application = applicationByID[d.applicationId];

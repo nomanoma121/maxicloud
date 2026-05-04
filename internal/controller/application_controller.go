@@ -23,6 +23,8 @@ import (
 
 	"github.com/saitamau-maximum/maxicloud/internal/config"
 	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/util/retry"
@@ -67,28 +69,48 @@ func (r *ApplicationReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 
 	if err := r.reconcileSecret(ctx, &application); err != nil {
 		log.Error(err, "Failed to reconcile Secret")
+		if err = r.updateStatus(ctx, &application, false); err != nil {
+			log.Error(err, "Failed to update Application status")
+		}
 		return ctrl.Result{}, err
 	}
 
 	if err := r.reconcileDeployment(ctx, &application); err != nil {
 		log.Error(err, "Failed to reconcile Deployment")
+		if err = r.updateStatus(ctx, &application, false); err != nil {
+			log.Error(err, "Failed to update Application status")
+		}
 		return ctrl.Result{}, err
 	}
 
 	if application.Spec.Expose == nil {
+		if err := r.updateStatus(ctx, &application, true); err != nil {
+			log.Error(err, "Failed to update Application status")
+			return ctrl.Result{}, err
+		}
 		return ctrl.Result{}, nil
 	}
 
 	if err := r.reconcileService(ctx, &application); err != nil {
 		log.Error(err, "Failed to reconcile Service")
+		if err = r.updateStatus(ctx, &application, false); err != nil {
+			log.Error(err, "Failed to update Application status")
+		}
 		return ctrl.Result{}, err
 	}
 
 	if err := r.reconcileIngress(ctx, &application); err != nil {
 		log.Error(err, "Failed to reconcile Ingress")
+		if err = r.updateStatus(ctx, &application, false); err != nil {
+			log.Error(err, "Failed to update Application status")
+		}
 		return ctrl.Result{}, err
 	}
 
+	if err := r.updateStatus(ctx, &application, true); err != nil {
+		log.Error(err, "Failed to update Application status")
+		return ctrl.Result{}, err
+	}
 	return ctrl.Result{}, nil
 }
 
@@ -179,6 +201,28 @@ func (r *ApplicationReconciler) reconcileIngress(ctx context.Context, applicatio
 	ingress.Spec.Rules[0].HTTP.Paths[0].Backend.Service.Port.Number = application.Spec.Expose.Port
 	ingress.Spec.IngressClassName = &application.Spec.Expose.IngressClassName
 	return r.Update(ctx, &ingress)
+}
+
+func (r *ApplicationReconciler) updateStatus(ctx context.Context, app *maxicloudv1alpha1.Application, ready bool) error {
+	if ready {
+		meta.SetStatusCondition(&app.Status.Conditions, metav1.Condition{
+			Type:   "Ready",
+			Status: metav1.ConditionTrue,
+		})
+	} else {
+		meta.SetStatusCondition(&app.Status.Conditions, metav1.Condition{
+			Type:   "Ready",
+			Status: metav1.ConditionFalse,
+		})
+	}
+	return retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		var currentApp maxicloudv1alpha1.Application
+		if err := r.Get(ctx, types.NamespacedName{Name: app.Name, Namespace: app.Namespace}, &currentApp); err != nil {
+			return err
+		}
+		currentApp.Status.Conditions = app.Status.Conditions
+		return r.Status().Update(ctx, &currentApp)
+	})
 }
 
 // SetupWithManager sets up the controller with the Manager.

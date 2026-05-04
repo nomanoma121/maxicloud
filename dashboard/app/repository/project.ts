@@ -14,6 +14,7 @@ export interface IProjectRepository {
   listProjects(): Promise<Project[]>;
   getProject(id: string): Promise<Project | undefined>;
   createProject(input: CreateProjectInput): Promise<Project>;
+  deleteProject(id: string): Promise<void>;
 }
 
 const toProject = (project: ProtoProject): Project => ({
@@ -55,5 +56,9 @@ export class ProjectRepository implements IProjectRepository {
       throw new Error("CreateProject returned empty project");
     }
     return toProject(res.project);
+  }
+
+  async deleteProject(id: string): Promise<void> {
+    await connectClient.project.deleteProject({ projectId: id });
   }
 }

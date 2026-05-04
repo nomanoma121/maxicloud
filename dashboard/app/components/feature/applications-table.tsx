@@ -12,8 +12,7 @@ export type ApplicationRowItem = {
   projectName: string;
   ownerName: string;
   status: ApplicationStatus;
-  cpu: string;
-  memory: string;
+  url: string;
   updatedAt: string;
 };
 
@@ -30,9 +29,8 @@ export const ApplicationsTable = ({ rows }: ApplicationsTableProps) => {
           <Table.Th>プロジェクト</Table.Th>
           <Table.Th>グループ</Table.Th>
           <Table.Th>ステータス</Table.Th>
-          <Table.Th>CPU</Table.Th>
-          <Table.Th>Memory</Table.Th>
           <Table.Th>最終更新</Table.Th>
+          <Table.Th>URL</Table.Th>
           <Table.Th>詳細</Table.Th>
         </Table.Tr>
       </thead>
@@ -52,9 +50,16 @@ export const ApplicationsTable = ({ rows }: ApplicationsTableProps) => {
             <Table.Td>
               <StatusBadge status={row.status} />
             </Table.Td>
-            <Table.Td>{row.cpu}</Table.Td>
-            <Table.Td>{row.memory}</Table.Td>
             <Table.Td>{row.updatedAt}</Table.Td>
+            <Table.Td>
+              {row.url ? (
+                <a href={row.url} target="_blank" rel="noopener noreferrer" className={css({ color: "blue.700", fontSize: "sm" })}>
+                  {row.url}
+                </a>
+              ) : (
+                <span className={css({ color: "gray.500", fontSize: "sm" })}>-</span>
+              )}
+            </Table.Td>
             <Table.Td>
               <Link
                 to={APP_ROUTES.applicationDetail(row.id)}

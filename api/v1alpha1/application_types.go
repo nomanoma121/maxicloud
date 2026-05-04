@@ -57,9 +57,6 @@ type ApplicationStatus struct {
 	// +listMapKey=type
 	// +optional
 	Conditions []metav1.Condition `json:"conditions,omitempty"`
-
-	// +optional
-	Image string `json:"image,omitempty"`
 }
 
 // +kubebuilder:object:root=true

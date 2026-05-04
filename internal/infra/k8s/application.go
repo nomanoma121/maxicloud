@@ -11,6 +11,7 @@ import (
 	"github.com/saitamau-maximum/maxicloud/internal/config"
 	"github.com/saitamau-maximum/maxicloud/internal/domain"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -24,6 +25,7 @@ const (
 	labelSourceBranch     = config.LabelPrefix + "source-branch"
 
 	annotationSourceBranch = config.AnnotationPrefix + "source-branch"
+	annotationRootDomain   = config.AnnotationPrefix + "root-domain"
 )
 
 type applicationRepository struct {
@@ -53,6 +55,7 @@ func (r *applicationRepository) CreateApplication(ctx context.Context, app domai
 			},
 			Annotations: map[string]string{
 				annotationSourceBranch: app.Spec.Source.Branch,
+				annotationRootDomain:   app.Spec.Domain.RootDomain,
 			},
 		},
 		Spec: maxicloudv1alpha1.ApplicationSpec{
@@ -156,22 +159,48 @@ func (r *applicationRepository) ExistsByDomain(ctx context.Context, domain strin
 	return false, nil
 }
 
-func crToApplication(cr *maxicloudv1alpha1.Application) *domain.Application {
+func crToApplication(app *maxicloudv1alpha1.Application) *domain.Application {
 	return &domain.Application{
-		ID:        cr.Labels[labelApplicationID],
-		ProjectID: projectIDFromNamespace(cr.Namespace),
-		Name:      cr.Labels[labelApplicationName],
-		OwnerID:   cr.Labels[labelApplicationOwner],
+		ID:        app.Labels[labelApplicationID],
+		ProjectID: projectIDFromNamespace(app.Namespace),
+		Name:      app.Labels[labelApplicationName],
+		OwnerID:   app.Labels[labelApplicationOwner],
 		Source: domain.ApplicationSource{
 			Repo: domain.Repository{
-				Owner: cr.Labels[labelSourceRepoOwner],
-				Name:  cr.Labels[labelSourceRepoName],
+				Owner: app.Labels[labelSourceRepoOwner],
+				Name:  app.Labels[labelSourceRepoName],
 			},
-			Branch: cr.Annotations[annotationSourceBranch],
+			Branch: app.Annotations[annotationSourceBranch],
 		},
-		CreatedAt: cr.CreationTimestamp.Time,
-		UpdatedAt: cr.CreationTimestamp.Time,
+		Condition: domain.ApplicationCondition{
+			Status: getAppStatus(app),
+			Domain: getAppDomain(app),
+		},
+		CreatedAt: app.CreationTimestamp.Time,
+		UpdatedAt: app.CreationTimestamp.Time,
 	}
+}
+
+func getAppStatus(app *maxicloudv1alpha1.Application) domain.ApplicationStatus {
+	status := meta.FindStatusCondition(app.Status.Conditions, "Ready")
+	if status == nil {
+		return domain.ApplicationStatusUnavailable
+	}
+	if status.Status == metav1.ConditionTrue {
+		return domain.ApplicationStatusRunning
+	}
+	return domain.ApplicationStatusUnavailable
+}
+
+func getAppDomain(app *maxicloudv1alpha1.Application) *domain.Domain {
+	if app.Spec.Expose == nil {
+		return nil
+	}
+	d, err := domain.NewDomainByFQDN(app.Spec.Expose.Domain, app.Annotations[annotationRootDomain])
+	if err != nil {
+		return nil
+	}
+	return &d
 }
 
 func buildApplicationEnvVar(spec domain.ApplicationSpec) []corev1.EnvVar {

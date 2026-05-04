@@ -13,35 +13,29 @@ import type { DeploymentStatus, ApplicationStatus, UserStatus } from "~/types";
 type BadgeStatus = ApplicationStatus | DeploymentStatus | UserStatus;
 
 const statusStyle: Record<BadgeStatus, { text: string; icon: string; label: string; glyph: Icon }> = {
-  healthy: {
+  running: {
     text: css({ color: "gray.800" }),
-    icon: css({ color: "#16a34a" }),
-    label: "Healthy",
-    glyph: CheckCircle,
+    icon: css({ color: "#0284c7" }),
+    label: "Running",
+    glyph: Activity,
+  },
+  unavailable: {
+    text: css({ color: "gray.800" }),
+    icon: css({ color: "#dc2626" }),
+    label: "Unavailable",
+    glyph: XCircle,
+  },
+  stopped: {
+    text: css({ color: "gray.800" }),
+    icon: css({ color: "#64748b" }),
+    label: "Stopped",
+    glyph: PauseCircle,
   },
   degraded: {
     text: css({ color: "gray.800" }),
     icon: css({ color: "#d97706" }),
     label: "Degraded",
     glyph: Clock,
-  },
-  unhealthy: {
-    text: css({ color: "gray.800" }),
-    icon: css({ color: "#dc2626" }),
-    label: "Unhealthy",
-    glyph: XCircle,
-  },
-  sleeping: {
-    text: css({ color: "gray.800" }),
-    icon: css({ color: "#64748b" }),
-    label: "Sleeping",
-    glyph: PauseCircle,
-  },
-  running: {
-    text: css({ color: "gray.800" }),
-    icon: css({ color: "#0284c7" }),
-    label: "Running",
-    glyph: Activity,
   },
   success: {
     text: css({ color: "gray.800" }),
@@ -80,7 +74,7 @@ type StatusBadgeProps = {
 };
 
 export const StatusBadge = ({ status }: StatusBadgeProps) => {
-  const item = statusStyle[status];
+  const item = statusStyle[status] ?? statusStyle.degraded;
   const Icon = item.glyph;
 
   return (

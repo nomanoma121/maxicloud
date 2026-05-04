@@ -21,7 +21,7 @@ export const useProjectsListView = () => {
             (application) => application.projectId === project.id,
           );
           const healthy = projectApplications.filter(
-            (application) => application.status === "healthy",
+            (application) => application.status === "running",
           ).length;
           return [project.id, { total: projectApplications.length, healthy }] as const;
         }),

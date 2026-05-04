@@ -585,9 +585,9 @@ const file_maxicloud_v1_project_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xbaH\x03\xc8\x01\x01R\tcreatedAt\x12A\n" +
 	"\n" +
-	"updated_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xbaH\x03\xc8\x01\x01R\tupdatedAt\"\x8a\x01\n" +
-	"\x14CreateProjectRequest\x12\x1a\n" +
-	"\x04name\x18\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04name\x12*\n" +
+	"updated_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xbaH\x03\xc8\x01\x01R\tupdatedAt\"\xb7\x01\n" +
+	"\x14CreateProjectRequest\x12G\n" +
+	"\x04name\x18\x01 \x01(\tB3\xbaH0\xc8\x01\x01r+\x18@2'^[A-Za-z0-9][-A-Za-z0-9_.]*[A-Za-z0-9]$R\x04name\x12*\n" +
 	"\vdescription\x18\x02 \x01(\tB\b\xbaH\x05r\x03\x18\xc8\x01R\vdescription\x12*\n" +
 	"\rowner_user_id\x18\x03 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\vownerUserId\"H\n" +
 	"\x15CreateProjectResponse\x12/\n" +

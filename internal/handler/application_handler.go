@@ -90,6 +90,13 @@ func (h *ApplicationHandler) DeleteApplication(ctx context.Context, req *v1.Dele
 }
 
 func toProtoApplication(a *domain.Application) *v1.Application {
+	var domain *v1.Domain
+	if a.Condition.Domain != nil {
+		domain = &v1.Domain{
+			Subdomain:  a.Condition.Domain.Subdomain,
+			RootDomain: a.Condition.Domain.RootDomain,
+		}
+	}
 	return &v1.Application{
 		Id:          a.ID,
 		ProjectId:   a.ProjectID,
@@ -102,8 +109,25 @@ func toProtoApplication(a *domain.Application) *v1.Application {
 			},
 			Branch: a.Source.Branch,
 		},
+		Condition: &v1.ApplicationCondition{
+			Status: toProtoAppStatus(a.Condition.Status),
+			Domain: domain,
+		},
 		CreatedAt: timestamppb.New(a.CreatedAt),
 		UpdatedAt: timestamppb.New(a.UpdatedAt),
+	}
+}
+
+func toProtoAppStatus(s domain.ApplicationStatus) v1.ApplicationStatus {
+	switch s {
+	case domain.ApplicationStatusRunning:
+		return v1.ApplicationStatus_APPLICATION_STATUS_RUNNING
+	case domain.ApplicationStatusUnavailable:
+		return v1.ApplicationStatus_APPLICATION_STATUS_UNAVAILABLE
+	case domain.ApplicationStatusStopped:
+		return v1.ApplicationStatus_APPLICATION_STATUS_STOPPED
+	default:
+		return v1.ApplicationStatus_APPLICATION_STATUS_UNSPECIFIED
 	}
 }
 

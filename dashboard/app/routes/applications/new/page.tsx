@@ -116,7 +116,7 @@ export default function NewApplicationPage() {
     const enableDomain = data.exposureMode !== "private";
 
     try {
-      await createApplication({
+      const result = await createApplication({
         projectId: data.projectId,
         ownerId,
         name: data.applicationName,
@@ -134,7 +134,11 @@ export default function NewApplicationPage() {
         secrets,
       });
       pushToast({ type: "success", title: "Application created" });
-      navigate(APP_ROUTES.applications);
+      if (result.initialDeploymentStarted && result.initialDeploymentID) {
+        navigate(APP_ROUTES.deploymentDetail(result.initialDeploymentID));
+        return;
+      }
+      navigate(`${APP_ROUTES.applicationDetail(result.application.id)}?deploy_start=failed`);
     } catch (error) {
       pushToast({
         type: "error",

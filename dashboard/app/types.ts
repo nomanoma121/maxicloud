@@ -1,6 +1,6 @@
 export type UserStatus = "active" | "invited" | "suspended";
 
-export type ApplicationStatus = "healthy" | "degraded" | "unhealthy" | "sleeping";
+export type ApplicationStatus = "running" | "unavailable" | "stopped" | "degraded";
 export type DeploymentStatus = "success" | "running" | "failed";
 export type JobTrigger = "manual" | "predeploy" | "schedule";
 

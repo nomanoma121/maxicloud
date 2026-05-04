@@ -8,10 +8,9 @@ import "maxicloud/v1/common.proto";
 
 enum ApplicationStatus {
   APPLICATION_STATUS_UNSPECIFIED = 0;
-  APPLICATION_STATUS_HEALTHY = 1;
-  APPLICATION_STATUS_DEGRADED = 2;
-  APPLICATION_STATUS_UNHEALTHY = 3;
-  APPLICATION_STATUS_SLEEPING = 4;
+  APPLICATION_STATUS_RUNNING = 1;
+  APPLICATION_STATUS_UNAVAILABLE = 2;
+  APPLICATION_STATUS_STOPPED = 3;
 }
 
 enum AccessMode {
@@ -38,7 +37,7 @@ message Application {
   string name = 3;
   ApplicationSource source = 4;
   string branch = 5;
-  ApplicationStatus status = 6;
+  ApplicationCondition condition = 6;
   string url = 7;
   string owner_user_id = 8;
   google.protobuf.Timestamp created_at = 9;
@@ -48,6 +47,11 @@ message Application {
 message ApplicationSource {
   Repository repository = 1 [(buf.validate.field).required = true];
   string branch = 3 [(buf.validate.field).required = true];
+}
+
+message ApplicationCondition {
+  ApplicationStatus status = 1;
+  Domain domain = 2;
 }
 
 message DockerfileBuildConfig {

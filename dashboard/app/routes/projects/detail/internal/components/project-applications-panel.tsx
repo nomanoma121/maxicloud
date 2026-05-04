@@ -28,6 +28,7 @@ export const ProjectApplicationsPanel = ({
     status: a.status,
     cpu: a.cpu,
     memory: a.memory,
+    url: a.url,
     updatedAt: a.updatedAt,
   }));
 

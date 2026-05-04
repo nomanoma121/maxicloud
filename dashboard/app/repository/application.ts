@@ -43,14 +43,12 @@ export interface IApplicationRepository {
 
 const mapStatus = (status: ApplicationStatus): Application["status"] => {
   switch (status) {
-    case ApplicationStatus.HEALTHY:
-      return "healthy";
-    case ApplicationStatus.DEGRADED:
-      return "degraded";
-    case ApplicationStatus.UNHEALTHY:
-      return "unhealthy";
-    case ApplicationStatus.SLEEPING:
-      return "sleeping";
+    case ApplicationStatus.RUNNING:
+      return "running";
+    case ApplicationStatus.UNAVAILABLE:
+      return "unavailable";
+    case ApplicationStatus.STOPPED:
+      return "stopped";
     default:
       return "degraded";
   }
@@ -76,8 +74,9 @@ const toApplication = (application: ProtoApplication): Application => {
     repository,
     branch: application.source?.branch ?? "main",
     runtime: "Dockerfile",
-    status: mapStatus(application.status),
-    url: application.url || "-",
+    status: mapStatus(application.condition?.status ?? ApplicationStatus.UNSPECIFIED),
+    // TODO: 後でここなおす
+    url: application.condition?.domain ? `http://${application.condition.domain.subdomain}.${application.condition.domain.rootDomain}:8080` : "-",
     updatedAt: formatTimestamp(application.updatedAt),
     cpu: "-",
     memory: "-",

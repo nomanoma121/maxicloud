@@ -3,6 +3,7 @@ package domain
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -17,14 +18,25 @@ type Application struct {
 	Name      string
 	Source    ApplicationSource
 	OwnerID   string
+	Condition ApplicationCondition
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
 
-type ApplicationStatus struct {
-	Phase            string
-	URL              string
-	LatestDeploymentID string
+type ApplicationStatus string
+
+const (
+	// 正常に稼働している状態
+	ApplicationStatusRunning ApplicationStatus = "Running"
+	// 明示的に停止された状態
+	ApplicationStatusStopped ApplicationStatus = "Stopped"
+	// デプロイ失敗などでアプリケーションが利用できない状態
+	ApplicationStatusUnavailable ApplicationStatus = "Unavailable"
+)
+
+type ApplicationCondition struct {
+	Status ApplicationStatus
+	Domain *Domain
 }
 
 type ApplicationSource struct {
@@ -45,6 +57,27 @@ type Domain struct {
 	RootDomain string
 }
 
+// FQDNとルートドメインを渡してDomainを生成する
+func NewDomainByFQDN(fqdn string, rootDomain string) (Domain, error) {
+	if fqdn == "" {
+		return Domain{}, ValidationError{Message: "fqdn is required"}
+	}
+	if rootDomain == "" {
+		return Domain{}, ValidationError{Message: "root domain is required"}
+	}
+	if !strings.HasSuffix(fqdn, rootDomain) {
+		return Domain{}, ValidationError{Message: "fqdn must end with the root domain"}
+	}
+	subdomain := strings.TrimSuffix(fqdn, "."+rootDomain)
+	if subdomain == "" {
+		return Domain{}, ValidationError{Message: "subdomain is required in fqdn"}
+	}
+	return Domain{
+		Subdomain:  subdomain,
+		RootDomain: rootDomain,
+	}, nil
+}
+
 func (d Domain) Validate() error {
 	if d.Subdomain == "" {
 		return ValidationError{Message: "subdomain is required for public access mode"}
@@ -58,6 +91,10 @@ func (d Domain) Validate() error {
 // FQDN returns the full domain name in the format "subdomain.rootdomain"
 func (d Domain) FQDN() string {
 	return d.Subdomain + "." + d.RootDomain
+}
+
+func (d Domain) URL(scheme string) string {
+	return scheme + "://" + d.FQDN()
 }
 
 type KeyValue struct {
