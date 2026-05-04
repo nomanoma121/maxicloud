@@ -26,7 +26,10 @@ message Project {
 }
 
 message CreateProjectRequest {
-  string name = 1 [(buf.validate.field).required = true];
+  string name = 1 [(buf.validate.field).required = true,
+    (buf.validate.field).string.max_len = 64, 
+    (buf.validate.field).string.pattern = "^[A-Za-z0-9][-A-Za-z0-9_.]*[A-Za-z0-9]$"
+  ];
   string description = 2 [
     (buf.validate.field).string.max_len = 200
   ];

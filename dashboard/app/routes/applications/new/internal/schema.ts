@@ -5,6 +5,8 @@ export const CreateApplicationSchema = v.object({
   applicationName: v.pipe(
     v.string(),
     v.minLength(1, "アプリケーション名を入力してください"),
+    v.regex(/^[A-Za-z0-9][-A-Za-z0-9_.]*[A-Za-z0-9]$/, "アプリケーション名は英数字とハイフン、アンダースコア、ピリオドのみ使用できます"),
+    v.maxLength(64, "アプリケーション名は64文字以内で入力してください"),
   ),
   repositoryId: v.pipe(v.string(), v.minLength(1, "リポジトリを選択してください")),
   branch: v.pipe(v.string(), v.minLength(1, "ブランチを選択してください")),
