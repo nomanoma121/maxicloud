@@ -5,7 +5,8 @@ import { css } from "styled-system/css";
 import { Panel } from "~/components/ui/panel";
 import { APP_ROUTES } from "~/constant";
 import { useSession } from "~/hooks/use-session";
-import { useToast } from "~/hooks/use-toast";
+import { useCreateApplication } from "./internal/hooks/use-create-application";
+import { useGitHubRepositories } from "./internal/hooks/use-source";
 import {
   ActionRow,
   BuildSection,
@@ -20,8 +21,6 @@ import {
   type CreateApplicationInputValues,
   type CreateApplicationOutput,
 } from "~/routes/applications/new/internal/schema";
-import { useCreateApplication } from "./internal/hooks/use-create-application";
-import { useGitHubRepositories } from "./internal/hooks/use-source";
 
 const DEFAULT_BRANCH = "main";
 
@@ -53,7 +52,6 @@ const parseRepositoryFullName = (fullName: string) => {
 
 export default function NewApplicationPage() {
   const navigate = useNavigate();
-  const { pushToast } = useToast();
   const { currentUser } = useSession();
   const { mutateAsync: createApplication, isPending } = useCreateApplication();
   const { data: githubRepositories = [] } = useGitHubRepositories();
@@ -85,27 +83,18 @@ export default function NewApplicationPage() {
 
   const onSubmit = async (data: CreateApplicationOutput) => {
     const ownerId = currentUser?.id;
-    if (!ownerId) {
-      pushToast({ type: "error", title: "User is not available" });
-      return;
-    }
+    if (!ownerId) return;
 
     const repository = githubRepositories.find(
       (target) => target.id === data.repositoryId,
     );
     const repoFullName = repository?.fullName ?? "";
-    if (!repoFullName) {
-      pushToast({ type: "error", title: "Repository is not selected" });
-      return;
-    }
+    if (!repoFullName) return;
 
     const { owner, name } = parseRepositoryFullName(repoFullName);
     const environmentVariables = parseKeyValueLines(data.envText);
     const secrets = data.secrets.reduce<Record<string, string>>(
-      (
-        acc: Record<string, string>,
-        item: CreateApplicationOutput["secrets"][number],
-      ) => {
+      (acc, item) => {
         if (item.key.trim().length > 0) {
           acc[item.key] = item.value;
         }
@@ -115,37 +104,24 @@ export default function NewApplicationPage() {
     );
     const enableDomain = data.exposureMode !== "private";
 
-    try {
-      const result = await createApplication({
-        projectId: data.projectId,
-        ownerId,
-        name: data.applicationName,
-        repositoryOwner: owner,
-        repositoryName: name,
-        branch: data.branch,
-        dockerfileSource: data.dockerfileSource,
-        dockerfilePath: data.dockerfilePath,
-        dockerfileInline: data.dockerfileInline,
-        accessMode: data.exposureMode,
-        domainSubdomain: enableDomain ? data.domainPrefix : undefined,
-        domainRootDomain: enableDomain ? data.domainSuffix : undefined,
-        port: data.port, // number (valibotのtransformで変換済み)
-        environmentVariables,
-        secrets,
-      });
-      pushToast({ type: "success", title: "Application created" });
-      if (result.initialDeploymentStarted && result.initialDeploymentID) {
-        navigate(APP_ROUTES.deploymentDetail(result.initialDeploymentID));
-        return;
-      }
-      navigate(`${APP_ROUTES.applicationDetail(result.application.id)}?deploy_start=failed`);
-    } catch (error) {
-      pushToast({
-        type: "error",
-        title: "Failed to create application",
-        description: error instanceof Error ? error.message : "unknown error",
-      });
-    }
+    await createApplication({
+      projectId: data.projectId,
+      ownerId,
+      name: data.applicationName,
+      repositoryOwner: owner,
+      repositoryName: name,
+      branch: data.branch,
+      dockerfileSource: data.dockerfileSource,
+      dockerfilePath: data.dockerfilePath,
+      dockerfileInline: data.dockerfileInline,
+      accessMode: data.exposureMode,
+      domainSubdomain: enableDomain ? data.domainPrefix : undefined,
+      domainRootDomain: enableDomain ? data.domainSuffix : undefined,
+      port: data.port,
+      environmentVariables,
+      secrets,
+    });
+    navigate(APP_ROUTES.applications);
   };
 
   return (

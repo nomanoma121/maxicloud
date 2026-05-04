@@ -7,5 +7,6 @@ export const useApplicationsQuery = () => {
   return useQuery({
     queryKey: QUERY_KEYS.applications,
     queryFn: () => applicationRepository.listApplications(),
+    initialData: [],
   });
 };

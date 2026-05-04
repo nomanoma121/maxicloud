@@ -8,7 +8,7 @@ import { CreateApplicationInputValues } from "../schema";
 
 export const ProjectSection = () => {
   const { register, formState: { errors } } = useFormContext<CreateApplicationInputValues>();
-  const { data: projects = [] } = useProjectsQuery();
+  const { data: projects } = useProjectsQuery();
 
   return (
     <section className={css({ display: "grid", gap: 3 })}>

@@ -7,6 +7,7 @@ export const useDeploymentsQuery = () => {
   return useQuery({
     queryKey: QUERY_KEYS.deployments,
     queryFn: () => deploymentRepository.listDeployments(),
+    initialData: [],
   });
 };
 

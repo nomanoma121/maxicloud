@@ -1,16 +1,20 @@
-import { useOutletContext, useSearchParams } from "react-router";
+import { useNavigate, useOutletContext, useSearchParams } from "react-router";
 import { css } from "styled-system/css";
 import { DeploymentsTable } from "~/components/feature/deployments-table";
 import { StatusBadge } from "~/components/ui/badge";
+import { Button } from "~/components/ui/button";
 import { Panel } from "~/components/ui/panel";
 import { APP_ROUTES } from "~/constant";
+import { useDeleteApplication } from "./internal/hooks/use-delete-application";
 import type { ApplicationDetailContext } from "./layout";
 import { SummaryRow } from "./internal/components/summary-row";
 
 export default function ApplicationDetailPage() {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { deployments, projectByID, application, userByID } =
     useOutletContext<ApplicationDetailContext>();
+  const { mutateAsync: deleteApplication, isPending } = useDeleteApplication();
   const deployStartFailed = searchParams.get("deploy_start") === "failed";
 
   const owner = userByID[application.ownerId];
@@ -27,6 +31,11 @@ export default function ApplicationDetailPage() {
       duration: d.duration,
     }));
 
+  const onDelete = async () => {
+    await deleteApplication(application.id);
+    navigate(APP_ROUTES.applications);
+  };
+
   return (
     <div className={css({ display: "grid", gap: 4 })}>
       {deployStartFailed && (
@@ -36,6 +45,12 @@ export default function ApplicationDetailPage() {
           </p>
         </Panel>
       )}
+
+      <div className={css({ display: "flex", justifyContent: "flex-end" })}>
+        <Button type="button" variant="danger" size="sm" onClick={onDelete} disabled={isPending}>
+          {isPending ? "Deleting..." : "Delete Application"}
+        </Button>
+      </div>
 
       <Panel title="Application Summary" rightSlot={<StatusBadge status={application.status} />}>
         <dl

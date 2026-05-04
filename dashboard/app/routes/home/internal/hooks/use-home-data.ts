@@ -8,16 +8,12 @@ import {
 import { indexByID } from "~/utils/collection";
 
 export const useHomeData = () => {
-  const { data: users = [] } = useUsersQuery();
-  const { data: projects = [] } = useProjectsQuery();
-  const { data: applications = [] } = useApplicationsQuery();
-  const { data: deployments = [] } = useDeploymentsQuery();
+  const { data: users } = useUsersQuery();
+  const { data: projects } = useProjectsQuery();
+  const { data: applications } = useApplicationsQuery();
+  const { data: deployments } = useDeploymentsQuery();
 
-  const userByID = useMemo(
-    () => indexByID(users),
-    [users],
-  );
-
+  const userByID = useMemo(() => indexByID(users), [users]);
   const projectByID = useMemo(() => indexByID(projects), [projects]);
   const applicationByID = useMemo(() => indexByID(applications), [applications]);
 

@@ -7,5 +7,6 @@ export const useProjectsQuery = () => {
   return useQuery({
     queryKey: QUERY_KEYS.projects,
     queryFn: () => projectRepository.listProjects(),
+    initialData: [],
   });
 };

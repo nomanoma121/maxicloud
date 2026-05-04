@@ -39,6 +39,7 @@ export interface IApplicationRepository {
   listApplications(): Promise<Application[]>;
   getApplication(id: string): Promise<Application | undefined>;
   createApplication(input: CreateApplicationInput): Promise<CreateApplicationResult>;
+  deleteApplication(id: string): Promise<void>;
 }
 
 const mapStatus = (status: ApplicationStatus): Application["status"] => {
@@ -179,5 +180,9 @@ export class ApplicationRepository implements IApplicationRepository {
       initialDeploymentStarted: res.initialDeploymentStarted,
       initialDeploymentError: res.initialDeploymentError,
     };
+  }
+
+  async deleteApplication(id: string): Promise<void> {
+    await connectClient.application.deleteApplication({ applicationId: id });
   }
 }

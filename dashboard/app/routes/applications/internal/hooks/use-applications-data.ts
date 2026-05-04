@@ -9,38 +9,24 @@ import { useApplication } from "~/routes/applications/internal/hooks/use-applica
 import { indexByID } from "~/utils/collection";
 
 export const useApplicationsData = () => {
-  const { data: users = [] } = useUsersQuery();
-  const { data: projects = [] } = useProjectsQuery();
-  const { data: applications = [] } = useApplicationsQuery();
+  const { data: users } = useUsersQuery();
+  const { data: projects } = useProjectsQuery();
+  const { data: applications } = useApplicationsQuery();
 
-  const userByID = useMemo(
-    () => indexByID(users),
-    [users],
-  );
-
-  const projectByID = useMemo(
-    () => indexByID(projects),
-    [projects],
-  );
+  const userByID = useMemo(() => indexByID(users), [users]);
+  const projectByID = useMemo(() => indexByID(projects), [projects]);
 
   return { userByID, projectByID, applications };
 };
 
 export const useApplicationDetailData = (applicationId: string) => {
-  const { data: users = [] } = useUsersQuery();
-  const { data: projects = [] } = useProjectsQuery();
+  const { data: users } = useUsersQuery();
+  const { data: projects } = useProjectsQuery();
   const { data: application } = useApplication(applicationId);
-  const { data: deployments = [] } = useDeploymentsQuery();
+  const { data: deployments } = useDeploymentsQuery();
 
-  const userByID = useMemo(
-    () => indexByID(users),
-    [users],
-  );
-
-  const projectByID = useMemo(
-    () => indexByID(projects),
-    [projects],
-  );
+  const userByID = useMemo(() => indexByID(users), [users]);
+  const projectByID = useMemo(() => indexByID(projects), [projects]);
 
   return { userByID, projectByID, application, deployments };
 };

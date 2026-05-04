@@ -8,7 +8,7 @@ import { Panel } from "~/components/ui/panel";
 import { APP_ROUTES } from "~/constant";
 import { useUsersQuery } from "~/hooks";
 import { useSession } from "~/hooks/use-session";
-import { useToast } from "~/hooks/use-toast";
+
 import { useCreateProject } from "~/routes/projects/new/internal/hooks/use-create-project";
 import {
   CreateProjectSchema,
@@ -18,9 +18,8 @@ import {
 
 export default function NewProjectPage() {
   const navigate = useNavigate();
-  const { pushToast } = useToast();
   const { currentUser } = useSession();
-  const { data: users = [] } = useUsersQuery();
+  const { data: users } = useUsersQuery();
   const { mutateAsync: createProject, isPending } = useCreateProject();
 
   const {
@@ -44,24 +43,13 @@ export default function NewProjectPage() {
   }, [currentUser, users, setValue]);
 
   const onSubmit = async (data: CreateProjectOutput) => {
-    try {
-      await createProject(data);
-      pushToast({ type: "success", title: "Project created" });
-      navigate(APP_ROUTES.projects);
-    } catch (error) {
-      pushToast({
-        type: "error",
-        title: "Failed to create project",
-        description: error instanceof Error ? error.message : "unknown error",
-      });
-    }
+    await createProject(data);
+    navigate(APP_ROUTES.projects);
   };
 
   return (
     <Panel>
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-      >
+      <form onSubmit={handleSubmit(onSubmit)}>
         <Form.FieldSet>
           <Form.Field.TextInput
             label="Project Name"

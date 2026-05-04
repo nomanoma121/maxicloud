@@ -2,16 +2,14 @@ import { useNavigate, useOutletContext } from "react-router";
 import { css } from "styled-system/css";
 import { Button } from "~/components/ui/button";
 import { APP_ROUTES } from "~/constant";
-import { useToast } from "~/hooks/use-toast";
+import { useDeleteProject } from "./internal/hooks/use-delete-project";
 import { ProjectApplicationsPanel } from "./internal/components/project-applications-panel";
 import { ProjectDeploymentsPanel } from "./internal/components/project-deployments-panel";
 import { ProjectSummaryPanel } from "./internal/components/project-summary-panel";
-import { useDeleteProject } from "./internal/hooks/use-delete-project";
 import type { ProjectDetailContext } from "./layout";
 
 export default function ProjectDetailPage() {
   const navigate = useNavigate();
-  const { pushToast } = useToast();
   const { mutateAsync: deleteProject, isPending } = useDeleteProject();
   const {
     project,
@@ -24,17 +22,8 @@ export default function ProjectDetailPage() {
   } = useOutletContext<ProjectDetailContext>();
 
   const onDelete = async () => {
-    try {
-      await deleteProject(project.id);
-      pushToast({ type: "success", title: "Project deleted" });
-      navigate(APP_ROUTES.projects);
-    } catch (error) {
-      pushToast({
-        type: "error",
-        title: "Failed to delete project",
-        description: error instanceof Error ? error.message : "unknown error",
-      });
-    }
+    await deleteProject(project.id);
+    navigate(APP_ROUTES.projects);
   };
 
   return (

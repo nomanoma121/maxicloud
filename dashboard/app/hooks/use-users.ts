@@ -7,5 +7,6 @@ export const useUsersQuery = () => {
   return useQuery({
     queryKey: QUERY_KEYS.users,
     queryFn: () => userRepository.listUsers(),
+    initialData: [],
   });
 };
