@@ -208,11 +208,15 @@ func (r *ApplicationReconciler) updateStatus(ctx context.Context, app *maxicloud
 		meta.SetStatusCondition(&app.Status.Conditions, metav1.Condition{
 			Type:   "Ready",
 			Status: metav1.ConditionTrue,
+			Reason: "ApplicationReady",
+			Message: "Application is ready",
 		})
 	} else {
 		meta.SetStatusCondition(&app.Status.Conditions, metav1.Condition{
 			Type:   "Ready",
 			Status: metav1.ConditionFalse,
+			Reason: "ApplicationNotReady",
+			Message: "Application is not ready",
 		})
 	}
 	return retry.RetryOnConflict(retry.DefaultRetry, func() error {
