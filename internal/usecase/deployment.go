@@ -1,9 +1,12 @@
 package usecase
 
 import (
+	"bufio"
 	"context"
+	"errors"
 	"fmt"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -21,12 +24,23 @@ type deploymentService struct {
 	appRepo      domain.ApplicationRepository
 }
 
+type DeploymentStatusChangedEvent struct {
+	Status         domain.DeploymentStatus
+	ElapsedSeconds int64
+	FinishedAt     *time.Time
+}
+
+type DeploymentLogChunkEvent struct {
+	Lines []string
+}
+
 type DeploymentService interface {
 	CreateDeployment(ctx context.Context, params CreateDeploymentParams) (string, error)
 	RetryDeployment(ctx context.Context, deploymentID string) (*domain.Deployment, error)
 	GetDeployment(ctx context.Context, deploymentID string) (*domain.Deployment, error)
 	ListDeployments(ctx context.Context, applicationID string) ([]domain.Deployment, error)
 	HandleGitHubEvent(ctx context.Context, event domain.DeploymentEvent) error
+	WatchDeployment(ctx context.Context, deploymentID string) (<-chan any, error)
 }
 
 func NewDeploymentService(deployRepo domain.DeploymentRepository, pipelineRepo domain.DeploymentPipelineRepository, appRepo domain.ApplicationRepository) *deploymentService {
@@ -181,6 +195,91 @@ func (s *deploymentService) handleRepoDeploymentEvent(ctx context.Context, event
 
 func isNotFoundError(err error) bool {
 	return err != nil && strings.Contains(strings.ToLower(err.Error()), "not found")
+}
+
+func isTerminalStatus(status domain.DeploymentStatus) bool {
+	return status == domain.DeploymentStatusSucceeded || status == domain.DeploymentStatusFailed
+}
+
+func (s *deploymentService) WatchDeployment(ctx context.Context, deploymentID string) (<-chan any, error) {
+	deploy, err := s.GetDeployment(ctx, deploymentID)
+	if err != nil {
+		return nil, err
+	}
+	if deploy == nil {
+		return nil, domain.ValidationError{Message: "deployment not found"}
+	}
+
+	ch := make(chan any, 10)
+	go func() {
+		var wg sync.WaitGroup
+		defer func() {
+			wg.Wait()
+			close(ch)
+		}()
+
+		lastStatus := deploy.Status
+		ch <- DeploymentStatusChangedEvent{
+			Status:         lastStatus,
+			ElapsedSeconds: int64(deploy.Duration().Seconds()),
+		}
+
+		wg.Go(func() {
+			stream, err := s.pipelineRepo.WatchBuildLogs(ctx, deploymentID)
+			if err != nil {
+				select {
+				case <-ctx.Done():
+				case ch <- DeploymentLogChunkEvent{Lines: []string{fmt.Sprintf("[log error] %v", err)}}:
+				}
+				return
+			}
+			defer stream.Close()
+			scanner := bufio.NewScanner(stream)
+			for scanner.Scan() {
+				select {
+				case <-ctx.Done():
+					return
+				case ch <- DeploymentLogChunkEvent{Lines: []string{scanner.Text()}}:
+				}
+			}
+			if err := scanner.Err(); err != nil && !errors.Is(err, context.Canceled) {
+				select {
+				case <-ctx.Done():
+				case ch <- DeploymentLogChunkEvent{Lines: []string{fmt.Sprintf("[log error] scanner: %v", err)}}:
+				}
+			}
+		})
+
+		// すでに完了済みでも、上のログ取得 goroutine は実行させる
+		if isTerminalStatus(lastStatus) {
+			return
+		}
+
+		ticker := time.NewTicker(1 * time.Second)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				current, err := s.GetDeployment(ctx, deploymentID)
+				if err != nil || current == nil {
+					return
+				}
+				if current.Status != lastStatus {
+					lastStatus = current.Status
+					ch <- DeploymentStatusChangedEvent{
+						Status:         lastStatus,
+						ElapsedSeconds: int64(current.Duration().Seconds()),
+					}
+				}
+				if isTerminalStatus(lastStatus) {
+					return
+				}
+			}
+		}
+	}()
+	return ch, nil
 }
 
 func (s *deploymentService) withPipelineStatus(ctx context.Context, deploy *domain.Deployment) (*domain.Deployment, error) {

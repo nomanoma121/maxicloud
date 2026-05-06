@@ -62,8 +62,33 @@ message ListDeploymentsResponse {
   repeated Deployment deployments = 1;
 }
 
+message WatchDeploymentRequest {
+  string deployment_id = 1 [
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.uuid = true
+  ];
+}
+
+message WatchDeploymentEvent {
+  oneof event {
+    DeploymentStatusChangedEvent deployment_status_changed = 1;
+    DeploymentLogChunkEvent deployment_log_chunk = 2;
+  }
+}
+
+message DeploymentStatusChangedEvent {
+  DeploymentStatus status = 1;
+  int64 elapsed_seconds = 2;
+  optional google.protobuf.Timestamp finished_at = 3;
+}
+
+message DeploymentLogChunkEvent {
+  repeated string lines = 1;
+}
+
 service DeploymentService {
   rpc RetryDeployment(RetryDeploymentRequest) returns (RetryDeploymentResponse);
   rpc GetDeployment(GetDeploymentRequest) returns (GetDeploymentResponse);
   rpc ListDeployments(ListDeploymentsRequest) returns (ListDeploymentsResponse);
+  rpc WatchDeployment(WatchDeploymentRequest) returns (stream WatchDeploymentEvent);
 }

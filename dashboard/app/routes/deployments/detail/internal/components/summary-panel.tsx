@@ -1,8 +1,6 @@
 import { GitHub } from "react-feather";
 import { css } from "styled-system/css";
 
-const MONO = "ui-monospace, SFMono-Regular, Menlo, monospace";
-
 type SummaryPanelProps = {
   applicationName: string;
   ownerName: string;
@@ -71,7 +69,6 @@ const Field = ({
         whiteSpace: mono ? "normal" : "nowrap",
         wordBreak: mono ? "break-all" : "normal",
       })}
-      style={{ fontFamily: mono ? MONO : undefined, fontSize: mono ? "0.9rem" : undefined }}
       title={mono ? value : undefined}
     >
       {value}
@@ -115,7 +112,7 @@ const RepositoryField = ({
         })}
       >
         <GitHub size={16} />
-        <span style={{ fontFamily: MONO, fontSize: "0.9rem" }}>{repository}</span>
+        <span>{repository}</span>
       </a>
     ) : (
       <span className={css({ color: "gray.800", fontSize: "md", fontWeight: 600 })}>{repository}</span>

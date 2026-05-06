@@ -42,6 +42,9 @@ const (
 	// DeploymentServiceListDeploymentsProcedure is the fully-qualified name of the DeploymentService's
 	// ListDeployments RPC.
 	DeploymentServiceListDeploymentsProcedure = "/maxicloud.v1.DeploymentService/ListDeployments"
+	// DeploymentServiceWatchDeploymentProcedure is the fully-qualified name of the DeploymentService's
+	// WatchDeployment RPC.
+	DeploymentServiceWatchDeploymentProcedure = "/maxicloud.v1.DeploymentService/WatchDeployment"
 )
 
 // DeploymentServiceClient is a client for the maxicloud.v1.DeploymentService service.
@@ -49,6 +52,7 @@ type DeploymentServiceClient interface {
 	RetryDeployment(context.Context, *v1.RetryDeploymentRequest) (*v1.RetryDeploymentResponse, error)
 	GetDeployment(context.Context, *v1.GetDeploymentRequest) (*v1.GetDeploymentResponse, error)
 	ListDeployments(context.Context, *v1.ListDeploymentsRequest) (*v1.ListDeploymentsResponse, error)
+	WatchDeployment(context.Context, *v1.WatchDeploymentRequest) (*connect.ServerStreamForClient[v1.WatchDeploymentEvent], error)
 }
 
 // NewDeploymentServiceClient constructs a client for the maxicloud.v1.DeploymentService service. By
@@ -80,6 +84,12 @@ func NewDeploymentServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			connect.WithSchema(deploymentServiceMethods.ByName("ListDeployments")),
 			connect.WithClientOptions(opts...),
 		),
+		watchDeployment: connect.NewClient[v1.WatchDeploymentRequest, v1.WatchDeploymentEvent](
+			httpClient,
+			baseURL+DeploymentServiceWatchDeploymentProcedure,
+			connect.WithSchema(deploymentServiceMethods.ByName("WatchDeployment")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -88,6 +98,7 @@ type deploymentServiceClient struct {
 	retryDeployment *connect.Client[v1.RetryDeploymentRequest, v1.RetryDeploymentResponse]
 	getDeployment   *connect.Client[v1.GetDeploymentRequest, v1.GetDeploymentResponse]
 	listDeployments *connect.Client[v1.ListDeploymentsRequest, v1.ListDeploymentsResponse]
+	watchDeployment *connect.Client[v1.WatchDeploymentRequest, v1.WatchDeploymentEvent]
 }
 
 // RetryDeployment calls maxicloud.v1.DeploymentService.RetryDeployment.
@@ -117,11 +128,17 @@ func (c *deploymentServiceClient) ListDeployments(ctx context.Context, req *v1.L
 	return nil, err
 }
 
+// WatchDeployment calls maxicloud.v1.DeploymentService.WatchDeployment.
+func (c *deploymentServiceClient) WatchDeployment(ctx context.Context, req *v1.WatchDeploymentRequest) (*connect.ServerStreamForClient[v1.WatchDeploymentEvent], error) {
+	return c.watchDeployment.CallServerStream(ctx, connect.NewRequest(req))
+}
+
 // DeploymentServiceHandler is an implementation of the maxicloud.v1.DeploymentService service.
 type DeploymentServiceHandler interface {
 	RetryDeployment(context.Context, *v1.RetryDeploymentRequest) (*v1.RetryDeploymentResponse, error)
 	GetDeployment(context.Context, *v1.GetDeploymentRequest) (*v1.GetDeploymentResponse, error)
 	ListDeployments(context.Context, *v1.ListDeploymentsRequest) (*v1.ListDeploymentsResponse, error)
+	WatchDeployment(context.Context, *v1.WatchDeploymentRequest, *connect.ServerStream[v1.WatchDeploymentEvent]) error
 }
 
 // NewDeploymentServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -149,6 +166,12 @@ func NewDeploymentServiceHandler(svc DeploymentServiceHandler, opts ...connect.H
 		connect.WithSchema(deploymentServiceMethods.ByName("ListDeployments")),
 		connect.WithHandlerOptions(opts...),
 	)
+	deploymentServiceWatchDeploymentHandler := connect.NewServerStreamHandlerSimple(
+		DeploymentServiceWatchDeploymentProcedure,
+		svc.WatchDeployment,
+		connect.WithSchema(deploymentServiceMethods.ByName("WatchDeployment")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/maxicloud.v1.DeploymentService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case DeploymentServiceRetryDeploymentProcedure:
@@ -157,6 +180,8 @@ func NewDeploymentServiceHandler(svc DeploymentServiceHandler, opts ...connect.H
 			deploymentServiceGetDeploymentHandler.ServeHTTP(w, r)
 		case DeploymentServiceListDeploymentsProcedure:
 			deploymentServiceListDeploymentsHandler.ServeHTTP(w, r)
+		case DeploymentServiceWatchDeploymentProcedure:
+			deploymentServiceWatchDeploymentHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -176,4 +201,8 @@ func (UnimplementedDeploymentServiceHandler) GetDeployment(context.Context, *v1.
 
 func (UnimplementedDeploymentServiceHandler) ListDeployments(context.Context, *v1.ListDeploymentsRequest) (*v1.ListDeploymentsResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("maxicloud.v1.DeploymentService.ListDeployments is not implemented"))
+}
+
+func (UnimplementedDeploymentServiceHandler) WatchDeployment(context.Context, *v1.WatchDeploymentRequest, *connect.ServerStream[v1.WatchDeploymentEvent]) error {
+	return connect.NewError(connect.CodeUnimplemented, errors.New("maxicloud.v1.DeploymentService.WatchDeployment is not implemented"))
 }

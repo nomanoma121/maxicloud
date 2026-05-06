@@ -30,6 +30,8 @@ rules:
     resources:
       - namespaces
       - secrets
+      - pods
+      - pods/log
     verbs:
       - get
       - list

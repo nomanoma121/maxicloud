@@ -11,6 +11,8 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+var _ maxicloudv1connect.DeploymentServiceHandler = (*DeploymentHandler)(nil)
+
 type DeploymentHandler struct {
 	maxicloudv1connect.UnimplementedDeploymentServiceHandler
 	uc usecase.DeploymentService
@@ -55,6 +57,41 @@ func (h *DeploymentHandler) ListDeployments(ctx context.Context, req *v1.ListDep
 		protoDeploys = append(protoDeploys, toProtoDeployment(&deploys[i]))
 	}
 	return &v1.ListDeploymentsResponse{Deployments: protoDeploys}, nil
+}
+
+func (h *DeploymentHandler) WatchDeployment(ctx context.Context, req *v1.WatchDeploymentRequest, stream *connect.ServerStream[v1.WatchDeploymentEvent]) error {
+	events, err := h.uc.WatchDeployment(ctx, req.GetDeploymentId())
+	if err != nil {
+		return toConnectError(err)
+	}
+	for event := range events {
+		var protoEvent *v1.WatchDeploymentEvent
+		switch e := event.(type) {
+		case usecase.DeploymentStatusChangedEvent:
+			protoEvent = &v1.WatchDeploymentEvent{
+				Event: &v1.WatchDeploymentEvent_DeploymentStatusChanged{
+					DeploymentStatusChanged: &v1.DeploymentStatusChangedEvent{
+						Status:         toProtoDeploymentStatus(e.Status),
+						ElapsedSeconds: e.ElapsedSeconds,
+					},
+				},
+			}
+		case usecase.DeploymentLogChunkEvent:
+			protoEvent = &v1.WatchDeploymentEvent{
+				Event: &v1.WatchDeploymentEvent_DeploymentLogChunk{
+					DeploymentLogChunk: &v1.DeploymentLogChunkEvent{
+						Lines: e.Lines,
+					},
+				},
+			}
+		default:
+			continue
+		}
+		if err := stream.Send(protoEvent); err != nil {
+			return toConnectError(err)
+		}
+	}
+	return nil
 }
 
 func toProtoDeployment(d *domain.Deployment) *v1.Deployment {

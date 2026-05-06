@@ -13,7 +13,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file maxicloud/v1/deployment.proto.
  */
 export const file_maxicloud_v1_deployment: GenFile = /*@__PURE__*/
-  fileDesc("Ch1tYXhpY2xvdWQvdjEvZGVwbG95bWVudC5wcm90bxIMbWF4aWNsb3VkLnYxImoKBkNvbW1pdBILCgNzaGEYASABKAkSDwoHbWVzc2FnZRgCIAEoCRITCgthdXRob3JfbmFtZRgDIAEoCRItCgl0aW1lc3RhbXAYBCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIpMCCgpEZXBsb3ltZW50EgoKAmlkGAEgASgJEhYKDmFwcGxpY2F0aW9uX2lkGAIgASgJEhUKDW93bmVyX3VzZXJfaWQYAyABKAkSJAoGY29tbWl0GAQgASgLMhQubWF4aWNsb3VkLnYxLkNvbW1pdBIuCgZzdGF0dXMYBSABKA4yHi5tYXhpY2xvdWQudjEuRGVwbG95bWVudFN0YXR1cxIuCgpzdGFydGVkX2F0GAYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBI0CgtmaW5pc2hlZF9hdBgHIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBIAIgBAUIOCgxfZmluaXNoZWRfYXQiPAoWUmV0cnlEZXBsb3ltZW50UmVxdWVzdBIiCg1kZXBsb3ltZW50X2lkGAEgASgJQgu6SAjIAQFyA7ABASJHChdSZXRyeURlcGxveW1lbnRSZXNwb25zZRIsCgpkZXBsb3ltZW50GAEgASgLMhgubWF4aWNsb3VkLnYxLkRlcGxveW1lbnQiOgoUR2V0RGVwbG95bWVudFJlcXVlc3QSIgoNZGVwbG95bWVudF9pZBgBIAEoCUILukgIyAEBcgOwAQEiRQoVR2V0RGVwbG95bWVudFJlc3BvbnNlEiwKCmRlcGxveW1lbnQYASABKAsyGC5tYXhpY2xvdWQudjEuRGVwbG95bWVudCI9ChZMaXN0RGVwbG95bWVudHNSZXF1ZXN0EiMKDmFwcGxpY2F0aW9uX2lkGAEgASgJQgu6SAjIAQFyA7ABASJIChdMaXN0RGVwbG95bWVudHNSZXNwb25zZRItCgtkZXBsb3ltZW50cxgBIAMoCzIYLm1heGljbG91ZC52MS5EZXBsb3ltZW50KpEBChBEZXBsb3ltZW50U3RhdHVzEiEKHURFUExPWU1FTlRfU1RBVFVTX1VOU1BFQ0lGSUVEEAASHQoZREVQTE9ZTUVOVF9TVEFUVVNfU1VDQ0VTUxABEh0KGURFUExPWU1FTlRfU1RBVFVTX1JVTk5JTkcQAhIcChhERVBMT1lNRU5UX1NUQVRVU19GQUlMRUQQAzKtAgoRRGVwbG95bWVudFNlcnZpY2USXgoPUmV0cnlEZXBsb3ltZW50EiQubWF4aWNsb3VkLnYxLlJldHJ5RGVwbG95bWVudFJlcXVlc3QaJS5tYXhpY2xvdWQudjEuUmV0cnlEZXBsb3ltZW50UmVzcG9uc2USWAoNR2V0RGVwbG95bWVudBIiLm1heGljbG91ZC52MS5HZXREZXBsb3ltZW50UmVxdWVzdBojLm1heGljbG91ZC52MS5HZXREZXBsb3ltZW50UmVzcG9uc2USXgoPTGlzdERlcGxveW1lbnRzEiQubWF4aWNsb3VkLnYxLkxpc3REZXBsb3ltZW50c1JlcXVlc3QaJS5tYXhpY2xvdWQudjEuTGlzdERlcGxveW1lbnRzUmVzcG9uc2VCuAEKEGNvbS5tYXhpY2xvdWQudjFCD0RlcGxveW1lbnRQcm90b1ABWkJnaXRodWIuY29tL3NhaXRhbWF1LW1heGltdW0vbWF4aWNsb3VkL2dlbi9tYXhpY2xvdWQvdjE7bWF4aWNsb3VkdjGiAgNNWFiqAgxNYXhpY2xvdWQuVjHKAgxNYXhpY2xvdWRcVjHiAhhNYXhpY2xvdWRcVjFcR1BCTWV0YWRhdGHqAg1NYXhpY2xvdWQ6OlYxYgZwcm90bzM", [file_buf_validate_validate, file_google_protobuf_timestamp]);
+  fileDesc("Ch1tYXhpY2xvdWQvdjEvZGVwbG95bWVudC5wcm90bxIMbWF4aWNsb3VkLnYxImoKBkNvbW1pdBILCgNzaGEYASABKAkSDwoHbWVzc2FnZRgCIAEoCRITCgthdXRob3JfbmFtZRgDIAEoCRItCgl0aW1lc3RhbXAYBCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIpMCCgpEZXBsb3ltZW50EgoKAmlkGAEgASgJEhYKDmFwcGxpY2F0aW9uX2lkGAIgASgJEhUKDW93bmVyX3VzZXJfaWQYAyABKAkSJAoGY29tbWl0GAQgASgLMhQubWF4aWNsb3VkLnYxLkNvbW1pdBIuCgZzdGF0dXMYBSABKA4yHi5tYXhpY2xvdWQudjEuRGVwbG95bWVudFN0YXR1cxIuCgpzdGFydGVkX2F0GAYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBI0CgtmaW5pc2hlZF9hdBgHIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBIAIgBAUIOCgxfZmluaXNoZWRfYXQiPAoWUmV0cnlEZXBsb3ltZW50UmVxdWVzdBIiCg1kZXBsb3ltZW50X2lkGAEgASgJQgu6SAjIAQFyA7ABASJHChdSZXRyeURlcGxveW1lbnRSZXNwb25zZRIsCgpkZXBsb3ltZW50GAEgASgLMhgubWF4aWNsb3VkLnYxLkRlcGxveW1lbnQiOgoUR2V0RGVwbG95bWVudFJlcXVlc3QSIgoNZGVwbG95bWVudF9pZBgBIAEoCUILukgIyAEBcgOwAQEiRQoVR2V0RGVwbG95bWVudFJlc3BvbnNlEiwKCmRlcGxveW1lbnQYASABKAsyGC5tYXhpY2xvdWQudjEuRGVwbG95bWVudCI9ChZMaXN0RGVwbG95bWVudHNSZXF1ZXN0EiMKDmFwcGxpY2F0aW9uX2lkGAEgASgJQgu6SAjIAQFyA7ABASJIChdMaXN0RGVwbG95bWVudHNSZXNwb25zZRItCgtkZXBsb3ltZW50cxgBIAMoCzIYLm1heGljbG91ZC52MS5EZXBsb3ltZW50IjwKFldhdGNoRGVwbG95bWVudFJlcXVlc3QSIgoNZGVwbG95bWVudF9pZBgBIAEoCUILukgIyAEBcgOwAQEitwEKFFdhdGNoRGVwbG95bWVudEV2ZW50Ek8KGWRlcGxveW1lbnRfc3RhdHVzX2NoYW5nZWQYASABKAsyKi5tYXhpY2xvdWQudjEuRGVwbG95bWVudFN0YXR1c0NoYW5nZWRFdmVudEgAEkUKFGRlcGxveW1lbnRfbG9nX2NodW5rGAIgASgLMiUubWF4aWNsb3VkLnYxLkRlcGxveW1lbnRMb2dDaHVua0V2ZW50SABCBwoFZXZlbnQirQEKHERlcGxveW1lbnRTdGF0dXNDaGFuZ2VkRXZlbnQSLgoGc3RhdHVzGAEgASgOMh4ubWF4aWNsb3VkLnYxLkRlcGxveW1lbnRTdGF0dXMSFwoPZWxhcHNlZF9zZWNvbmRzGAIgASgDEjQKC2ZpbmlzaGVkX2F0GAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEgAiAEBQg4KDF9maW5pc2hlZF9hdCIoChdEZXBsb3ltZW50TG9nQ2h1bmtFdmVudBINCgVsaW5lcxgBIAMoCSqRAQoQRGVwbG95bWVudFN0YXR1cxIhCh1ERVBMT1lNRU5UX1NUQVRVU19VTlNQRUNJRklFRBAAEh0KGURFUExPWU1FTlRfU1RBVFVTX1NVQ0NFU1MQARIdChlERVBMT1lNRU5UX1NUQVRVU19SVU5OSU5HEAISHAoYREVQTE9ZTUVOVF9TVEFUVVNfRkFJTEVEEAMyjAMKEURlcGxveW1lbnRTZXJ2aWNlEl4KD1JldHJ5RGVwbG95bWVudBIkLm1heGljbG91ZC52MS5SZXRyeURlcGxveW1lbnRSZXF1ZXN0GiUubWF4aWNsb3VkLnYxLlJldHJ5RGVwbG95bWVudFJlc3BvbnNlElgKDUdldERlcGxveW1lbnQSIi5tYXhpY2xvdWQudjEuR2V0RGVwbG95bWVudFJlcXVlc3QaIy5tYXhpY2xvdWQudjEuR2V0RGVwbG95bWVudFJlc3BvbnNlEl4KD0xpc3REZXBsb3ltZW50cxIkLm1heGljbG91ZC52MS5MaXN0RGVwbG95bWVudHNSZXF1ZXN0GiUubWF4aWNsb3VkLnYxLkxpc3REZXBsb3ltZW50c1Jlc3BvbnNlEl0KD1dhdGNoRGVwbG95bWVudBIkLm1heGljbG91ZC52MS5XYXRjaERlcGxveW1lbnRSZXF1ZXN0GiIubWF4aWNsb3VkLnYxLldhdGNoRGVwbG95bWVudEV2ZW50MAFCuAEKEGNvbS5tYXhpY2xvdWQudjFCD0RlcGxveW1lbnRQcm90b1ABWkJnaXRodWIuY29tL3NhaXRhbWF1LW1heGltdW0vbWF4aWNsb3VkL2dlbi9tYXhpY2xvdWQvdjE7bWF4aWNsb3VkdjGiAgNNWFiqAgxNYXhpY2xvdWQuVjHKAgxNYXhpY2xvdWRcVjHiAhhNYXhpY2xvdWRcVjFcR1BCTWV0YWRhdGHqAg1NYXhpY2xvdWQ6OlYxYgZwcm90bzM", [file_buf_validate_validate, file_google_protobuf_timestamp]);
 
 /**
  * @generated from message maxicloud.v1.Commit
@@ -197,6 +197,96 @@ export const ListDeploymentsResponseSchema: GenMessage<ListDeploymentsResponse> 
   messageDesc(file_maxicloud_v1_deployment, 7);
 
 /**
+ * @generated from message maxicloud.v1.WatchDeploymentRequest
+ */
+export type WatchDeploymentRequest = Message<"maxicloud.v1.WatchDeploymentRequest"> & {
+  /**
+   * @generated from field: string deployment_id = 1;
+   */
+  deploymentId: string;
+};
+
+/**
+ * Describes the message maxicloud.v1.WatchDeploymentRequest.
+ * Use `create(WatchDeploymentRequestSchema)` to create a new message.
+ */
+export const WatchDeploymentRequestSchema: GenMessage<WatchDeploymentRequest> = /*@__PURE__*/
+  messageDesc(file_maxicloud_v1_deployment, 8);
+
+/**
+ * @generated from message maxicloud.v1.WatchDeploymentEvent
+ */
+export type WatchDeploymentEvent = Message<"maxicloud.v1.WatchDeploymentEvent"> & {
+  /**
+   * @generated from oneof maxicloud.v1.WatchDeploymentEvent.event
+   */
+  event: {
+    /**
+     * @generated from field: maxicloud.v1.DeploymentStatusChangedEvent deployment_status_changed = 1;
+     */
+    value: DeploymentStatusChangedEvent;
+    case: "deploymentStatusChanged";
+  } | {
+    /**
+     * @generated from field: maxicloud.v1.DeploymentLogChunkEvent deployment_log_chunk = 2;
+     */
+    value: DeploymentLogChunkEvent;
+    case: "deploymentLogChunk";
+  } | { case: undefined; value?: undefined };
+};
+
+/**
+ * Describes the message maxicloud.v1.WatchDeploymentEvent.
+ * Use `create(WatchDeploymentEventSchema)` to create a new message.
+ */
+export const WatchDeploymentEventSchema: GenMessage<WatchDeploymentEvent> = /*@__PURE__*/
+  messageDesc(file_maxicloud_v1_deployment, 9);
+
+/**
+ * @generated from message maxicloud.v1.DeploymentStatusChangedEvent
+ */
+export type DeploymentStatusChangedEvent = Message<"maxicloud.v1.DeploymentStatusChangedEvent"> & {
+  /**
+   * @generated from field: maxicloud.v1.DeploymentStatus status = 1;
+   */
+  status: DeploymentStatus;
+
+  /**
+   * @generated from field: int64 elapsed_seconds = 2;
+   */
+  elapsedSeconds: bigint;
+
+  /**
+   * @generated from field: optional google.protobuf.Timestamp finished_at = 3;
+   */
+  finishedAt?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message maxicloud.v1.DeploymentStatusChangedEvent.
+ * Use `create(DeploymentStatusChangedEventSchema)` to create a new message.
+ */
+export const DeploymentStatusChangedEventSchema: GenMessage<DeploymentStatusChangedEvent> = /*@__PURE__*/
+  messageDesc(file_maxicloud_v1_deployment, 10);
+
+/**
+ * @generated from message maxicloud.v1.DeploymentLogChunkEvent
+ */
+export type DeploymentLogChunkEvent = Message<"maxicloud.v1.DeploymentLogChunkEvent"> & {
+  /**
+   * @generated from field: repeated string lines = 1;
+   */
+  lines: string[];
+};
+
+/**
+ * Describes the message maxicloud.v1.DeploymentLogChunkEvent.
+ * Use `create(DeploymentLogChunkEventSchema)` to create a new message.
+ */
+export const DeploymentLogChunkEventSchema: GenMessage<DeploymentLogChunkEvent> = /*@__PURE__*/
+  messageDesc(file_maxicloud_v1_deployment, 11);
+
+/**
  * @generated from enum maxicloud.v1.DeploymentStatus
  */
 export enum DeploymentStatus {
@@ -254,6 +344,14 @@ export const DeploymentService: GenService<{
     methodKind: "unary";
     input: typeof ListDeploymentsRequestSchema;
     output: typeof ListDeploymentsResponseSchema;
+  },
+  /**
+   * @generated from rpc maxicloud.v1.DeploymentService.WatchDeployment
+   */
+  watchDeployment: {
+    methodKind: "server_streaming";
+    input: typeof WatchDeploymentRequestSchema;
+    output: typeof WatchDeploymentEventSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_maxicloud_v1_deployment, 0);

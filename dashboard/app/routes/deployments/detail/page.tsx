@@ -1,12 +1,14 @@
 import { useOutletContext } from "react-router";
 import { Panel } from "~/components/ui/panel";
-import { BuildLog } from "./internal/components/build-log";
+import { BuildLog } from "./internal/components/log";
 import { StatusPanel } from "./internal/components/status-panel";
 import { SummaryPanel } from "./internal/components/summary-panel";
+import { useWatchDeployment } from "./internal/hooks/use-watch-deployment";
 import type { DeploymentDetailContext } from "./layout";
 
 export default function DeploymentDetailPage() {
-  const { deployment, applicationByID, userByID } = useOutletContext<DeploymentDetailContext>();
+  const { deployment, deploymentId, applicationByID, userByID } = useOutletContext<DeploymentDetailContext>();
+  const { status, duration, logLines } = useWatchDeployment(deploymentId);
 
   const application = applicationByID[deployment.applicationId];
   const owner = userByID[deployment.ownerId];
@@ -15,12 +17,12 @@ export default function DeploymentDetailPage() {
   return (
     <>
       <StatusPanel
-        status={deployment.status}
-        duration={deployment.duration}
+        status={status ?? deployment.status}
+        duration={duration || deployment.duration}
         finishedAt={deployment.finishedAt}
       />
 
-      <Panel title="Summary">
+      <Panel title="サマリー">
         <SummaryPanel
           applicationName={application?.name ?? "-"}
           ownerName={owner?.displayName ?? "-"}
@@ -32,8 +34,8 @@ export default function DeploymentDetailPage() {
         />
       </Panel>
 
-      <Panel title="Build Log" subtitle="ダミー — ログストリームは未実装">
-        <BuildLog />
+      <Panel title="ログ">
+        <BuildLog lines={logLines} />
       </Panel>
     </>
   );

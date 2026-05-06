@@ -3,6 +3,7 @@ package domain
 import (
 	"context"
 	"fmt"
+	"io"
 	"time"
 )
 
@@ -82,6 +83,7 @@ type DeploymentPipelineRepository interface {
 	CreatePipeline(ctx context.Context, pipeline DeploymentPipeline) (string, error)
 	GetPipeline(ctx context.Context, id string) (*DeploymentPipeline, error)
 	DeleteOldPipelines(ctx context.Context, applicationID string, maxHistory int, isPreview bool) error
+	WatchBuildLogs(ctx context.Context, deploymentID string) (io.ReadCloser, error)
 }
 
 type DeploymentEventType string

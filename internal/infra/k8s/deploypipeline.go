@@ -3,6 +3,7 @@ package k8s
 import (
 	"context"
 	"fmt"
+	"io"
 	"sort"
 	"strconv"
 	"time"
@@ -10,7 +11,9 @@ import (
 	maxicloudv1alpha1 "github.com/saitamau-maximum/maxicloud/api/v1alpha1"
 	"github.com/saitamau-maximum/maxicloud/internal/config"
 	"github.com/saitamau-maximum/maxicloud/internal/domain"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -22,13 +25,66 @@ const (
 )
 
 type deploymentPipelineRepository struct {
-	client client.Client
+	client    client.Client
+	clientset kubernetes.Interface
 }
 
 var _ domain.DeploymentPipelineRepository = (*deploymentPipelineRepository)(nil)
 
-func NewDeploymentPipelineRepository(c client.Client) domain.DeploymentPipelineRepository {
-	return &deploymentPipelineRepository{client: c}
+func NewDeploymentPipelineRepository(c client.Client, clientset kubernetes.Interface) domain.DeploymentPipelineRepository {
+	return &deploymentPipelineRepository{client: c, clientset: clientset}
+}
+
+func (r *deploymentPipelineRepository) WatchBuildLogs(ctx context.Context, deploymentID string) (io.ReadCloser, error) {
+	var list maxicloudv1alpha1.DeploymentPipelineList
+	if err := r.client.List(ctx, &list, client.MatchingLabels{labelPipelineID: deploymentID}); err != nil {
+		return nil, fmt.Errorf("list deployment pipelines: %w", err)
+	}
+	if len(list.Items) == 0 {
+		return nil, fmt.Errorf("pipeline not found: %s", deploymentID)
+	}
+	namespace := list.Items[0].Namespace
+
+	// Podが起動するまで待機
+	var podName string
+	waitCtx, cancel := context.WithTimeout(ctx, 45*time.Second)
+	defer cancel()
+	for {
+		select {
+		case <-waitCtx.Done():
+			return nil, fmt.Errorf("timed out waiting build pod for deployment %s: %w", deploymentID, waitCtx.Err())
+		default:
+		}
+		pods, err := r.clientset.CoreV1().Pods(namespace).List(waitCtx, metav1.ListOptions{
+			LabelSelector: fmt.Sprintf("job-name=%s", deploymentID),
+		})
+		if err == nil && len(pods.Items) > 0 {
+			podName = pods.Items[0].Name
+			break
+		}
+		time.Sleep(1 * time.Second)
+	}
+
+	streamDeadline := time.Now().Add(45 * time.Second)
+	for {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		default:
+		}
+		if time.Now().After(streamDeadline) {
+			return nil, fmt.Errorf("timed out opening build logs stream for deployment %s", deploymentID)
+		}
+
+		req := r.clientset.CoreV1().Pods(namespace).GetLogs(podName, &corev1.PodLogOptions{
+			Follow: true,
+		})
+		stream, err := req.Stream(ctx)
+		if err == nil {
+			return stream, nil
+		}
+		time.Sleep(1 * time.Second)
+	}
 }
 
 func (r *deploymentPipelineRepository) CreatePipeline(ctx context.Context, pipeline domain.DeploymentPipeline) (string, error) {

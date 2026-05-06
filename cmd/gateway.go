@@ -14,6 +14,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/spf13/cobra"
+	"k8s.io/client-go/kubernetes"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
@@ -46,7 +47,12 @@ func runGateway(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	k8sClient, err := client.New(ctrl.GetConfigOrDie(), client.Options{Scheme: scheme})
+	restConfig := ctrl.GetConfigOrDie()
+	k8sClient, err := client.New(restConfig, client.Options{Scheme: scheme})
+	if err != nil {
+		return err
+	}
+	clientset, err := kubernetes.NewForConfig(restConfig)
 	if err != nil {
 		return err
 	}
@@ -54,7 +60,7 @@ func runGateway(cmd *cobra.Command, args []string) error {
 	appRepo := k8s.NewApplicationRepository(k8sClient, cfg.IngressClass)
 	prjRepo := k8s.NewProjectRepository(k8sClient)
 	deployRepo := postgres.NewDeploymentRepository()
-	deployPipelineRepo := k8s.NewDeploymentPipelineRepository(k8sClient)
+	deployPipelineRepo := k8s.NewDeploymentPipelineRepository(k8sClient, clientset)
 	srcRepo := github.NewClient(cfg.GitHubAppID, []byte(privateKey), cfg.InstallationID)
 
 	deploySvc := usecase.NewDeploymentService(deployRepo, deployPipelineRepo, appRepo)
