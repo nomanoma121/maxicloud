@@ -1,5 +1,6 @@
 import { useOutletContext } from "react-router";
 import { Panel } from "~/components/ui/panel";
+import { formatDateTime } from "~/utils/date";
 import { Log } from "./internal/components/log";
 import { StatusPanel } from "./internal/components/status-panel";
 import { SummaryPanel } from "./internal/components/summary-panel";
@@ -19,7 +20,7 @@ export default function DeploymentDetailPage() {
       <StatusPanel
         status={status ?? deployment.status}
         duration={duration || deployment.duration}
-        finishedAt={finishedAt?.toDateString() ?? deployment.finishedAt}
+        finishedAt={finishedAt ? formatDateTime(finishedAt) : deployment.finishedAt}
       />
 
       <Panel title="サマリー">

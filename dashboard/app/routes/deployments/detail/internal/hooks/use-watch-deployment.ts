@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { timestampDate } from "@bufbuild/protobuf/wkt";
 import { DeploymentStatus as ProtoDeploymentStatus } from "~/gen/maxicloud/v1/deployment_pb";
 import type { DeploymentStatus } from "~/types";
+import { formatElapsedSeconds } from "~/utils/date";
 import { connectClient } from "~/utils/connect";
 
 const mapStatus = (status: ProtoDeploymentStatus): DeploymentStatus => {
@@ -29,6 +30,7 @@ export const useWatchDeployment = (deploymentId: string) => {
     finishedAt: undefined,
     logLines: [],
   });
+  const [nowTick, setNowTick] = useState(0);
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -73,5 +75,20 @@ export const useWatchDeployment = (deploymentId: string) => {
     };
   }, [deploymentId]);
 
-  return state;
+  useEffect(() => {
+    setNowTick(0);
+  }, [state.elapsedSeconds, state.status, deploymentId]);
+
+  useEffect(() => {
+    if (state.status !== "running") return;
+    const id = window.setInterval(() => setNowTick((v) => v + 1), 1000);
+    return () => window.clearInterval(id);
+  }, [state.status]);
+
+  const duration = useMemo(() => {
+    const currentSeconds = state.status === "running" ? state.elapsedSeconds + nowTick : state.elapsedSeconds;
+    return formatElapsedSeconds(currentSeconds);
+  }, [state.elapsedSeconds, state.status, nowTick]);
+
+  return { ...state, duration };
 };
