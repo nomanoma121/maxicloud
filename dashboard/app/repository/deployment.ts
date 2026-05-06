@@ -17,12 +17,12 @@ const mapStatus = (status: DeploymentStatus): DeploymentRun["status"] => {
   switch (status) {
     case DeploymentStatus.SUCCESS:
       return "success";
-    case DeploymentStatus.RUNNING:
-      return "running";
+    case DeploymentStatus.IN_PROGRESS:
+      return "in_progress";
     case DeploymentStatus.FAILED:
       return "failed";
     default:
-      return "running";
+      return "in_progress";
   }
 };
 
@@ -51,7 +51,7 @@ const makeEvents = (deployment: DeploymentRun): DeployEvent[] => {
       ? "Deployment succeeded"
       : deployment.status === "failed"
         ? "Deployment failed"
-        : "Deployment running";
+        : "Deployment in progress";
 
   return [
     {

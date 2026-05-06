@@ -28,7 +28,7 @@ type DeploymentStatus int32
 const (
 	DeploymentStatus_DEPLOYMENT_STATUS_UNSPECIFIED DeploymentStatus = 0
 	DeploymentStatus_DEPLOYMENT_STATUS_SUCCESS     DeploymentStatus = 1
-	DeploymentStatus_DEPLOYMENT_STATUS_RUNNING     DeploymentStatus = 2
+	DeploymentStatus_DEPLOYMENT_STATUS_IN_PROGRESS DeploymentStatus = 2
 	DeploymentStatus_DEPLOYMENT_STATUS_FAILED      DeploymentStatus = 3
 )
 
@@ -37,13 +37,13 @@ var (
 	DeploymentStatus_name = map[int32]string{
 		0: "DEPLOYMENT_STATUS_UNSPECIFIED",
 		1: "DEPLOYMENT_STATUS_SUCCESS",
-		2: "DEPLOYMENT_STATUS_RUNNING",
+		2: "DEPLOYMENT_STATUS_IN_PROGRESS",
 		3: "DEPLOYMENT_STATUS_FAILED",
 	}
 	DeploymentStatus_value = map[string]int32{
 		"DEPLOYMENT_STATUS_UNSPECIFIED": 0,
 		"DEPLOYMENT_STATUS_SUCCESS":     1,
-		"DEPLOYMENT_STATUS_RUNNING":     2,
+		"DEPLOYMENT_STATUS_IN_PROGRESS": 2,
 		"DEPLOYMENT_STATUS_FAILED":      3,
 	}
 )
@@ -781,11 +781,11 @@ const file_maxicloud_v1_deployment_proto_rawDesc = "" +
 	"finishedAt\x88\x01\x01B\x0e\n" +
 	"\f_finished_at\"/\n" +
 	"\x17DeploymentLogChunkEvent\x12\x14\n" +
-	"\x05lines\x18\x01 \x03(\tR\x05lines*\x91\x01\n" +
+	"\x05lines\x18\x01 \x03(\tR\x05lines*\x95\x01\n" +
 	"\x10DeploymentStatus\x12!\n" +
 	"\x1dDEPLOYMENT_STATUS_UNSPECIFIED\x10\x00\x12\x1d\n" +
-	"\x19DEPLOYMENT_STATUS_SUCCESS\x10\x01\x12\x1d\n" +
-	"\x19DEPLOYMENT_STATUS_RUNNING\x10\x02\x12\x1c\n" +
+	"\x19DEPLOYMENT_STATUS_SUCCESS\x10\x01\x12!\n" +
+	"\x1dDEPLOYMENT_STATUS_IN_PROGRESS\x10\x02\x12\x1c\n" +
 	"\x18DEPLOYMENT_STATUS_FAILED\x10\x032\x8f\x03\n" +
 	"\x11DeploymentService\x12^\n" +
 	"\x0fRetryDeployment\x12$.maxicloud.v1.RetryDeploymentRequest\x1a%.maxicloud.v1.RetryDeploymentResponse\x12X\n" +

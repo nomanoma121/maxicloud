@@ -11,6 +11,7 @@ type StatusPanelProps = {
 export const StatusPanel = ({ status, duration, finishedAt }: StatusPanelProps) => {
   const statusMeta = DEPLOYMENT_STATUS_META[status];
   const StatusIcon = statusMeta.Icon;
+  const inProgress = status === "in_progress";
 
   return (
     <div
@@ -26,7 +27,23 @@ export const StatusPanel = ({ status, duration, finishedAt }: StatusPanelProps) 
           className={css({ display: "flex", alignItems: "center", gap: 1.5, fontWeight: 700, fontSize: "xl", lineHeight: 1.2 })}
           style={{ color: statusMeta.color }}
         >
-          <StatusIcon size={20} aria-hidden />
+          {inProgress ? (
+            <span
+              aria-hidden
+              className={css({
+                width: "20px",
+                height: "20px",
+                borderRadius: "full",
+                borderWidth: "3px",
+                borderStyle: "solid",
+                borderColor: statusMeta.color,
+                borderTopColor: "transparent",
+                animation: "spin 1.2s linear infinite",
+              })}
+            />
+          ) : (
+            <StatusIcon size={20} aria-hidden />
+          )}
           {statusMeta.label}
         </div>
       </MetricCard>

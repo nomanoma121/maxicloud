@@ -11,7 +11,7 @@ type DeploymentStatus string
 
 const (
 	DeploymentStatusQueued    DeploymentStatus = "QUEUED"
-	DeploymentStatusRunning   DeploymentStatus = "RUNNING"
+	DeploymentStatusInProgress DeploymentStatus = "IN_PROGRESS"
 	DeploymentStatusSucceeded DeploymentStatus = "SUCCESS"
 	DeploymentStatusFailed    DeploymentStatus = "FAILED"
 )
@@ -35,7 +35,7 @@ func (d Deployment) Duration() time.Duration {
 	return d.FinishedAt.Sub(d.StartedAt)
 }
 
-// StatusがFAILEDかSUCCEEDEDのときFinishedAtは必須、QUEUEDかRUNNINGのときFinishedAtはnilでなければならない
+// StatusがFAILEDかSUCCEEDEDのときFinishedAtは必須、QUEUEDかIN_PROGRESSのときFinishedAtはnilでなければならない
 type RecordDeploymentStatusParams struct {
 	ID         string
 	Status     DeploymentStatus
@@ -44,7 +44,7 @@ type RecordDeploymentStatusParams struct {
 
 func (d RecordDeploymentStatusParams) Validate() error {
 	switch d.Status {
-	case DeploymentStatusRunning, DeploymentStatusQueued:
+	case DeploymentStatusInProgress, DeploymentStatusQueued:
 		if d.FinishedAt != nil {
 			return fmt.Errorf("finishedAt must be nil when status is %s", d.Status)
 		}

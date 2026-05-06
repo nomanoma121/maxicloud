@@ -1,4 +1,4 @@
-import { Activity, CheckCircle, XCircle } from "react-feather";
+import { CheckCircle, Loader, XCircle } from "react-feather";
 import type { DeploymentStatus } from "~/types";
 
 export const DEPLOYMENT_STATUS_META = {
@@ -12,10 +12,10 @@ export const DEPLOYMENT_STATUS_META = {
     color: "#dc2626",
     Icon: XCircle,
   },
-  running: {
-    label: "Running",
-    color: "#0284c7",
-    Icon: Activity,
+  in_progress: {
+    label: "In Progress",
+    color: "#d29922",
+    Icon: Loader,
   },
 } as const satisfies Record<
   DeploymentStatus,

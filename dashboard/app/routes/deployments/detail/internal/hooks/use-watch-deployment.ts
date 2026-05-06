@@ -9,10 +9,12 @@ const mapStatus = (status: ProtoDeploymentStatus): DeploymentStatus => {
   switch (status) {
     case ProtoDeploymentStatus.SUCCESS:
       return "success";
+    case ProtoDeploymentStatus.IN_PROGRESS:
+      return "in_progress";
     case ProtoDeploymentStatus.FAILED:
       return "failed";
     default:
-      return "running";
+      return "in_progress";
   }
 };
 
@@ -80,13 +82,13 @@ export const useWatchDeployment = (deploymentId: string) => {
   }, [state.elapsedSeconds, state.status, deploymentId]);
 
   useEffect(() => {
-    if (state.status !== "running") return;
+    if (state.status !== "in_progress") return;
     const id = window.setInterval(() => setNowTick((v) => v + 1), 1000);
     return () => window.clearInterval(id);
   }, [state.status]);
 
   const duration = useMemo(() => {
-    const currentSeconds = state.status === "running" ? state.elapsedSeconds + nowTick : state.elapsedSeconds;
+    const currentSeconds = state.status === "in_progress" ? state.elapsedSeconds + nowTick : state.elapsedSeconds;
     return formatElapsedSeconds(currentSeconds);
   }, [state.elapsedSeconds, state.status, nowTick]);
 

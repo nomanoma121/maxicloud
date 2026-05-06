@@ -1,7 +1,7 @@
 export type UserStatus = "active" | "invited" | "suspended";
 
 export type ApplicationStatus = "running" | "unavailable" | "stopped" | "degraded";
-export type DeploymentStatus = "success" | "running" | "failed";
+export type DeploymentStatus = "success" | "in_progress" | "failed";
 export type JobTrigger = "manual" | "predeploy" | "schedule";
 
 export type UserAccount = {

@@ -126,11 +126,11 @@ func toProtoDeployment(d *domain.Deployment) *v1.Deployment {
 func toProtoDeploymentStatus(status domain.DeploymentStatus) v1.DeploymentStatus {
 	switch status {
 	case domain.DeploymentStatusQueued:
-		return v1.DeploymentStatus_DEPLOYMENT_STATUS_RUNNING
+		return v1.DeploymentStatus_DEPLOYMENT_STATUS_IN_PROGRESS
 	case domain.DeploymentStatusSucceeded:
 		return v1.DeploymentStatus_DEPLOYMENT_STATUS_SUCCESS
-	case domain.DeploymentStatusRunning:
-		return v1.DeploymentStatus_DEPLOYMENT_STATUS_RUNNING
+	case domain.DeploymentStatusInProgress:
+		return v1.DeploymentStatus_DEPLOYMENT_STATUS_IN_PROGRESS
 	case domain.DeploymentStatusFailed:
 		return v1.DeploymentStatus_DEPLOYMENT_STATUS_FAILED
 	default:

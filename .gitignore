@@ -32,3 +32,5 @@ go.work
 *.env
 !*.example.env
 *.pem
+
+id/

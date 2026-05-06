@@ -3,6 +3,7 @@ import {
   Activity,
   CheckCircle,
   Clock,
+  Loader,
   PauseCircle,
   UserPlus,
   XCircle,
@@ -43,6 +44,12 @@ const statusStyle: Record<BadgeStatus, { text: string; icon: string; label: stri
     label: "Success",
     glyph: CheckCircle,
   },
+  in_progress: {
+    text: css({ color: "gray.800" }),
+    icon: css({ color: "#d29922" }),
+    label: "In Progress",
+    glyph: Loader,
+  },
   failed: {
     text: css({ color: "gray.800" }),
     icon: css({ color: "#dc2626" }),
@@ -76,6 +83,7 @@ type StatusBadgeProps = {
 export const StatusBadge = ({ status }: StatusBadgeProps) => {
   const item = statusStyle[status] ?? statusStyle.degraded;
   const Icon = item.glyph;
+  const inProgress = status === "in_progress";
 
   return (
     <span
@@ -93,7 +101,23 @@ export const StatusBadge = ({ status }: StatusBadgeProps) => {
         item.text,
       )}
     >
-      <Icon size={14} strokeWidth={2.25} className={item.icon} aria-hidden />
+      {inProgress ? (
+        <span
+          aria-hidden
+          className={css({
+            width: "14px",
+            height: "14px",
+            borderRadius: "full",
+            borderWidth: "3px",
+            borderStyle: "solid",
+            borderColor: "#d29922",
+            borderTopColor: "transparent",
+            animation: "spin 1.2s linear infinite",
+          })}
+        />
+      ) : (
+        <Icon size={14} strokeWidth={2.25} className={item.icon} aria-hidden />
+      )}
       {item.label}
     </span>
   );

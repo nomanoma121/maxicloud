@@ -8,7 +8,7 @@ import "google/protobuf/timestamp.proto";
 enum DeploymentStatus {
   DEPLOYMENT_STATUS_UNSPECIFIED = 0;
   DEPLOYMENT_STATUS_SUCCESS = 1;
-  DEPLOYMENT_STATUS_RUNNING = 2;
+  DEPLOYMENT_STATUS_IN_PROGRESS = 2;
   DEPLOYMENT_STATUS_FAILED = 3;
 }
 

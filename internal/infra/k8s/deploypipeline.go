@@ -205,7 +205,7 @@ func crToPipeline(cr *maxicloudv1alpha1.DeploymentPipeline) *domain.DeploymentPi
 func phaseToStatus(phase maxicloudv1alpha1.DeploymentPipelinePhase) domain.DeploymentStatus {
 	switch phase {
 	case maxicloudv1alpha1.DeploymentPipelinePhaseBuilding, maxicloudv1alpha1.DeploymentPipelinePhaseDeploying:
-		return domain.DeploymentStatusRunning
+		return domain.DeploymentStatusInProgress
 	case maxicloudv1alpha1.DeploymentPipelinePhaseSucceeded:
 		return domain.DeploymentStatusSucceeded
 	case maxicloudv1alpha1.DeploymentPipelinePhaseFailed:
