@@ -69,7 +69,7 @@ message WatchDeploymentRequest {
   ];
 }
 
-message WatchDeploymentEvent {
+message WatchDeploymentResponse {
   oneof event {
     DeploymentStatusChangedEvent deployment_status_changed = 1;
     DeploymentLogChunkEvent deployment_log_chunk = 2;
@@ -90,5 +90,5 @@ service DeploymentService {
   rpc RetryDeployment(RetryDeploymentRequest) returns (RetryDeploymentResponse);
   rpc GetDeployment(GetDeploymentRequest) returns (GetDeploymentResponse);
   rpc ListDeployments(ListDeploymentsRequest) returns (ListDeploymentsResponse);
-  rpc WatchDeployment(WatchDeploymentRequest) returns (stream WatchDeploymentEvent);
+  rpc WatchDeployment(WatchDeploymentRequest) returns (stream WatchDeploymentResponse);
 }

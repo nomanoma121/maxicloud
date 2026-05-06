@@ -543,31 +543,31 @@ func (x *WatchDeploymentRequest) GetDeploymentId() string {
 	return ""
 }
 
-type WatchDeploymentEvent struct {
+type WatchDeploymentResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Event:
 	//
-	//	*WatchDeploymentEvent_DeploymentStatusChanged
-	//	*WatchDeploymentEvent_DeploymentLogChunk
-	Event         isWatchDeploymentEvent_Event `protobuf_oneof:"event"`
+	//	*WatchDeploymentResponse_DeploymentStatusChanged
+	//	*WatchDeploymentResponse_DeploymentLogChunk
+	Event         isWatchDeploymentResponse_Event `protobuf_oneof:"event"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *WatchDeploymentEvent) Reset() {
-	*x = WatchDeploymentEvent{}
+func (x *WatchDeploymentResponse) Reset() {
+	*x = WatchDeploymentResponse{}
 	mi := &file_maxicloud_v1_deployment_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *WatchDeploymentEvent) String() string {
+func (x *WatchDeploymentResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*WatchDeploymentEvent) ProtoMessage() {}
+func (*WatchDeploymentResponse) ProtoMessage() {}
 
-func (x *WatchDeploymentEvent) ProtoReflect() protoreflect.Message {
+func (x *WatchDeploymentResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_maxicloud_v1_deployment_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -579,51 +579,51 @@ func (x *WatchDeploymentEvent) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use WatchDeploymentEvent.ProtoReflect.Descriptor instead.
-func (*WatchDeploymentEvent) Descriptor() ([]byte, []int) {
+// Deprecated: Use WatchDeploymentResponse.ProtoReflect.Descriptor instead.
+func (*WatchDeploymentResponse) Descriptor() ([]byte, []int) {
 	return file_maxicloud_v1_deployment_proto_rawDescGZIP(), []int{9}
 }
 
-func (x *WatchDeploymentEvent) GetEvent() isWatchDeploymentEvent_Event {
+func (x *WatchDeploymentResponse) GetEvent() isWatchDeploymentResponse_Event {
 	if x != nil {
 		return x.Event
 	}
 	return nil
 }
 
-func (x *WatchDeploymentEvent) GetDeploymentStatusChanged() *DeploymentStatusChangedEvent {
+func (x *WatchDeploymentResponse) GetDeploymentStatusChanged() *DeploymentStatusChangedEvent {
 	if x != nil {
-		if x, ok := x.Event.(*WatchDeploymentEvent_DeploymentStatusChanged); ok {
+		if x, ok := x.Event.(*WatchDeploymentResponse_DeploymentStatusChanged); ok {
 			return x.DeploymentStatusChanged
 		}
 	}
 	return nil
 }
 
-func (x *WatchDeploymentEvent) GetDeploymentLogChunk() *DeploymentLogChunkEvent {
+func (x *WatchDeploymentResponse) GetDeploymentLogChunk() *DeploymentLogChunkEvent {
 	if x != nil {
-		if x, ok := x.Event.(*WatchDeploymentEvent_DeploymentLogChunk); ok {
+		if x, ok := x.Event.(*WatchDeploymentResponse_DeploymentLogChunk); ok {
 			return x.DeploymentLogChunk
 		}
 	}
 	return nil
 }
 
-type isWatchDeploymentEvent_Event interface {
-	isWatchDeploymentEvent_Event()
+type isWatchDeploymentResponse_Event interface {
+	isWatchDeploymentResponse_Event()
 }
 
-type WatchDeploymentEvent_DeploymentStatusChanged struct {
+type WatchDeploymentResponse_DeploymentStatusChanged struct {
 	DeploymentStatusChanged *DeploymentStatusChangedEvent `protobuf:"bytes,1,opt,name=deployment_status_changed,json=deploymentStatusChanged,proto3,oneof"`
 }
 
-type WatchDeploymentEvent_DeploymentLogChunk struct {
+type WatchDeploymentResponse_DeploymentLogChunk struct {
 	DeploymentLogChunk *DeploymentLogChunkEvent `protobuf:"bytes,2,opt,name=deployment_log_chunk,json=deploymentLogChunk,proto3,oneof"`
 }
 
-func (*WatchDeploymentEvent_DeploymentStatusChanged) isWatchDeploymentEvent_Event() {}
+func (*WatchDeploymentResponse_DeploymentStatusChanged) isWatchDeploymentResponse_Event() {}
 
-func (*WatchDeploymentEvent_DeploymentLogChunk) isWatchDeploymentEvent_Event() {}
+func (*WatchDeploymentResponse_DeploymentLogChunk) isWatchDeploymentResponse_Event() {}
 
 type DeploymentStatusChangedEvent struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
@@ -769,8 +769,8 @@ const file_maxicloud_v1_deployment_proto_rawDesc = "" +
 	"\x17ListDeploymentsResponse\x12:\n" +
 	"\vdeployments\x18\x01 \x03(\v2\x18.maxicloud.v1.DeploymentR\vdeployments\"J\n" +
 	"\x16WatchDeploymentRequest\x120\n" +
-	"\rdeployment_id\x18\x01 \x01(\tB\v\xbaH\b\xc8\x01\x01r\x03\xb0\x01\x01R\fdeploymentId\"\xe4\x01\n" +
-	"\x14WatchDeploymentEvent\x12h\n" +
+	"\rdeployment_id\x18\x01 \x01(\tB\v\xbaH\b\xc8\x01\x01r\x03\xb0\x01\x01R\fdeploymentId\"\xe7\x01\n" +
+	"\x17WatchDeploymentResponse\x12h\n" +
 	"\x19deployment_status_changed\x18\x01 \x01(\v2*.maxicloud.v1.DeploymentStatusChangedEventH\x00R\x17deploymentStatusChanged\x12Y\n" +
 	"\x14deployment_log_chunk\x18\x02 \x01(\v2%.maxicloud.v1.DeploymentLogChunkEventH\x00R\x12deploymentLogChunkB\a\n" +
 	"\x05event\"\xd1\x01\n" +
@@ -786,12 +786,12 @@ const file_maxicloud_v1_deployment_proto_rawDesc = "" +
 	"\x1dDEPLOYMENT_STATUS_UNSPECIFIED\x10\x00\x12\x1d\n" +
 	"\x19DEPLOYMENT_STATUS_SUCCESS\x10\x01\x12\x1d\n" +
 	"\x19DEPLOYMENT_STATUS_RUNNING\x10\x02\x12\x1c\n" +
-	"\x18DEPLOYMENT_STATUS_FAILED\x10\x032\x8c\x03\n" +
+	"\x18DEPLOYMENT_STATUS_FAILED\x10\x032\x8f\x03\n" +
 	"\x11DeploymentService\x12^\n" +
 	"\x0fRetryDeployment\x12$.maxicloud.v1.RetryDeploymentRequest\x1a%.maxicloud.v1.RetryDeploymentResponse\x12X\n" +
 	"\rGetDeployment\x12\".maxicloud.v1.GetDeploymentRequest\x1a#.maxicloud.v1.GetDeploymentResponse\x12^\n" +
-	"\x0fListDeployments\x12$.maxicloud.v1.ListDeploymentsRequest\x1a%.maxicloud.v1.ListDeploymentsResponse\x12]\n" +
-	"\x0fWatchDeployment\x12$.maxicloud.v1.WatchDeploymentRequest\x1a\".maxicloud.v1.WatchDeploymentEvent0\x01B\xb8\x01\n" +
+	"\x0fListDeployments\x12$.maxicloud.v1.ListDeploymentsRequest\x1a%.maxicloud.v1.ListDeploymentsResponse\x12`\n" +
+	"\x0fWatchDeployment\x12$.maxicloud.v1.WatchDeploymentRequest\x1a%.maxicloud.v1.WatchDeploymentResponse0\x01B\xb8\x01\n" +
 	"\x10com.maxicloud.v1B\x0fDeploymentProtoP\x01ZBgithub.com/saitamau-maximum/maxicloud/gen/maxicloud/v1;maxicloudv1\xa2\x02\x03MXX\xaa\x02\fMaxicloud.V1\xca\x02\fMaxicloud\\V1\xe2\x02\x18Maxicloud\\V1\\GPBMetadata\xea\x02\rMaxicloud::V1b\x06proto3"
 
 var (
@@ -819,7 +819,7 @@ var file_maxicloud_v1_deployment_proto_goTypes = []any{
 	(*ListDeploymentsRequest)(nil),       // 7: maxicloud.v1.ListDeploymentsRequest
 	(*ListDeploymentsResponse)(nil),      // 8: maxicloud.v1.ListDeploymentsResponse
 	(*WatchDeploymentRequest)(nil),       // 9: maxicloud.v1.WatchDeploymentRequest
-	(*WatchDeploymentEvent)(nil),         // 10: maxicloud.v1.WatchDeploymentEvent
+	(*WatchDeploymentResponse)(nil),      // 10: maxicloud.v1.WatchDeploymentResponse
 	(*DeploymentStatusChangedEvent)(nil), // 11: maxicloud.v1.DeploymentStatusChangedEvent
 	(*DeploymentLogChunkEvent)(nil),      // 12: maxicloud.v1.DeploymentLogChunkEvent
 	(*timestamppb.Timestamp)(nil),        // 13: google.protobuf.Timestamp
@@ -833,8 +833,8 @@ var file_maxicloud_v1_deployment_proto_depIdxs = []int32{
 	2,  // 5: maxicloud.v1.RetryDeploymentResponse.deployment:type_name -> maxicloud.v1.Deployment
 	2,  // 6: maxicloud.v1.GetDeploymentResponse.deployment:type_name -> maxicloud.v1.Deployment
 	2,  // 7: maxicloud.v1.ListDeploymentsResponse.deployments:type_name -> maxicloud.v1.Deployment
-	11, // 8: maxicloud.v1.WatchDeploymentEvent.deployment_status_changed:type_name -> maxicloud.v1.DeploymentStatusChangedEvent
-	12, // 9: maxicloud.v1.WatchDeploymentEvent.deployment_log_chunk:type_name -> maxicloud.v1.DeploymentLogChunkEvent
+	11, // 8: maxicloud.v1.WatchDeploymentResponse.deployment_status_changed:type_name -> maxicloud.v1.DeploymentStatusChangedEvent
+	12, // 9: maxicloud.v1.WatchDeploymentResponse.deployment_log_chunk:type_name -> maxicloud.v1.DeploymentLogChunkEvent
 	0,  // 10: maxicloud.v1.DeploymentStatusChangedEvent.status:type_name -> maxicloud.v1.DeploymentStatus
 	13, // 11: maxicloud.v1.DeploymentStatusChangedEvent.finished_at:type_name -> google.protobuf.Timestamp
 	3,  // 12: maxicloud.v1.DeploymentService.RetryDeployment:input_type -> maxicloud.v1.RetryDeploymentRequest
@@ -844,7 +844,7 @@ var file_maxicloud_v1_deployment_proto_depIdxs = []int32{
 	4,  // 16: maxicloud.v1.DeploymentService.RetryDeployment:output_type -> maxicloud.v1.RetryDeploymentResponse
 	6,  // 17: maxicloud.v1.DeploymentService.GetDeployment:output_type -> maxicloud.v1.GetDeploymentResponse
 	8,  // 18: maxicloud.v1.DeploymentService.ListDeployments:output_type -> maxicloud.v1.ListDeploymentsResponse
-	10, // 19: maxicloud.v1.DeploymentService.WatchDeployment:output_type -> maxicloud.v1.WatchDeploymentEvent
+	10, // 19: maxicloud.v1.DeploymentService.WatchDeployment:output_type -> maxicloud.v1.WatchDeploymentResponse
 	16, // [16:20] is the sub-list for method output_type
 	12, // [12:16] is the sub-list for method input_type
 	12, // [12:12] is the sub-list for extension type_name
@@ -859,8 +859,8 @@ func file_maxicloud_v1_deployment_proto_init() {
 	}
 	file_maxicloud_v1_deployment_proto_msgTypes[1].OneofWrappers = []any{}
 	file_maxicloud_v1_deployment_proto_msgTypes[9].OneofWrappers = []any{
-		(*WatchDeploymentEvent_DeploymentStatusChanged)(nil),
-		(*WatchDeploymentEvent_DeploymentLogChunk)(nil),
+		(*WatchDeploymentResponse_DeploymentStatusChanged)(nil),
+		(*WatchDeploymentResponse_DeploymentLogChunk)(nil),
 	}
 	file_maxicloud_v1_deployment_proto_msgTypes[10].OneofWrappers = []any{}
 	type x struct{}

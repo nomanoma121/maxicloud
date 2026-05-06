@@ -52,7 +52,7 @@ type DeploymentServiceClient interface {
 	RetryDeployment(context.Context, *v1.RetryDeploymentRequest) (*v1.RetryDeploymentResponse, error)
 	GetDeployment(context.Context, *v1.GetDeploymentRequest) (*v1.GetDeploymentResponse, error)
 	ListDeployments(context.Context, *v1.ListDeploymentsRequest) (*v1.ListDeploymentsResponse, error)
-	WatchDeployment(context.Context, *v1.WatchDeploymentRequest) (*connect.ServerStreamForClient[v1.WatchDeploymentEvent], error)
+	WatchDeployment(context.Context, *v1.WatchDeploymentRequest) (*connect.ServerStreamForClient[v1.WatchDeploymentResponse], error)
 }
 
 // NewDeploymentServiceClient constructs a client for the maxicloud.v1.DeploymentService service. By
@@ -84,7 +84,7 @@ func NewDeploymentServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			connect.WithSchema(deploymentServiceMethods.ByName("ListDeployments")),
 			connect.WithClientOptions(opts...),
 		),
-		watchDeployment: connect.NewClient[v1.WatchDeploymentRequest, v1.WatchDeploymentEvent](
+		watchDeployment: connect.NewClient[v1.WatchDeploymentRequest, v1.WatchDeploymentResponse](
 			httpClient,
 			baseURL+DeploymentServiceWatchDeploymentProcedure,
 			connect.WithSchema(deploymentServiceMethods.ByName("WatchDeployment")),
@@ -98,7 +98,7 @@ type deploymentServiceClient struct {
 	retryDeployment *connect.Client[v1.RetryDeploymentRequest, v1.RetryDeploymentResponse]
 	getDeployment   *connect.Client[v1.GetDeploymentRequest, v1.GetDeploymentResponse]
 	listDeployments *connect.Client[v1.ListDeploymentsRequest, v1.ListDeploymentsResponse]
-	watchDeployment *connect.Client[v1.WatchDeploymentRequest, v1.WatchDeploymentEvent]
+	watchDeployment *connect.Client[v1.WatchDeploymentRequest, v1.WatchDeploymentResponse]
 }
 
 // RetryDeployment calls maxicloud.v1.DeploymentService.RetryDeployment.
@@ -129,7 +129,7 @@ func (c *deploymentServiceClient) ListDeployments(ctx context.Context, req *v1.L
 }
 
 // WatchDeployment calls maxicloud.v1.DeploymentService.WatchDeployment.
-func (c *deploymentServiceClient) WatchDeployment(ctx context.Context, req *v1.WatchDeploymentRequest) (*connect.ServerStreamForClient[v1.WatchDeploymentEvent], error) {
+func (c *deploymentServiceClient) WatchDeployment(ctx context.Context, req *v1.WatchDeploymentRequest) (*connect.ServerStreamForClient[v1.WatchDeploymentResponse], error) {
 	return c.watchDeployment.CallServerStream(ctx, connect.NewRequest(req))
 }
 
@@ -138,7 +138,7 @@ type DeploymentServiceHandler interface {
 	RetryDeployment(context.Context, *v1.RetryDeploymentRequest) (*v1.RetryDeploymentResponse, error)
 	GetDeployment(context.Context, *v1.GetDeploymentRequest) (*v1.GetDeploymentResponse, error)
 	ListDeployments(context.Context, *v1.ListDeploymentsRequest) (*v1.ListDeploymentsResponse, error)
-	WatchDeployment(context.Context, *v1.WatchDeploymentRequest, *connect.ServerStream[v1.WatchDeploymentEvent]) error
+	WatchDeployment(context.Context, *v1.WatchDeploymentRequest, *connect.ServerStream[v1.WatchDeploymentResponse]) error
 }
 
 // NewDeploymentServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -203,6 +203,6 @@ func (UnimplementedDeploymentServiceHandler) ListDeployments(context.Context, *v
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("maxicloud.v1.DeploymentService.ListDeployments is not implemented"))
 }
 
-func (UnimplementedDeploymentServiceHandler) WatchDeployment(context.Context, *v1.WatchDeploymentRequest, *connect.ServerStream[v1.WatchDeploymentEvent]) error {
+func (UnimplementedDeploymentServiceHandler) WatchDeployment(context.Context, *v1.WatchDeploymentRequest, *connect.ServerStream[v1.WatchDeploymentResponse]) error {
 	return connect.NewError(connect.CodeUnimplemented, errors.New("maxicloud.v1.DeploymentService.WatchDeployment is not implemented"))
 }
