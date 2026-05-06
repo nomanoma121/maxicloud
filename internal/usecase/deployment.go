@@ -132,28 +132,18 @@ func (s *deploymentService) GetDeployment(ctx context.Context, deploymentID stri
 		}
 		return nil, err
 	}
-	return s.withPipelineStatus(ctx, deploy)
+	return deploy, nil
 }
 
 func (s *deploymentService) ListDeployments(ctx context.Context, applicationID string) ([]domain.Deployment, error) {
 	if applicationID == "" {
 		return nil, domain.ValidationError{Message: "application_id is required"}
 	}
-	deployments, err := s.deployRepo.ListDeploymentsByApplication(ctx, applicationID)
+	deploys, err := s.deployRepo.ListDeploymentsByApplication(ctx, applicationID)
 	if err != nil {
 		return nil, err
 	}
-	result := make([]domain.Deployment, 0, len(deployments))
-	for i := range deployments {
-		merged, err := s.withPipelineStatus(ctx, &deployments[i])
-		if err != nil {
-			return nil, err
-		}
-		if merged != nil {
-			result = append(result, *merged)
-		}
-	}
-	return result, nil
+	return deploys, nil
 }
 
 func (s *deploymentService) HandleGitHubEvent(ctx context.Context, event domain.DeploymentEvent) error {
@@ -218,36 +208,18 @@ func (s *deploymentService) WatchDeployment(ctx context.Context, deploymentID st
 			close(ch)
 		}()
 
+		if current, err := s.getDeploymentTemporarily(ctx, deploymentID); err == nil && current != nil {
+			deploy = current
+		}
 		lastStatus := deploy.Status
 		ch <- DeploymentStatusChangedEvent{
 			Status:         lastStatus,
 			ElapsedSeconds: int64(deploy.Duration().Seconds()),
+			FinishedAt:     deploy.FinishedAt,
 		}
 
 		wg.Go(func() {
-			stream, err := s.pipelineRepo.WatchBuildLogs(ctx, deploymentID)
-			if err != nil {
-				select {
-				case <-ctx.Done():
-				case ch <- DeploymentLogChunkEvent{Lines: []string{fmt.Sprintf("[log error] %v", err)}}:
-				}
-				return
-			}
-			defer stream.Close()
-			scanner := bufio.NewScanner(stream)
-			for scanner.Scan() {
-				select {
-				case <-ctx.Done():
-					return
-				case ch <- DeploymentLogChunkEvent{Lines: []string{scanner.Text()}}:
-				}
-			}
-			if err := scanner.Err(); err != nil && !errors.Is(err, context.Canceled) {
-				select {
-				case <-ctx.Done():
-				case ch <- DeploymentLogChunkEvent{Lines: []string{fmt.Sprintf("[log error] scanner: %v", err)}}:
-				}
-			}
+			s.watchBuildLogStream(ctx, deploymentID, ch)
 		})
 
 		// すでに完了済みでも、上のログ取得 goroutine は実行させる
@@ -255,50 +227,97 @@ func (s *deploymentService) WatchDeployment(ctx context.Context, deploymentID st
 			return
 		}
 
-		ticker := time.NewTicker(1 * time.Second)
-		defer ticker.Stop()
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case <-ticker.C:
-				current, err := s.GetDeployment(ctx, deploymentID)
-				if err != nil || current == nil {
-					return
-				}
-				if current.Status != lastStatus {
-					lastStatus = current.Status
-					ch <- DeploymentStatusChangedEvent{
-						Status:         lastStatus,
-						ElapsedSeconds: int64(current.Duration().Seconds()),
-					}
-				}
-				if isTerminalStatus(lastStatus) {
-					return
-				}
-			}
-		}
+		s.watchDeploymentStatusLoop(ctx, deploymentID, lastStatus, ch)
 	}()
 	return ch, nil
 }
 
-func (s *deploymentService) withPipelineStatus(ctx context.Context, deploy *domain.Deployment) (*domain.Deployment, error) {
+func (s *deploymentService) watchBuildLogStream(ctx context.Context, deploymentID string, ch chan<- any) {
+	stream, err := s.pipelineRepo.WatchBuildLogs(ctx, deploymentID)
+	if err != nil {
+		sendDeploymentLogChunk(ctx, ch, "failed to retrieve logs")
+		return
+	}
+	defer stream.Close()
+
+	scanner := bufio.NewScanner(stream)
+	for scanner.Scan() {
+		sendDeploymentLogChunk(ctx, ch, scanner.Text())
+	}
+
+	if err := scanner.Err(); err != nil && !errors.Is(err, context.Canceled) {
+		sendDeploymentLogChunk(ctx, ch, "failed to retrieve logs")
+	}
+}
+
+func sendDeploymentLogChunk(ctx context.Context, ch chan<- any, line string) {
+	select {
+	case <-ctx.Done():
+	case ch <- DeploymentLogChunkEvent{Lines: []string{line}}:
+	}
+}
+
+func (s *deploymentService) watchDeploymentStatusLoop(
+	ctx context.Context,
+	deploymentID string,
+	lastStatus domain.DeploymentStatus,
+	ch chan<- any,
+) {
+	ticker := time.NewTicker(1 * time.Second)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			// current, err := s.GetDeployment(ctx, deploymentID)
+			current, err := s.getDeploymentTemporarily(ctx, deploymentID)
+			if err != nil {
+				sendDeploymentLogChunk(ctx, ch, fmt.Sprintf("[status error] %v", err))
+				continue
+			}
+			if current == nil {
+				continue
+			}
+			if current.Status != lastStatus {
+				lastStatus = current.Status
+				ch <- DeploymentStatusChangedEvent{
+					Status:         lastStatus,
+					ElapsedSeconds: int64(current.Duration().Seconds()),
+					FinishedAt:     current.FinishedAt,
+				}
+			}
+			if isTerminalStatus(lastStatus) {
+				return
+			}
+		}
+	}
+}
+
+// 現状DBをメモリでMockしていて、Gatewayの更新が別スレッドで反映されないため、PipelineからDeploymentを取得する
+// TODO: データベースに移行したらこの関数を削除する
+func (s *deploymentService) getDeploymentTemporarily(ctx context.Context, deploymentID string) (*domain.Deployment, error) {
+	pipeline, err := s.pipelineRepo.GetPipeline(ctx, deploymentID)
+	if err != nil {
+		return nil, err
+	}
+	if pipeline == nil {
+		return nil, nil
+	}
+
+	deploy, err := s.deployRepo.GetDeployment(ctx, deploymentID)
+	if err != nil {
+		return nil, err
+	}
 	if deploy == nil {
 		return nil, nil
 	}
-	pipeline, err := s.pipelineRepo.GetPipeline(ctx, deploy.ID)
-	if err != nil {
-		return nil, fmt.Errorf("get deployment pipeline: %w", err)
-	}
-	if pipeline == nil {
-		return deploy, nil
-	}
 
-	merged := *deploy
-	merged.Status = pipeline.Status
+	deploy.Status = pipeline.Status
+	deploy.FinishedAt = pipeline.FinishedAt
 	if !pipeline.StartedAt.IsZero() {
-		merged.StartedAt = pipeline.StartedAt
+		deploy.StartedAt = pipeline.StartedAt
 	}
-	merged.FinishedAt = pipeline.FinishedAt
-	return &merged, nil
+	return deploy, nil
 }

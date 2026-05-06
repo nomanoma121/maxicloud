@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { timestampDate } from "@bufbuild/protobuf/wkt";
 import { DeploymentStatus as ProtoDeploymentStatus } from "~/gen/maxicloud/v1/deployment_pb";
 import type { DeploymentStatus } from "~/types";
 import { connectClient } from "~/utils/connect";
@@ -14,23 +15,18 @@ const mapStatus = (status: ProtoDeploymentStatus): DeploymentStatus => {
   }
 };
 
-const formatElapsed = (seconds: bigint): string => {
-  const s = Number(seconds);
-  if (s < 60) return `${s}s`;
-  const m = Math.floor(s / 60);
-  return `${m}m ${s % 60}s`;
-};
-
 type WatchState = {
   status: DeploymentStatus | null;
-  duration: string;
+  elapsedSeconds: number;
+  finishedAt?: Date;
   logLines: string[];
 };
 
 export const useWatchDeployment = (deploymentId: string) => {
   const [state, setState] = useState<WatchState>({
     status: null,
-    duration: "",
+    elapsedSeconds: 0,
+    finishedAt: undefined,
     logLines: [],
   });
 
@@ -49,7 +45,8 @@ export const useWatchDeployment = (deploymentId: string) => {
             setState((prev) => ({
               ...prev,
               status: mapStatus(e.value.status),
-              duration: formatElapsed(e.value.elapsedSeconds),
+              elapsedSeconds: Number(e.value.elapsedSeconds),
+              finishedAt: e.value.finishedAt ? timestampDate(e.value.finishedAt) : undefined,
             }));
           } else if (e.case === "deploymentLogChunk") {
             setState((prev) => ({

@@ -59,26 +59,31 @@ func (h *DeploymentHandler) ListDeployments(ctx context.Context, req *v1.ListDep
 	return &v1.ListDeploymentsResponse{Deployments: protoDeploys}, nil
 }
 
-func (h *DeploymentHandler) WatchDeployment(ctx context.Context, req *v1.WatchDeploymentRequest, stream *connect.ServerStream[v1.WatchDeploymentEvent]) error {
+func (h *DeploymentHandler) WatchDeployment(ctx context.Context, req *v1.WatchDeploymentRequest, stream *connect.ServerStream[v1.WatchDeploymentResponse]) error {
 	events, err := h.uc.WatchDeployment(ctx, req.GetDeploymentId())
 	if err != nil {
 		return toConnectError(err)
 	}
 	for event := range events {
-		var protoEvent *v1.WatchDeploymentEvent
+		var protoEvent *v1.WatchDeploymentResponse
 		switch e := event.(type) {
 		case usecase.DeploymentStatusChangedEvent:
-			protoEvent = &v1.WatchDeploymentEvent{
-				Event: &v1.WatchDeploymentEvent_DeploymentStatusChanged{
+			var finishedAt *timestamppb.Timestamp
+			if e.FinishedAt != nil {
+				finishedAt = timestamppb.New(*e.FinishedAt)
+			}
+			protoEvent = &v1.WatchDeploymentResponse{
+				Event: &v1.WatchDeploymentResponse_DeploymentStatusChanged{
 					DeploymentStatusChanged: &v1.DeploymentStatusChangedEvent{
 						Status:         toProtoDeploymentStatus(e.Status),
 						ElapsedSeconds: e.ElapsedSeconds,
+						FinishedAt:     finishedAt,
 					},
 				},
 			}
 		case usecase.DeploymentLogChunkEvent:
-			protoEvent = &v1.WatchDeploymentEvent{
-				Event: &v1.WatchDeploymentEvent_DeploymentLogChunk{
+			protoEvent = &v1.WatchDeploymentResponse{
+				Event: &v1.WatchDeploymentResponse_DeploymentLogChunk{
 					DeploymentLogChunk: &v1.DeploymentLogChunkEvent{
 						Lines: e.Lines,
 					},

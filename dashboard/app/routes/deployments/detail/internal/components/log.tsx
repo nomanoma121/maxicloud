@@ -1,7 +1,7 @@
 import { css } from "styled-system/css";
 import { useEffect, useRef, useState } from "react";
 
-export const BuildLog = ({ lines }: { lines: string[] }) => {
+export const Log = ({ lines }: { lines: string[] }) => {
   const viewportRef = useRef<HTMLDivElement>(null);
   const [stickToBottom, setStickToBottom] = useState(true);
 

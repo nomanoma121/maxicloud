@@ -1,6 +1,6 @@
 import { useOutletContext } from "react-router";
 import { Panel } from "~/components/ui/panel";
-import { BuildLog } from "./internal/components/log";
+import { Log } from "./internal/components/log";
 import { StatusPanel } from "./internal/components/status-panel";
 import { SummaryPanel } from "./internal/components/summary-panel";
 import { useWatchDeployment } from "./internal/hooks/use-watch-deployment";
@@ -8,7 +8,7 @@ import type { DeploymentDetailContext } from "./layout";
 
 export default function DeploymentDetailPage() {
   const { deployment, deploymentId, applicationByID, userByID } = useOutletContext<DeploymentDetailContext>();
-  const { status, duration, logLines } = useWatchDeployment(deploymentId);
+  const { status, duration, finishedAt, logLines } = useWatchDeployment(deploymentId);
 
   const application = applicationByID[deployment.applicationId];
   const owner = userByID[deployment.ownerId];
@@ -19,7 +19,7 @@ export default function DeploymentDetailPage() {
       <StatusPanel
         status={status ?? deployment.status}
         duration={duration || deployment.duration}
-        finishedAt={deployment.finishedAt}
+        finishedAt={finishedAt?.toDateString() ?? deployment.finishedAt}
       />
 
       <Panel title="サマリー">
@@ -35,7 +35,7 @@ export default function DeploymentDetailPage() {
       </Panel>
 
       <Panel title="ログ">
-        <BuildLog lines={logLines} />
+        <Log lines={logLines} />
       </Panel>
     </>
   );

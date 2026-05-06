@@ -142,6 +142,9 @@ func (r *DeploymentPipelineReconciler) triggerBuild(ctx context.Context, pipelin
 		return fmt.Errorf("failed to set owner reference: %w", err)
 	}
 	if err := r.Create(ctx, buildRun); err != nil {
+		if errors.IsAlreadyExists(err) {
+			return nil
+		}
 		log.Error(err, "failed to create BuildRun")
 		return err
 	}
