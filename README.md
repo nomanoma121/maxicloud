@@ -4,6 +4,8 @@
 
 ## Deployment
 
+### バックエンド
+
 ローカルでの開発にはKindを使用してKubernetesクラスタを構築します。
 ```bash
 ./hack/setup.sh
@@ -52,6 +54,16 @@ buf generate
 make generate
 # Kubebuilderのマーカを変更したとき
 make manifests
+```
+
+### ダッシュボード
+
+ダッシュボードは`/dashboard`にあります。以下のコマンドで起動できます。
+
+```bash
+cd dashboard
+pnpm install
+pnpm dev
 ```
 
 ## GitHub Webhookの受け取り方
