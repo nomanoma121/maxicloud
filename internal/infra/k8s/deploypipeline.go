@@ -1,9 +1,11 @@
 package k8s
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"io"
+	"regexp"
 	"sort"
 	"strconv"
 	"time"
@@ -81,7 +83,7 @@ func (r *deploymentPipelineRepository) WatchBuildLogs(ctx context.Context, deplo
 		})
 		stream, err := req.Stream(ctx)
 		if err == nil {
-			return stream, nil
+			return maskLogs(stream), nil
 		}
 		time.Sleep(1 * time.Second)
 	}
@@ -109,7 +111,6 @@ func (r *deploymentPipelineRepository) CreatePipeline(ctx context.Context, pipel
 			},
 		},
 		Spec: maxicloudv1alpha1.DeploymentPipelineSpec{
-			// Application CR name is required by the controller reconcile flow.
 			ApplicationName: appList.Items[0].Name,
 			Owner:           pipeline.Repo.Owner,
 			Repo:            pipeline.Repo.Name,
@@ -213,4 +214,34 @@ func phaseToStatus(phase maxicloudv1alpha1.DeploymentPipelinePhase) domain.Deplo
 	default:
 		return domain.DeploymentStatusQueued
 	}
+}
+
+var tokenPattern = regexp.MustCompile(`x-access-token:[^@]+@`)
+
+func maskLogs(logStream io.ReadCloser) io.ReadCloser {
+	pr, pw := io.Pipe()
+	go func() {
+		defer logStream.Close()
+		defer pw.Close()
+
+		reader := bufio.NewReader(logStream)
+		for {
+			line, err := reader.ReadString('\n')
+			if len(line) > 0 {
+				masked := tokenPattern.ReplaceAllString(line, "x-access-token:*****@")
+				if _, writeErr := pw.Write([]byte(masked)); writeErr != nil {
+					return
+				}
+			}
+			if err == nil {
+				continue
+			}
+			if err == io.EOF {
+				return
+			}
+			_ = pw.CloseWithError(err)
+			return
+		}
+	}()
+	return pr
 }
