@@ -17,12 +17,13 @@ export interface IUserRepository {
   listUsers(): Promise<UserAccount[]>;
 }
 
+// TODO: この辺全然適当なんでIdP連携の時にちゃんとやりましょう
 const fallbackUsers: UserAccount[] = [
   {
     id: "00000000-0000-0000-0000-000000000001",
-    displayId: "kouta",
-    displayName: "Kouta (Demo)",
-    email: "kouta@example.com",
+    displayId: "Maximum-test",
+    displayName: "Maximum-Test",
+    email: "test@maximum.vc",
     status: USER_STATUS.ACTIVE,
     joinedAt: "-",
   },
