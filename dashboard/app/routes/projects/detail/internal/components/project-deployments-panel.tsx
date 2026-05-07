@@ -27,7 +27,7 @@ export const ProjectDeploymentsPanel = ({
       ownerName: userByID[d.ownerId]?.displayName ?? "-",
       status: d.status,
       startedAt: d.startedAt,
-      duration: d.duration,
+      duration: d.duration ?? "-",
     };
   });
 

@@ -22,7 +22,7 @@ export default function HomePage() {
       ownerName: userByID[d.ownerId]?.displayName ?? "-",
       status: d.status,
       startedAt: d.startedAt,
-      duration: d.duration,
+      duration: d.duration ?? "-",
     };
   });
 

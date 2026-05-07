@@ -26,13 +26,18 @@ export interface IProjectRepository {
   deleteProject(id: string): Promise<void>;
 }
 
-const toProject = (project: ProtoProject): Project => ({
-  id: project.id,
-  name: project.name,
-  description: project.description,
-  ownerId: project.ownerUserId,
-  updatedAt: formatTimestamp(project.updatedAt),
-});
+const toProject = (project: ProtoProject): Project => {
+  if (!project.updatedAt) {
+    throw new Error(`Invalid project data received for ID: ${project.id}`);
+  }  
+  return {
+    id: project.id,
+    name: project.name,
+    description: project.description,
+    ownerId: project.ownerUserId,
+    updatedAt: formatTimestamp(project.updatedAt),
+  };
+};
 
 export class ProjectRepository implements IProjectRepository {
   listProjects$$key() {

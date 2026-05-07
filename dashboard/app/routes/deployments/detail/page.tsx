@@ -19,8 +19,8 @@ export default function DeploymentDetailPage() {
     <>
       <StatusPanel
         status={status ?? deployment.status}
-        duration={duration || deployment.duration}
-        finishedAt={finishedAt ? formatDateTime(finishedAt) : deployment.finishedAt}
+        duration={duration || deployment.duration || "-"}
+        finishedAt={finishedAt ? formatDateTime(finishedAt) : (deployment.finishedAt || "-")}
       />
 
       <Panel title="サマリー">
@@ -31,7 +31,7 @@ export default function DeploymentDetailPage() {
           repoURL={buildGitHubRepoURL(repository)}
           appURL={application?.url ?? "-"}
           branch={application?.branch ?? "-"}
-          commit={deployment.revision}
+          commit={deployment.commit.shortSHA || "-"}
         />
       </Panel>
 

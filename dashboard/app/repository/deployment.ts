@@ -12,19 +12,23 @@ import { formatDuration, formatTimestamp } from "~/utils/date";
 
 export type DeploymentStatus = ValueOf<typeof DEPLOYMENT_STATUS>;
 
+export type Commit = {
+  sha: string;
+  shortSHA: string;
+  message: string;
+  authorName: string;
+  timestamp: string;
+}
+
 export type Deployment = {
   id: string;
   applicationId: string;
   ownerId: string;
-  revision: string;
-  commit: string;
-  commitMessage: string;
-  commitAuthor: string;
-  commitTimestamp: string;
+  commit: Commit;
   status: DeploymentStatus;
   startedAt: string;
-  finishedAt: string;
-  duration: string;
+  finishedAt?: string;
+  duration?: string;
 };
 
 export interface IDeploymentRepository {
@@ -48,22 +52,35 @@ const mapStatus = (status: ProtoDeploymentStatus): Deployment["status"] => {
 };
 
 const toDeployment = (deployment: ProtoDeployment): Deployment => {
-  const sha = deployment.commit?.sha ?? "";
-  const shortSHA = sha.length > 8 ? sha.slice(0, 8) : sha;
-  return {
+  // Protoでは必須型として定義されているが生成物がoptionalになってしまうため、型ガードを入れる
+  if (!deployment.startedAt || !deployment.commit || !deployment.commit.timestamp) {
+    throw new Error(`Invalid deployment data received for ID: ${deployment.id}`);
+  }
+  const shortSHA = deployment.commit.sha.slice(0, 7);
+  const deploy = {
     id: deployment.id,
     applicationId: deployment.applicationId,
     ownerId: deployment.ownerUserId,
-    revision: shortSHA || "-",
-    commit: sha || "-",
-    commitMessage: deployment.commit?.message || "-",
-    commitAuthor: deployment.commit?.authorName || "-",
-    commitTimestamp: formatTimestamp(deployment.commit?.timestamp),
+    commit: {
+      sha: deployment.commit.sha,
+      shortSHA: shortSHA,
+      message: deployment.commit.message,
+      authorName: deployment.commit.authorName,
+      timestamp: formatTimestamp(deployment.commit.timestamp),
+    },
     status: mapStatus(deployment.status),
     startedAt: formatTimestamp(deployment.startedAt),
-    finishedAt: formatTimestamp(deployment.finishedAt),
-    duration: formatDuration(deployment.startedAt, deployment.finishedAt),
-  };
+  }
+
+  if (deployment.finishedAt) {
+    return {
+      ...deploy,
+      finishedAt: formatTimestamp(deployment.finishedAt),
+      duration: formatDuration(deployment.startedAt, deployment.finishedAt),
+    }
+  }
+  
+  return deploy;
 };
 
 export class DeploymentRepository implements IDeploymentRepository {

@@ -25,8 +25,6 @@ export const ProjectApplicationsPanel = ({
     projectName,
     ownerName: userByID[a.ownerId]?.displayName ?? "-",
     status: a.status,
-    cpu: a.cpu,
-    memory: a.memory,
     url: a.url,
     updatedAt: a.updatedAt,
   }));

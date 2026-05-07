@@ -22,9 +22,7 @@ export default function ApplicationsPage() {
     projectName: projectByID[a.projectId]?.name ?? "-",
     ownerName: userByID[a.ownerId]?.displayName ?? "-",
     status: a.status,
-    cpu: a.cpu,
     url: a.url,
-    memory: a.memory,
     updatedAt: a.updatedAt,
   }));
 

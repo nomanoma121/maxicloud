@@ -14,7 +14,7 @@ export default function DeploymentsPage() {
       ownerName: userByID[d.ownerId]?.displayName ?? "-",
       status: d.status,
       startedAt: d.startedAt,
-      duration: d.duration,
+      duration: d.duration ?? "-",
     };
   });
 

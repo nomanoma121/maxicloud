@@ -26,8 +26,6 @@ export type Application = {
   status: ApplicationStatus;
   url: string;
   updatedAt: string;
-  cpu: string;
-  memory: string;
   ownerId: string;
 };
 
@@ -86,23 +84,23 @@ const parseRepository = (owner = "", name = "") => {
 };
 
 const toApplication = (application: ProtoApplication): Application => {
+  if (!application.source || !application.source.repository || !application.source.repository.owner || !application.source.repository.name || !application.updatedAt || !application.condition) {
+    throw new Error(`Invalid application data received for ID: ${application.id}`);
+  }
   const repository = parseRepository(
     application.source?.repository?.owner,
     application.source?.repository?.name,
   );
-
   return {
     id: application.id,
     projectId: application.projectId,
     name: application.name,
     repository,
-    branch: application.source?.branch ?? "main",
-    status: mapStatus(application.condition?.status ?? ProtoApplicationStatus.UNSPECIFIED),
+    branch: application.source.branch,
+    status: mapStatus(application.condition.status),
     // TODO: 後でここなおす
     url: application.condition?.domain ? `http://${application.condition.domain.subdomain}.${application.condition.domain.rootDomain}:8080` : "-",
     updatedAt: formatTimestamp(application.updatedAt),
-    cpu: "-",
-    memory: "-",
     ownerId: application.ownerUserId,
   };
 };

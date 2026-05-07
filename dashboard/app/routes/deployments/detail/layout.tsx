@@ -40,13 +40,13 @@ export default function DeploymentDetailLayout() {
         items={[
           { label: "Dashboard", href: "/" },
           { label: "Deployments", href: "/deployments", icon: <Layers size={14} /> },
-          { label: detail.deployment.revision },
+          { label: detail.deployment.commit.shortSHA },
         ]}
       />
 
       <DashboardHeader
-        title={detail.deployment.commitMessage || "Commit message unavailable"}
-        subtitle={`${application?.name ?? "-"} ・ ${application?.branch ?? "-"} ・ ${detail.deployment.revision}`}
+        title={detail.deployment.commit.message || "Commit message unavailable"}
+        subtitle={`${application?.name ?? "-"} ・ ${application?.branch ?? "-"} ・ ${detail.deployment.commit.shortSHA || "-"}`}
       />
 
       <Outlet context={{ ...detail, deploymentId }} />

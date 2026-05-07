@@ -9,7 +9,6 @@ import type { ApplicationDetailContext } from "./layout";
 import { SummaryRow } from "./internal/components/summary-row";
 
 export default function ApplicationDetailPage() {
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { deployments, projectByID, application, userByID } =
     useOutletContext<ApplicationDetailContext>();
@@ -27,7 +26,7 @@ export default function ApplicationDetailPage() {
       ownerName: userByID[d.ownerId]?.displayName ?? "-",
       status: d.status,
       startedAt: d.startedAt,
-      duration: d.duration,
+      duration: d.duration ?? "-",
     }));
 
   return (
@@ -56,8 +55,6 @@ export default function ApplicationDetailPage() {
         >
           <SummaryRow label="プロジェクト" value={project?.name ?? "-"} href={project ? `/projects/` : undefined} />
           <SummaryRow label="グループ" value={owner?.displayName ?? "-"} />
-          <SummaryRow label="CPU" value={application.cpu} />
-          <SummaryRow label="Memory" value={application.memory} />
           <SummaryRow label="最終更新" value={application.updatedAt} />
           <SummaryRow label="URL" value={application.url} href={application.url} />
         </dl>
