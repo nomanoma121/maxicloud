@@ -2,13 +2,34 @@ import { ConnectError, Code } from "@connectrpc/connect";
 import {
   AccessMode,
   type Application as ProtoApplication,
-  ApplicationStatus,
+  ApplicationStatus as ProtoApplicationStatus,
   BuildStrategy,
   DockerfileSource,
 } from "~/gen/maxicloud/v1/application_pb";
-import type { Application } from "~/types";
+import {
+  APPLICATION_STATUS,
+  CREATE_APPLICATION_ACCESS_MODE,
+  CREATE_APPLICATION_DOCKERFILE_SOURCE,
+  type ValueOf,
+} from "~/constants";
 import { connectClient } from "~/utils/connect";
 import { formatTimestamp } from "~/utils/date";
+
+export type ApplicationStatus = ValueOf<typeof APPLICATION_STATUS>;
+
+export type Application = {
+  id: string;
+  projectId: string;
+  name: string;
+  repository: string;
+  branch: string;
+  status: ApplicationStatus;
+  url: string;
+  updatedAt: string;
+  cpu: string;
+  memory: string;
+  ownerId: string;
+};
 
 export type CreateApplicationInput = {
   projectId: string;
@@ -17,10 +38,10 @@ export type CreateApplicationInput = {
   repositoryOwner: string;
   repositoryName: string;
   branch: string;
-  dockerfileSource: "path" | "inline";
+  dockerfileSource: ValueOf<typeof CREATE_APPLICATION_DOCKERFILE_SOURCE>;
   dockerfilePath: string;
   dockerfileInline: string;
-  accessMode: "public" | "private" | "idp";
+  accessMode: ValueOf<typeof CREATE_APPLICATION_ACCESS_MODE>;
   domainSubdomain?: string;
   domainRootDomain?: string;
   port: number;
@@ -36,22 +57,24 @@ export type CreateApplicationResult = {
 };
 
 export interface IApplicationRepository {
+  listApplications$$key(): readonly ["applications"];
+  getApplication$$key(id: string): readonly ["applications", string];
   listApplications(): Promise<Application[]>;
   getApplication(id: string): Promise<Application | undefined>;
   createApplication(input: CreateApplicationInput): Promise<CreateApplicationResult>;
   deleteApplication(id: string): Promise<void>;
 }
 
-const mapStatus = (status: ApplicationStatus): Application["status"] => {
+const mapStatus = (status: ProtoApplicationStatus): Application["status"] => {
   switch (status) {
-    case ApplicationStatus.RUNNING:
-      return "running";
-    case ApplicationStatus.UNAVAILABLE:
-      return "unavailable";
-    case ApplicationStatus.STOPPED:
-      return "stopped";
+    case ProtoApplicationStatus.RUNNING:
+      return APPLICATION_STATUS.RUNNING;
+    case ProtoApplicationStatus.UNAVAILABLE:
+      return APPLICATION_STATUS.UNAVAILABLE;
+    case ProtoApplicationStatus.STOPPED:
+      return APPLICATION_STATUS.STOPPED;
     default:
-      return "degraded";
+      return APPLICATION_STATUS.UNAVAILABLE;
   }
 };
 
@@ -74,8 +97,7 @@ const toApplication = (application: ProtoApplication): Application => {
     name: application.name,
     repository,
     branch: application.source?.branch ?? "main",
-    runtime: "Dockerfile",
-    status: mapStatus(application.condition?.status ?? ApplicationStatus.UNSPECIFIED),
+    status: mapStatus(application.condition?.status ?? ProtoApplicationStatus.UNSPECIFIED),
     // TODO: 後でここなおす
     url: application.condition?.domain ? `http://${application.condition.domain.subdomain}.${application.condition.domain.rootDomain}:8080` : "-",
     updatedAt: formatTimestamp(application.updatedAt),
@@ -87,11 +109,11 @@ const toApplication = (application: ProtoApplication): Application => {
 
 const toAccessMode = (accessMode: CreateApplicationInput["accessMode"]): AccessMode => {
   switch (accessMode) {
-    case "public":
+    case CREATE_APPLICATION_ACCESS_MODE.PUBLIC:
       return AccessMode.PUBLIC;
-    case "private":
+    case CREATE_APPLICATION_ACCESS_MODE.PRIVATE:
       return AccessMode.PRIVATE;
-    case "idp":
+    case CREATE_APPLICATION_ACCESS_MODE.IDP:
       return AccessMode.MEMBERS_ONLY;
     default:
       return AccessMode.UNSPECIFIED;
@@ -99,6 +121,14 @@ const toAccessMode = (accessMode: CreateApplicationInput["accessMode"]): AccessM
 };
 
 export class ApplicationRepository implements IApplicationRepository {
+  listApplications$$key() {
+    return ["applications"] as const;
+  }
+
+  getApplication$$key(id: string) {
+    return ["applications", id] as const;
+  }
+
   async listApplications(): Promise<Application[]> {
     const { projects } = await connectClient.project.listProjects({});
     const all: Application[] = [];
@@ -147,7 +177,7 @@ export class ApplicationRepository implements IApplicationRepository {
           strategy: BuildStrategy.DOCKERFILE,
           dockerfile: {
             source:
-              input.dockerfileSource === "inline"
+              input.dockerfileSource === CREATE_APPLICATION_DOCKERFILE_SOURCE.INLINE
                 ? DockerfileSource.INLINE
                 : DockerfileSource.PATH,
             dockerfilePath: input.dockerfilePath,
@@ -157,7 +187,7 @@ export class ApplicationRepository implements IApplicationRepository {
         access: {
           mode: toAccessMode(input.accessMode),
           domain:
-            input.accessMode === "private"
+            input.accessMode === CREATE_APPLICATION_ACCESS_MODE.PRIVATE
               ? undefined
               : {
                   subdomain: input.domainSubdomain ?? "",

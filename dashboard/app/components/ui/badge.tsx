@@ -2,73 +2,69 @@ import { css, cx } from "styled-system/css";
 import {
   Activity,
   CheckCircle,
-  Clock,
   Loader,
   PauseCircle,
   UserPlus,
   XCircle,
   type Icon,
 } from "react-feather";
-import type { DeploymentStatus, ApplicationStatus, UserStatus } from "~/types";
+import { APPLICATION_STATUS, DEPLOYMENT_STATUS, USER_STATUS } from "~/constants";
+import type { ApplicationStatus } from "~/repository/application";
+import type { DeploymentStatus } from "~/repository/deployment";
+import type { UserStatus } from "~/repository/user";
 
 type BadgeStatus = ApplicationStatus | DeploymentStatus | UserStatus;
 
 const statusStyle: Record<BadgeStatus, { text: string; icon: string; label: string; glyph: Icon }> = {
-  running: {
+  [APPLICATION_STATUS.RUNNING]: {
     text: css({ color: "gray.800" }),
     icon: css({ color: "#0284c7" }),
     label: "Running",
     glyph: Activity,
   },
-  unavailable: {
+  [APPLICATION_STATUS.UNAVAILABLE]: {
     text: css({ color: "gray.800" }),
     icon: css({ color: "#dc2626" }),
     label: "Unavailable",
     glyph: XCircle,
   },
-  stopped: {
+  [APPLICATION_STATUS.STOPPED]: {
     text: css({ color: "gray.800" }),
     icon: css({ color: "#64748b" }),
     label: "Stopped",
     glyph: PauseCircle,
   },
-  degraded: {
-    text: css({ color: "gray.800" }),
-    icon: css({ color: "#d97706" }),
-    label: "Degraded",
-    glyph: Clock,
-  },
-  success: {
+  [DEPLOYMENT_STATUS.SUCCESS]: {
     text: css({ color: "gray.800" }),
     icon: css({ color: "#16a34a" }),
     label: "Success",
     glyph: CheckCircle,
   },
-  in_progress: {
+  [DEPLOYMENT_STATUS.IN_PROGRESS]: {
     text: css({ color: "gray.800" }),
     icon: css({ color: "#d29922" }),
     label: "In Progress",
     glyph: Loader,
   },
-  failed: {
+  [DEPLOYMENT_STATUS.FAILED]: {
     text: css({ color: "gray.800" }),
     icon: css({ color: "#dc2626" }),
     label: "Failed",
     glyph: XCircle,
   },
-  active: {
+  [USER_STATUS.ACTIVE]: {
     text: css({ color: "gray.800" }),
     icon: css({ color: "#16a34a" }),
     label: "Active",
     glyph: CheckCircle,
   },
-  invited: {
+  [USER_STATUS.INVITED]: {
     text: css({ color: "gray.800" }),
     icon: css({ color: "#0284c7" }),
     label: "Invited",
     glyph: UserPlus,
   },
-  suspended: {
+  [USER_STATUS.SUSPENDED]: {
     text: css({ color: "gray.800" }),
     icon: css({ color: "#dc2626" }),
     label: "Suspended",
@@ -81,9 +77,9 @@ type StatusBadgeProps = {
 };
 
 export const StatusBadge = ({ status }: StatusBadgeProps) => {
-  const item = statusStyle[status] ?? statusStyle.degraded;
+  const item = statusStyle[status] ?? statusStyle[APPLICATION_STATUS.UNAVAILABLE];
   const Icon = item.glyph;
-  const inProgress = status === "in_progress";
+  const inProgress = status === DEPLOYMENT_STATUS.IN_PROGRESS;
 
   return (
     <span

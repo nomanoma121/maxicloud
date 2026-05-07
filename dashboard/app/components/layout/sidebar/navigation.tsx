@@ -2,7 +2,6 @@ import { NavLink, useLocation } from "react-router";
 import type { Icon } from "react-feather";
 import { Box, Folder, Home, Layers } from "react-feather";
 import { css } from "styled-system/css";
-import { APP_ROUTES } from "~/constant";
 import { SidebarDot } from "./dot";
 
 type SidebarNavigationProps = {
@@ -18,28 +17,28 @@ type NavigationItem = {
 
 const NAVIGATION_ITEMS: NavigationItem[] = [
   {
-    to: APP_ROUTES.home,
+    to: "/",
     label: "Overview",
     icon: Home,
-    isActive: (pathname) => pathname === APP_ROUTES.home,
+    isActive: (pathname) => pathname === "/",
   },
   {
-    to: APP_ROUTES.projects,
+    to: "/projects",
     label: "Projects",
     icon: Folder,
-    isActive: (pathname) => pathname.startsWith(APP_ROUTES.projects),
+    isActive: (pathname) => pathname.startsWith("/projects"),
   },
   {
-    to: APP_ROUTES.applications,
+    to: "/applications",
     label: "Applications",
     icon: Box,
-    isActive: (pathname) => pathname.startsWith(APP_ROUTES.applications),
+    isActive: (pathname) => pathname.startsWith("/applications"),
   },
   {
-    to: APP_ROUTES.deployments,
+    to: "/deployments",
     label: "Deployments",
     icon: Layers,
-    isActive: (pathname) => pathname.startsWith(APP_ROUTES.deployments),
+    isActive: (pathname) => pathname.startsWith("/deployments"),
   },
 ];
 
@@ -74,7 +73,7 @@ export const SidebarNavigation = ({ onNavigate }: SidebarNavigationProps) => {
               <SidebarDot isActive={isActive} />
                 <NavLink
                 to={item.to}
-                end={item.to === APP_ROUTES.home}
+                end={item.to === "/"}
                 onClick={onNavigate}
                 className={css({
                   width: "100%",

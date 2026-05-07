@@ -1,11 +1,10 @@
 import { Link } from "react-router";
 import { css } from "styled-system/css";
-import { StatusBadge } from "~/components/ui/badge";
+import { DEPLOYMENT_STATUS_LABEL } from "~/constants";
 import { Table } from "~/components/ui/table";
-import { APP_ROUTES } from "~/constant";
-import type { DeploymentStatus } from "~/types";
+import type { DeploymentStatus } from "~/repository/deployment";
 
-export type DeploymentRowItem = {
+type DeploymentRowItem = {
   id: string;
   projectName: string;
   applicationName: string;
@@ -39,14 +38,12 @@ export const DeploymentsTable = ({ rows }: DeploymentsTableProps) => {
             <Table.Td>{row.projectName}</Table.Td>
             <Table.Td>{row.applicationName}</Table.Td>
             <Table.Td>{row.ownerName}</Table.Td>
-            <Table.Td>
-              <StatusBadge status={row.status} />
-            </Table.Td>
+            <Table.Td>{DEPLOYMENT_STATUS_LABEL[row.status]}</Table.Td>
             <Table.Td>{row.startedAt}</Table.Td>
             <Table.Td>{row.duration}</Table.Td>
             <Table.Td>
               <Link
-                to={APP_ROUTES.deploymentDetail(row.id)}
+                to={`/deployments/${row.id}`}
                 className={css({ color: "green.700", fontSize: "sm" })}
               >
                 詳細

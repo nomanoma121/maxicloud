@@ -1,10 +1,9 @@
 import { Link } from "react-router";
 import { css } from "styled-system/css";
 import { ApplicationsTable } from "~/components/feature/applications-table";
-import type { ApplicationRowItem } from "~/components/feature/applications-table";
 import { Panel } from "~/components/ui/panel";
-import { APP_ROUTES } from "~/constant";
-import type { Application, UserAccount } from "~/types";
+import type { Application } from "~/repository/application";
+import type { UserAccount } from "~/repository/user";
 
 type ProjectApplicationsPanelProps = {
   projectId: string;
@@ -19,7 +18,7 @@ export const ProjectApplicationsPanel = ({
   applications,
   userByID,
 }: ProjectApplicationsPanelProps) => {
-  const rows: ApplicationRowItem[] = applications.map((a) => ({
+  const rows = applications.map((a) => ({
     id: a.id,
     name: a.name,
     projectId: a.projectId,
@@ -38,7 +37,7 @@ export const ProjectApplicationsPanel = ({
       subtitle="このProjectに紐づくApplication一覧"
       rightSlot={(
         <Link
-          to={`${APP_ROUTES.applicationNew}?projectId=${projectId}`}
+          to={`/applications/new?projectId=${projectId}`}
           className={css({
             display: "inline-flex",
             alignItems: "center",

@@ -6,13 +6,20 @@ import {
   useMemo,
   useState,
 } from "react";
-import type { UserAccount } from "~/types";
+import { USER_STATUS } from "~/constants";
+import type { UserAccount } from "~/repository/user";
 import { useRepository } from "./use-repository";
 
 const STORAGE_KEY = "maxicloud-session-v1";
 
 type SessionState = {
   userId: string;
+};
+
+const isSessionState = (value: unknown): value is SessionState => {
+  if (typeof value !== "object" || value === null) return false;
+  if (!("userId" in value)) return false;
+  return typeof value.userId === "string" && value.userId.length > 0;
 };
 
 type SessionContextValue = {
@@ -47,8 +54,8 @@ export const SessionProvider = ({ children }: { children: React.ReactNode }) => 
 
       if (raw) {
         try {
-          const parsed = JSON.parse(raw) as SessionState;
-          if (parsed?.userId) {
+          const parsed: unknown = JSON.parse(raw);
+          if (isSessionState(parsed)) {
             nextSession = parsed;
           }
         } catch {
@@ -57,7 +64,7 @@ export const SessionProvider = ({ children }: { children: React.ReactNode }) => 
       }
 
       if (!nextSession) {
-        const fallbackUser = nextUsers.find((user) => user.status === "active") ?? nextUsers[0];
+        const fallbackUser = nextUsers.find((user) => user.status === USER_STATUS.ACTIVE) ?? nextUsers[0];
         if (fallbackUser) {
           nextSession = { userId: fallbackUser.id };
           window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextSession));

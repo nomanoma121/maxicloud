@@ -3,8 +3,7 @@ import { Outlet, useParams } from "react-router";
 import { css } from "styled-system/css";
 import { DashboardHeader } from "~/components/layout/dashboard-header";
 import { Breadcrumb } from "~/components/ui/breadcrumb";
-import { APP_ROUTES } from "~/constant";
-import type { Application } from "~/types";
+import type { Application } from "~/repository/application";
 import { useApplicationDetailData } from "~/routes/applications/internal/hooks/use-applications-data";
 import { ApplicationNotFoundState } from "~/routes/applications/detail/internal/components/not-found-state";
 
@@ -27,8 +26,8 @@ export default function ApplicationDetailLayout() {
     <div className={css({ display: "grid", gap: 4 })}>
       <Breadcrumb
         items={[
-          { label: "Dashboard", href: APP_ROUTES.home },
-          { label: "Applications", href: APP_ROUTES.applications, icon: <Box size={14} /> },
+          { label: "Dashboard", href: "/" },
+          { label: "Applications", href: "/applications", icon: <Box size={14} /> },
           { label: detail.application.name },
         ]}
       />

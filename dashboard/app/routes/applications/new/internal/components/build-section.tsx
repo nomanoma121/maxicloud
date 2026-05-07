@@ -2,6 +2,7 @@ import { Layers } from "react-feather";
 import { css } from "styled-system/css";
 import { useFormContext, useWatch } from "react-hook-form";
 import { Form } from "~/components/ui/form";
+import { CREATE_APPLICATION_DOCKERFILE_SOURCE } from "~/constants";
 import { ModeButton } from "./mode-button";
 import { SectionHeading } from "./section-heading";
 import { CreateApplicationInputValues } from "../schema";
@@ -23,21 +24,25 @@ export const BuildSection = () => {
         })}
       >
         <ModeButton
-          active={dockerfileSource === "path"}
+          active={dockerfileSource === CREATE_APPLICATION_DOCKERFILE_SOURCE.PATH}
           title="Specify Path"
           description="検知済みPathを基準に使う"
-          onClick={() => setValue("dockerfileSource", "path", { shouldDirty: true })}
+          onClick={() =>
+            setValue("dockerfileSource", CREATE_APPLICATION_DOCKERFILE_SOURCE.PATH, { shouldDirty: true })
+          }
         />
         <ModeButton
-          active={dockerfileSource === "inline"}
+          active={dockerfileSource === CREATE_APPLICATION_DOCKERFILE_SOURCE.INLINE}
           title="Inline Edit"
           description="Dockerfile本文を直接入力"
-          onClick={() => setValue("dockerfileSource", "inline", { shouldDirty: true })}
+          onClick={() =>
+            setValue("dockerfileSource", CREATE_APPLICATION_DOCKERFILE_SOURCE.INLINE, { shouldDirty: true })
+          }
         />
       </div>
 
       <div className={css({ display: "grid", gap: 2 })}>
-        {dockerfileSource === "path" && (
+        {dockerfileSource === CREATE_APPLICATION_DOCKERFILE_SOURCE.PATH && (
           <Form.Field.TextInput
             label="Dockerfile Path"
             error={errors.dockerfilePath?.message}
@@ -46,7 +51,7 @@ export const BuildSection = () => {
           />
         )}
 
-        {dockerfileSource === "inline" && (
+        {dockerfileSource === CREATE_APPLICATION_DOCKERFILE_SOURCE.INLINE && (
           <Form.Field.TextArea
             label="Dockerfile Inline"
             error={errors.dockerfileInline?.message}

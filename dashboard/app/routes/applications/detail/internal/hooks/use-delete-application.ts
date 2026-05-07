@@ -1,10 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { QUERY_KEYS } from "~/constant";
 import { useRepository } from "~/hooks/use-repository";
 import { useToast } from "~/hooks/use-toast";
 
 export const useDeleteApplication = () => {
-  const { applicationRepository } = useRepository();
+  const { applicationRepository, deploymentRepository } = useRepository();
   const queryClient = useQueryClient();
   const { pushToast } = useToast();
 
@@ -13,8 +12,8 @@ export const useDeleteApplication = () => {
       applicationRepository.deleteApplication(applicationId),
     onSuccess: () => {
       pushToast({ type: "success", title: "アプリケーションが削除されました" });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.applications });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.deployments });
+      queryClient.invalidateQueries({ queryKey: applicationRepository.listApplications$$key() });
+      queryClient.invalidateQueries({ queryKey: deploymentRepository.listDeployments$$key() });
     },
     onError: (error) => {
       pushToast({

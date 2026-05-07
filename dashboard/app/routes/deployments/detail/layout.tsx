@@ -3,7 +3,7 @@ import { Outlet, useParams } from "react-router";
 import { css } from "styled-system/css";
 import { DashboardHeader } from "~/components/layout/dashboard-header";
 import { Breadcrumb } from "~/components/ui/breadcrumb";
-import { APP_ROUTES } from "~/constant";
+
 import { useDeploymentDetailData } from "~/routes/deployments/internal/hooks/use-deployments-data";
 
 type BaseDetail = ReturnType<typeof useDeploymentDetailData>;
@@ -22,8 +22,8 @@ export default function DeploymentDetailLayout() {
       <div className={css({ display: "grid", gap: 4 })}>
         <Breadcrumb
           items={[
-            { label: "Dashboard", href: APP_ROUTES.home },
-            { label: "Deployments", href: APP_ROUTES.deployments, icon: <Layers size={14} /> },
+            { label: "Dashboard", href: "/" },
+            { label: "Deployments", href: "/deployments", icon: <Layers size={14} /> },
             { label: "Not Found" },
           ]}
         />
@@ -38,8 +38,8 @@ export default function DeploymentDetailLayout() {
     <div className={css({ display: "grid", gap: 5 })}>
       <Breadcrumb
         items={[
-          { label: "Dashboard", href: APP_ROUTES.home },
-          { label: "Deployments", href: APP_ROUTES.deployments, icon: <Layers size={14} /> },
+          { label: "Dashboard", href: "/" },
+          { label: "Deployments", href: "/deployments", icon: <Layers size={14} /> },
           { label: detail.deployment.revision },
         ]}
       />

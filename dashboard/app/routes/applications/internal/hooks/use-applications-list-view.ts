@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import type { Application } from "~/types";
+import type { Application } from "~/repository/application";
 import { useApplicationsData } from "~/routes/applications/internal/hooks/use-applications-data";
 
 export const useApplicationsListView = () => {

@@ -1,9 +1,8 @@
-import { Code, ConnectError } from "@connectrpc/connect";
 import { connectClient } from "~/utils/connect";
 
-const FALLBACK_DOMAINS = ["apps.maximum.vc", "internal.maximum.vc"];
-
 export interface IDomainRepository {
+  listAvailableDomains$$key(): readonly ["available-domains"];
+  checkDomainAvailability$$key(subdomain: string, rootDomain: string): readonly ["domain-availability", string, string];
   listAvailableDomains(): Promise<string[]>;
   checkDomainAvailability(input: {
     subdomain: string;
@@ -12,35 +11,29 @@ export interface IDomainRepository {
 }
 
 export class DomainRepository implements IDomainRepository {
+  listAvailableDomains$$key() {
+    return ["available-domains"] as const;
+  }
+
+  checkDomainAvailability$$key(subdomain: string, rootDomain: string) {
+    return ["domain-availability", subdomain, rootDomain] as const;
+  }
+
   async listAvailableDomains(): Promise<string[]> {
-    try {
-      const { domains } = await connectClient.domain.listAvailableDomains({});
-      return domains;
-    } catch (error) {
-      if (!(error instanceof ConnectError) || error.code !== Code.Unimplemented) {
-        throw error;
-      }
-      return FALLBACK_DOMAINS;
-    }
+    const { domains } = await connectClient.domain.listAvailableDomains({});
+    return domains;
   }
 
   async checkDomainAvailability(input: {
     subdomain: string;
     rootDomain: string;
   }): Promise<boolean> {
-    try {
-      const { available } = await connectClient.domain.checkDomainAvailability({
-        domain: {
-          subdomain: input.subdomain,
-          rootDomain: input.rootDomain,
-        },
-      });
-      return available;
-    } catch (error) {
-      if (!(error instanceof ConnectError) || error.code !== Code.Unimplemented) {
-        throw error;
-      }
-      return true;
-    }
+    const { available } = await connectClient.domain.checkDomainAvailability({
+      domain: {
+        subdomain: input.subdomain,
+        rootDomain: input.rootDomain,
+      },
+    });
+    return available;
   }
 }

@@ -1,7 +1,19 @@
-import type { UserAccount } from "~/types";
 import { connectClient } from "~/utils/connect";
+import { USER_STATUS, type ValueOf } from "~/constants";
+
+export type UserStatus = ValueOf<typeof USER_STATUS>;
+
+export type UserAccount = {
+  id: string;
+  displayId: string;
+  displayName: string;
+  email: string;
+  status: UserStatus;
+  joinedAt: string;
+};
 
 export interface IUserRepository {
+  listUsers$$key(): readonly ["users"];
   listUsers(): Promise<UserAccount[]>;
 }
 
@@ -11,7 +23,7 @@ const fallbackUsers: UserAccount[] = [
     displayId: "kouta",
     displayName: "Kouta (Demo)",
     email: "kouta@example.com",
-    status: "active",
+    status: USER_STATUS.ACTIVE,
     joinedAt: "-",
   },
 ];
@@ -27,11 +39,15 @@ const toUser = (user: {
   displayId: user.displayId,
   displayName: user.displayName,
   email: user.email,
-  status: "active",
+  status: USER_STATUS.ACTIVE,
   joinedAt: user.joinedAt || "-",
 });
 
 export class UserRepository implements IUserRepository {
+  listUsers$$key() {
+    return ["users"] as const;
+  }
+
   async listUsers(): Promise<UserAccount[]> {
     try {
       const res = await connectClient.auth.getCurrentUser({});

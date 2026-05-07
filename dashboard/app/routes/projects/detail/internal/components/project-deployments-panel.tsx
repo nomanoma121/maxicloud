@@ -1,10 +1,12 @@
 import { DeploymentsTable } from "~/components/feature/deployments-table";
-import type { DeploymentRowItem } from "~/components/feature/deployments-table";
 import { Panel } from "~/components/ui/panel";
-import type { Application, DeploymentRun, Project, UserAccount } from "~/types";
+import type { Application } from "~/repository/application";
+import type { Deployment } from "~/repository/deployment";
+import type { Project } from "~/repository/project";
+import type { UserAccount } from "~/repository/user";
 
 type ProjectDeploymentsPanelProps = {
-  deployments: DeploymentRun[];
+  deployments: Deployment[];
   applicationByID: Record<string, Application | undefined>;
   projectByID: Record<string, Project | undefined>;
   userByID: Record<string, UserAccount | undefined>;
@@ -16,7 +18,7 @@ export const ProjectDeploymentsPanel = ({
   projectByID,
   userByID,
 }: ProjectDeploymentsPanelProps) => {
-  const rows: DeploymentRowItem[] = deployments.map((d) => {
+  const rows = deployments.map((d) => {
     const application = applicationByID[d.applicationId];
     return {
       id: d.id,

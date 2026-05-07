@@ -4,7 +4,6 @@ import { DeploymentsTable } from "~/components/feature/deployments-table";
 import { StatusBadge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Panel } from "~/components/ui/panel";
-import { APP_ROUTES } from "~/constant";
 import { useDeleteApplication } from "./internal/hooks/use-delete-application";
 import type { ApplicationDetailContext } from "./layout";
 import { SummaryRow } from "./internal/components/summary-row";
@@ -55,7 +54,7 @@ export default function ApplicationDetailPage() {
             gap: 2,
           })}
         >
-          <SummaryRow label="プロジェクト" value={project?.name ?? "-"} href={project ? APP_ROUTES.projectDetail(project.id) : undefined} />
+          <SummaryRow label="プロジェクト" value={project?.name ?? "-"} href={project ? `/projects/` : undefined} />
           <SummaryRow label="グループ" value={owner?.displayName ?? "-"} />
           <SummaryRow label="CPU" value={application.cpu} />
           <SummaryRow label="Memory" value={application.memory} />

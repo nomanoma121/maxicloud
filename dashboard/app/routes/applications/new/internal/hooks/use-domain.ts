@@ -1,11 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { QUERY_KEYS } from "~/constant";
 import { useRepository } from "~/hooks/use-repository";
 
 export const useAvailableDomains = () => {
   const { domainRepository } = useRepository();
   return useQuery({
-    queryKey: QUERY_KEYS.availableDomains,
+    queryKey: domainRepository.listAvailableDomains$$key(),
     queryFn: () => domainRepository.listAvailableDomains(),
   });
 };
@@ -17,7 +16,7 @@ export const useDomainAvailability = (input: {
 }) => {
   const { domainRepository } = useRepository();
   return useQuery({
-    queryKey: QUERY_KEYS.domainAvailability(input.subdomain, input.rootDomain),
+    queryKey: domainRepository.checkDomainAvailability$$key(input.subdomain, input.rootDomain),
     enabled: input.enabled,
     queryFn: () =>
       domainRepository.checkDomainAvailability({

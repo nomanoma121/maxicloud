@@ -1,11 +1,10 @@
 import { Link } from "react-router";
 import { css } from "styled-system/css";
-import { StatusBadge } from "~/components/ui/badge";
+import { APPLICATION_STATUS_LABEL } from "~/constants";
 import { Table } from "~/components/ui/table";
-import { APP_ROUTES } from "~/constant";
-import type { ApplicationStatus } from "~/types";
+import type { ApplicationStatus } from "~/repository/application";
 
-export type ApplicationRowItem = {
+type ApplicationRowItem = {
   id: string;
   name: string;
   projectId: string;
@@ -40,16 +39,14 @@ export const ApplicationsTable = ({ rows }: ApplicationsTableProps) => {
             <Table.Td>{row.name}</Table.Td>
             <Table.Td>
               <Link
-                to={APP_ROUTES.projectDetail(row.projectId)}
+                to={`/projects/${row.projectId}`}
                 className={css({ color: "green.700", fontSize: "sm" })}
               >
                 {row.projectName}
               </Link>
             </Table.Td>
             <Table.Td>{row.ownerName}</Table.Td>
-            <Table.Td>
-              <StatusBadge status={row.status} />
-            </Table.Td>
+            <Table.Td>{APPLICATION_STATUS_LABEL[row.status]}</Table.Td>
             <Table.Td>{row.updatedAt}</Table.Td>
             <Table.Td>
               {row.url ? (
@@ -62,7 +59,7 @@ export const ApplicationsTable = ({ rows }: ApplicationsTableProps) => {
             </Table.Td>
             <Table.Td>
               <Link
-                to={APP_ROUTES.applicationDetail(row.id)}
+                to={`/applications/${row.id}`}
                 className={css({ color: "green.700", fontSize: "sm" })}
               >
                 詳細

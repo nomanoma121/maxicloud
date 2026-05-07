@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router";
 import { css } from "styled-system/css";
 import { Button } from "~/components/ui/button";
-import { APP_NAME, APP_ROUTES } from "~/constant";
+import { APP_NAME } from "~/constants";
 import { Panel } from "~/components/ui/panel";
 
 export default function LoginPage() {
@@ -32,7 +32,7 @@ export default function LoginPage() {
           </p>
         </div>
         <div className={css({ display: "flex", gap: 2, marginTop: 2 })}>
-          <Button type="button" variant="primary" onClick={() => navigate(APP_ROUTES.home)}>
+          <Button type="button" variant="primary" onClick={() => navigate("/")}>
             Go to Dashboard
           </Button>
         </div>

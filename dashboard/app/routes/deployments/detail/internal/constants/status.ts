@@ -1,18 +1,19 @@
 import { CheckCircle, Loader, XCircle } from "react-feather";
-import type { DeploymentStatus } from "~/types";
+import { DEPLOYMENT_STATUS } from "~/constants";
+import type { DeploymentStatus } from "~/repository/deployment";
 
 export const DEPLOYMENT_STATUS_META = {
-  success: {
+  [DEPLOYMENT_STATUS.SUCCESS]: {
     label: "Successful",
     color: "#34AA8E",
     Icon: CheckCircle,
   },
-  failed: {
+  [DEPLOYMENT_STATUS.FAILED]: {
     label: "Failed",
     color: "#dc2626",
     Icon: XCircle,
   },
-  in_progress: {
+  [DEPLOYMENT_STATUS.IN_PROGRESS]: {
     label: "In Progress",
     color: "#d29922",
     Icon: Loader,

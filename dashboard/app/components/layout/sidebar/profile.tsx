@@ -1,5 +1,5 @@
 import { css } from "styled-system/css";
-import type { UserAccount } from "~/types";
+import type { UserAccount } from "~/repository/user";
 
 export const SidebarProfile = ({ user }: { user?: UserAccount }) => (
   <div

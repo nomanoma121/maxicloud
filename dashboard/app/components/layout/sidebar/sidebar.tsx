@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { css } from "styled-system/css";
-import { APP_NAME } from "~/constant";
+import { APP_NAME } from "~/constants";
 import { useSession } from "~/hooks/use-session";
 import { SidebarBackdrop } from "./backdrop";
 import { SidebarHamburgerButton } from "./hamburger-button";
@@ -10,7 +10,6 @@ import { SidebarProfile } from "./profile";
 export const Sidebar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { currentUser } = useSession();
-
   const closeMenu = () => setIsMenuOpen(false);
 
   return (

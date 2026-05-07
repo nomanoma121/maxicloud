@@ -1,7 +1,6 @@
-import { useNavigate, useOutletContext } from "react-router";
+import { useOutletContext } from "react-router";
 import { css } from "styled-system/css";
 import { Button } from "~/components/ui/button";
-import { APP_ROUTES } from "~/constant";
 import { useDeleteProject } from "./internal/hooks/use-delete-project";
 import { ProjectApplicationsPanel } from "./internal/components/project-applications-panel";
 import { ProjectDeploymentsPanel } from "./internal/components/project-deployments-panel";

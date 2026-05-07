@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import type { Project } from "~/types";
+import { APPLICATION_STATUS } from "~/constants";
+import type { Project } from "~/repository/project";
 import { useProjectsData } from "~/routes/projects/internal/hooks/use-projects-data";
 
 export type ProjectCount = {
@@ -21,7 +22,7 @@ export const useProjectsListView = () => {
             (application) => application.projectId === project.id,
           );
           const healthy = projectApplications.filter(
-            (application) => application.status === "running",
+            (application) => application.status === APPLICATION_STATUS.RUNNING,
           ).length;
           return [project.id, { total: projectApplications.length, healthy }] as const;
         }),

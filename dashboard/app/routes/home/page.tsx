@@ -1,19 +1,19 @@
 import { Home } from "react-feather";
 import { css } from "styled-system/css";
 import { DeploymentsTable } from "~/components/feature/deployments-table";
-import type { DeploymentRowItem } from "~/components/feature/deployments-table";
 import { DashboardHeader } from "~/components/layout/dashboard-header";
 import { Breadcrumb } from "~/components/ui/breadcrumb";
 import { MetricCard } from "~/components/ui/metric-card";
 import { Panel } from "~/components/ui/panel";
-import { APP_ROUTES } from "~/constant";
+import { APPLICATION_STATUS } from "~/constants";
+
 import { useHomeData } from "~/routes/home/internal/hooks/use-home-data";
 
 export default function HomePage() {
   const { deployments, projects, applications, projectByID, applicationByID, userByID } = useHomeData();
-  const healthyApplications = applications.filter((application) => application.status === "running").length;
+  const healthyApplications = applications.filter((application) => application.status === APPLICATION_STATUS.RUNNING).length;
 
-  const rows: DeploymentRowItem[] = deployments.slice(0, 6).map((d) => {
+  const rows = deployments.slice(0, 6).map((d) => {
     const application = applicationByID[d.applicationId];
     return {
       id: d.id,
@@ -30,7 +30,7 @@ export default function HomePage() {
     <div className={css({ display: "grid", gap: 4 })}>
       <Breadcrumb
         items={[
-          { label: "Dashboard", href: APP_ROUTES.home },
+          { label: "Dashboard", href: "/" },
           { label: "Overview", icon: <Home size={14} /> },
         ]}
       />

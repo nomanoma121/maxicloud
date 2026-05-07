@@ -5,7 +5,7 @@ import { valibotResolver } from "@hookform/resolvers/valibot";
 import { Button } from "~/components/ui/button";
 import { Form } from "~/components/ui/form";
 import { Panel } from "~/components/ui/panel";
-import { APP_ROUTES } from "~/constant";
+
 import { useUsersQuery } from "~/hooks";
 import { useSession } from "~/hooks/use-session";
 
@@ -44,7 +44,7 @@ export default function NewProjectPage() {
 
   const onSubmit = async (data: CreateProjectOutput) => {
     await createProject(data);
-    navigate(APP_ROUTES.projects);
+    navigate("/projects");
   };
 
   return (

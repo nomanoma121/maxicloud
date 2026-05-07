@@ -6,7 +6,6 @@ import type { IProjectRepository } from "~/repository/project";
 import type { IApplicationRepository } from "~/repository/application";
 import type { ISourceRepository } from "~/repository/source";
 import type { IUserRepository } from "~/repository/user";
-import type { IWorkspaceRepository } from "~/repository/workspace";
 
 export interface RepositoryContextProps {
   userRepository: IUserRepository;
@@ -15,7 +14,6 @@ export interface RepositoryContextProps {
   deploymentRepository: IDeploymentRepository;
   domainRepository: IDomainRepository;
   sourceRepository: ISourceRepository;
-  workspaceRepository: IWorkspaceRepository;
 }
 
 const RepositoryContext =

@@ -3,6 +3,7 @@ import { Sliders } from "react-feather";
 import { css } from "styled-system/css";
 import { useFormContext, useWatch } from "react-hook-form";
 import { Form } from "~/components/ui/form";
+import { CREATE_APPLICATION_ACCESS_MODE } from "~/constants";
 import { ModeButton } from "./mode-button";
 import { SectionHeading } from "./section-heading";
 import { CreateApplicationInputValues } from "../schema";
@@ -20,7 +21,7 @@ export const ExposeSection = () => {
   const trimmedDomainSuffix = domainSuffix.trim();
   const currentDomainKey = `${trimmedDomainPrefix}:${trimmedDomainSuffix}`;
   const domainCheckable =
-    exposureMode !== "private" &&
+    exposureMode !== CREATE_APPLICATION_ACCESS_MODE.PRIVATE &&
     trimmedDomainPrefix.length > 0 &&
     trimmedDomainSuffix.length > 0;
 
@@ -59,27 +60,33 @@ export const ExposeSection = () => {
             })}
           >
             <ModeButton
-              active={exposureMode === "public"}
+              active={exposureMode === CREATE_APPLICATION_ACCESS_MODE.PUBLIC}
               title="Public"
               description="誰でもアクセス可能"
-              onClick={() => setValue("exposureMode", "public", { shouldDirty: true })}
+              onClick={() =>
+                setValue("exposureMode", CREATE_APPLICATION_ACCESS_MODE.PUBLIC, { shouldDirty: true })
+              }
             />
             <ModeButton
-              active={exposureMode === "idp"}
+              active={exposureMode === CREATE_APPLICATION_ACCESS_MODE.IDP}
               title="Members Only"
               description="IdP認証済み会員のみ許可"
-              onClick={() => setValue("exposureMode", "idp", { shouldDirty: true })}
+              onClick={() =>
+                setValue("exposureMode", CREATE_APPLICATION_ACCESS_MODE.IDP, { shouldDirty: true })
+              }
             />
             <ModeButton
-              active={exposureMode === "private"}
+              active={exposureMode === CREATE_APPLICATION_ACCESS_MODE.PRIVATE}
               title="Private"
               description="外部公開しない"
-              onClick={() => setValue("exposureMode", "private", { shouldDirty: true })}
+              onClick={() =>
+                setValue("exposureMode", CREATE_APPLICATION_ACCESS_MODE.PRIVATE, { shouldDirty: true })
+              }
             />
           </div>
         )}
       </Form.Field.WithLabel>
-      {exposureMode !== "private" && (
+      {exposureMode !== CREATE_APPLICATION_ACCESS_MODE.PRIVATE && (
         <>
           <div className={css({ display: "grid", gap: 2 })}>
             <p className={css({ margin: 0, color: "gray.600", fontSize: "sm", fontWeight: 600 })}>

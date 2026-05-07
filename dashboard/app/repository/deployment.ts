@@ -1,32 +1,53 @@
 import { ConnectError, Code } from "@connectrpc/connect";
 import {
   type Deployment as ProtoDeployment,
-  DeploymentStatus,
+  DeploymentStatus as ProtoDeploymentStatus,
 } from "~/gen/maxicloud/v1/deployment_pb";
-import type { DeployEvent, DeploymentRun } from "~/types";
+import {
+  DEPLOYMENT_STATUS,
+  type ValueOf,
+} from "~/constants";
 import { connectClient } from "~/utils/connect";
 import { formatDuration, formatTimestamp } from "~/utils/date";
 
+export type DeploymentStatus = ValueOf<typeof DEPLOYMENT_STATUS>;
+
+export type Deployment = {
+  id: string;
+  applicationId: string;
+  ownerId: string;
+  revision: string;
+  commit: string;
+  commitMessage: string;
+  commitAuthor: string;
+  commitTimestamp: string;
+  status: DeploymentStatus;
+  startedAt: string;
+  finishedAt: string;
+  duration: string;
+};
+
 export interface IDeploymentRepository {
-  listDeployments(): Promise<DeploymentRun[]>;
-  getDeployment(id: string): Promise<DeploymentRun | undefined>;
-  listDeployEventsByDeployment(deploymentId: string): Promise<DeployEvent[]>;
+  listDeployments$$key(): readonly ["deployments"];
+  getDeployment$$key(id: string): readonly ["deployments", string];
+  listDeployments(): Promise<Deployment[]>;
+  getDeployment(id: string): Promise<Deployment | undefined>;
 }
 
-const mapStatus = (status: DeploymentStatus): DeploymentRun["status"] => {
+const mapStatus = (status: ProtoDeploymentStatus): Deployment["status"] => {
   switch (status) {
-    case DeploymentStatus.SUCCESS:
-      return "success";
-    case DeploymentStatus.IN_PROGRESS:
-      return "in_progress";
-    case DeploymentStatus.FAILED:
-      return "failed";
+    case ProtoDeploymentStatus.SUCCESS:
+      return DEPLOYMENT_STATUS.SUCCESS;
+    case ProtoDeploymentStatus.IN_PROGRESS:
+      return DEPLOYMENT_STATUS.IN_PROGRESS;
+    case ProtoDeploymentStatus.FAILED:
+      return DEPLOYMENT_STATUS.FAILED;
     default:
-      return "in_progress";
+      return DEPLOYMENT_STATUS.IN_PROGRESS;
   }
 };
 
-const toDeployment = (deployment: ProtoDeployment): DeploymentRun => {
+const toDeployment = (deployment: ProtoDeployment): Deployment => {
   const sha = deployment.commit?.sha ?? "";
   const shortSHA = sha.length > 8 ? sha.slice(0, 8) : sha;
   return {
@@ -45,28 +66,16 @@ const toDeployment = (deployment: ProtoDeployment): DeploymentRun => {
   };
 };
 
-const makeEvents = (deployment: DeploymentRun): DeployEvent[] => {
-  const statusTitle =
-    deployment.status === "success"
-      ? "Deployment succeeded"
-      : deployment.status === "failed"
-        ? "Deployment failed"
-        : "Deployment in progress";
-
-  return [
-    {
-      id: `${deployment.id}-deploy`,
-      deploymentId: deployment.id,
-      kind: "deploy",
-      title: statusTitle,
-      timestamp: deployment.startedAt,
-      detail: `commit=${deployment.commit}`,
-    },
-  ];
-};
-
 export class DeploymentRepository implements IDeploymentRepository {
-  async listDeployments(): Promise<DeploymentRun[]> {
+  listDeployments$$key() {
+    return ["deployments"] as const;
+  }
+
+  getDeployment$$key(id: string) {
+    return ["deployments", id] as const;
+  }
+
+  async listDeployments(): Promise<Deployment[]> {
     const { projects } = await connectClient.project.listProjects({});
     const list = await Promise.all(
       projects.map(async (project) =>
@@ -87,7 +96,7 @@ export class DeploymentRepository implements IDeploymentRepository {
       .sort((a, b) => (a.startedAt > b.startedAt ? -1 : 1));
   }
 
-  async getDeployment(id: string): Promise<DeploymentRun | undefined> {
+  async getDeployment(id: string): Promise<Deployment | undefined> {
     try {
       const res = await connectClient.deployment.getDeployment({ deploymentId: id });
       if (!res.deployment) {
@@ -100,13 +109,5 @@ export class DeploymentRepository implements IDeploymentRepository {
       }
       throw error;
     }
-  }
-
-  async listDeployEventsByDeployment(deploymentId: string): Promise<DeployEvent[]> {
-    const deployment = await this.getDeployment(deploymentId);
-    if (!deployment) {
-      return [];
-    }
-    return makeEvents(deployment);
   }
 }

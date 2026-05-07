@@ -1,5 +1,6 @@
 import { css } from "styled-system/css";
-import type { DeploymentStatus } from "~/types";
+import { DEPLOYMENT_STATUS } from "~/constants";
+import type { DeploymentStatus } from "~/repository/deployment";
 import { DEPLOYMENT_STATUS_META } from "../constants/status";
 
 type StatusPanelProps = {
@@ -11,7 +12,7 @@ type StatusPanelProps = {
 export const StatusPanel = ({ status, duration, finishedAt }: StatusPanelProps) => {
   const statusMeta = DEPLOYMENT_STATUS_META[status];
   const StatusIcon = statusMeta.Icon;
-  const inProgress = status === "in_progress";
+  const inProgress = status === DEPLOYMENT_STATUS.IN_PROGRESS;
 
   return (
     <div

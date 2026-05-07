@@ -2,6 +2,10 @@ import { valibotResolver } from "@hookform/resolvers/valibot";
 import { FormProvider, useForm } from "react-hook-form";
 import { css } from "styled-system/css";
 import { Panel } from "~/components/ui/panel";
+import {
+  CREATE_APPLICATION_ACCESS_MODE,
+  CREATE_APPLICATION_DOCKERFILE_SOURCE,
+} from "~/constants";
 import { useSession } from "~/hooks/use-session";
 import { useCreateApplication } from "./internal/hooks/use-create-application";
 import { useGitHubRepositories } from "./internal/hooks/use-source";
@@ -60,10 +64,10 @@ export default function NewApplicationPage() {
       applicationName: "",
       repositoryId: "",
       branch: DEFAULT_BRANCH,
-      dockerfileSource: "path",
+      dockerfileSource: CREATE_APPLICATION_DOCKERFILE_SOURCE.PATH,
       dockerfilePath: "Dockerfile",
       dockerfileInline: "",
-      exposureMode: "public",
+      exposureMode: CREATE_APPLICATION_ACCESS_MODE.PUBLIC,
       domainPrefix: "",
       domainSuffix: "",
       domainEdited: false,
@@ -99,7 +103,7 @@ export default function NewApplicationPage() {
       },
       {},
     );
-    const enableDomain = data.exposureMode !== "private";
+    const enableDomain = data.exposureMode !== CREATE_APPLICATION_ACCESS_MODE.PRIVATE;
 
     createApplication({
       projectId: data.projectId,

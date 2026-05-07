@@ -1,8 +1,15 @@
 import { ConnectError, Code } from "@connectrpc/connect";
 import type { Project as ProtoProject } from "~/gen/maxicloud/v1/project_pb";
-import type { Project } from "~/types";
 import { connectClient } from "~/utils/connect";
 import { formatTimestamp } from "~/utils/date";
+
+export type Project = {
+  id: string;
+  name: string;
+  description: string;
+  ownerId: string;
+  updatedAt: string;
+};
 
 export type CreateProjectInput = {
   name: string;
@@ -11,6 +18,8 @@ export type CreateProjectInput = {
 };
 
 export interface IProjectRepository {
+  listProjects$$key(): readonly ["projects"];
+  getProject$$key(id: string): readonly ["projects", string];
   listProjects(): Promise<Project[]>;
   getProject(id: string): Promise<Project | undefined>;
   createProject(input: CreateProjectInput): Promise<Project>;
@@ -26,6 +35,14 @@ const toProject = (project: ProtoProject): Project => ({
 });
 
 export class ProjectRepository implements IProjectRepository {
+  listProjects$$key() {
+    return ["projects"] as const;
+  }
+
+  getProject$$key(id: string) {
+    return ["projects", id] as const;
+  }
+
   async listProjects(): Promise<Project[]> {
     const res = await connectClient.project.listProjects({});
     return res.projects.map(toProject);

@@ -1,8 +1,7 @@
 import { useNavigate } from "react-router";
 import { Panel } from "~/components/ui/panel";
-import { APP_ROUTES } from "~/constant";
-import { ApplicationsTable } from "~/routes/applications/internal/components/applications-table";
-import type { ApplicationRowItem } from "~/routes/applications/internal/components/applications-table";
+
+import { ApplicationsTable } from "~/components/feature/applications-table";
 import { ApplicationsToolbar } from "~/routes/applications/internal/components/applications-toolbar";
 import { useApplicationsListView } from "~/routes/applications/internal/hooks/use-applications-list-view";
 
@@ -16,7 +15,7 @@ export default function ApplicationsPage() {
     userByID,
   } = useApplicationsListView();
 
-  const rows: ApplicationRowItem[] = filteredApplications.map((a) => ({
+  const rows = filteredApplications.map((a) => ({
     id: a.id,
     name: a.name,
     projectId: a.projectId,
@@ -34,7 +33,7 @@ export default function ApplicationsPage() {
       <ApplicationsToolbar
         keyword={keyword}
         onKeywordChange={setKeyword}
-        onCreateApplication={() => navigate(APP_ROUTES.applicationNew)}
+        onCreateApplication={() => navigate("/applications/new")}
       />
       <ApplicationsTable rows={rows} />
     </Panel>

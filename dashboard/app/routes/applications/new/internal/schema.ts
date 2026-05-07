@@ -1,4 +1,8 @@
 import * as v from "valibot";
+import {
+  CREATE_APPLICATION_ACCESS_MODE,
+  CREATE_APPLICATION_DOCKERFILE_SOURCE,
+} from "~/constants";
 
 export const CreateApplicationSchema = v.object({
   projectId: v.pipe(v.string(), v.minLength(1, "プロジェクトを選択してください")),
@@ -10,10 +14,17 @@ export const CreateApplicationSchema = v.object({
   ),
   repositoryId: v.pipe(v.string(), v.minLength(1, "リポジトリを選択してください")),
   branch: v.pipe(v.string(), v.minLength(1, "ブランチを選択してください")),
-  dockerfileSource: v.union([v.literal("path"), v.literal("inline")]),
+  dockerfileSource: v.union([
+    v.literal(CREATE_APPLICATION_DOCKERFILE_SOURCE.PATH),
+    v.literal(CREATE_APPLICATION_DOCKERFILE_SOURCE.INLINE),
+  ]),
   dockerfilePath: v.string(),
   dockerfileInline: v.string(),
-  exposureMode: v.union([v.literal("public"), v.literal("private"), v.literal("idp")]),
+  exposureMode: v.union([
+    v.literal(CREATE_APPLICATION_ACCESS_MODE.PUBLIC),
+    v.literal(CREATE_APPLICATION_ACCESS_MODE.PRIVATE),
+    v.literal(CREATE_APPLICATION_ACCESS_MODE.IDP),
+  ]),
   domainPrefix: v.string(),
   domainSuffix: v.string(),
   domainEdited: v.boolean(),

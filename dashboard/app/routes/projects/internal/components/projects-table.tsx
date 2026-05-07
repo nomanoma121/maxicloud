@@ -1,8 +1,7 @@
 import { Link } from "react-router";
 import { css } from "styled-system/css";
 import { Table } from "~/components/ui/table";
-import { APP_ROUTES } from "~/constant";
-import type { UserAccount } from "~/types";
+import type { UserAccount } from "~/repository/user";
 import type {
   ProjectCountByID,
   ProjectsListItem,
@@ -42,7 +41,7 @@ export const ProjectsTable = ({
               <Table.Td>{project.updatedAt}</Table.Td>
               <Table.Td>
                 <Link
-                  to={APP_ROUTES.projectDetail(project.id)}
+                  to={`/projects/${project.id}`}
                   className={css({ color: "green.700", fontSize: "sm", textDecoration: "none" })}
                 >
                   詳細
