@@ -46,8 +46,8 @@ func (s *domainService) CheckDomainAvailability(ctx context.Context, d domain.Do
 func normalizeDomains(domains []string) []string {
 	seen := make(map[string]struct{}, len(domains))
 	result := make([]string, 0, len(domains))
-	for _, domain := range domains {
-		normalized := strings.TrimSpace(strings.ToLower(domain))
+	for _, d := range domains {
+		normalized := strings.TrimSpace(strings.ToLower(d))
 		if normalized == "" {
 			continue
 		}

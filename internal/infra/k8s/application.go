@@ -146,13 +146,13 @@ func (r *applicationRepository) GetApplicationsByRepo(ctx context.Context, owner
 	return apps, nil
 }
 
-func (r *applicationRepository) ExistsByDomain(ctx context.Context, domain string) (bool, error) {
+func (r *applicationRepository) ExistsByDomain(ctx context.Context, fqdn string) (bool, error) {
 	var list maxicloudv1alpha1.ApplicationList
 	if err := r.List(ctx, &list); err != nil {
 		return false, fmt.Errorf("list applications: %w", err)
 	}
 	for _, cr := range list.Items {
-		if cr.Spec.Expose != nil && cr.Spec.Expose.Domain == domain {
+		if cr.Spec.Expose != nil && cr.Spec.Expose.Domain == fqdn {
 			return true, nil
 		}
 	}
@@ -240,9 +240,7 @@ func normalizeBranchForLabel(branch string) string {
 	sum := sha1.Sum([]byte(raw))
 	suffix := fmt.Sprintf("-%x", sum[:hashBytes])
 	maxBaseLen := maxLabelLen - len(suffix)
-	if maxBaseLen < 1 {
-		maxBaseLen = 1
-	}
+	maxBaseLen = max(maxBaseLen, 1)
 
 	if len(normalized) > maxBaseLen {
 		normalized = normalized[:maxBaseLen]

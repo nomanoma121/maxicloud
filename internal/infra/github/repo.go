@@ -75,8 +75,8 @@ func (c *client) GetHeadCommit(ctx context.Context, repo domain.Repository, bran
 	timestamp := time.Now()
 	if commit.GetCommit() != nil && commit.GetCommit().GetAuthor() != nil {
 		authorName = commit.GetCommit().GetAuthor().GetName()
-		if date := commit.GetCommit().GetAuthor().GetDate(); !date.Time.IsZero() {
-			timestamp = date.Time
+		if date := commit.GetCommit().GetAuthor().GetDate(); !date.IsZero() {
+			timestamp = *date.GetTime()
 		}
 	}
 	if authorName == "" && commit.GetAuthor() != nil {

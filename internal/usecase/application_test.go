@@ -56,7 +56,7 @@ func (s *stubApplicationRepo) GetApplicationsByRepo(ctx context.Context, owner, 
 	return nil, nil
 }
 
-func (s *stubApplicationRepo) ExistsByDomain(ctx context.Context, domain string) (bool, error) {
+func (s *stubApplicationRepo) ExistsByDomain(ctx context.Context, fqdn string) (bool, error) {
 	return false, nil
 }
 

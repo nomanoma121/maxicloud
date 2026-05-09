@@ -140,10 +140,6 @@ func (r *deploymentPipelineRepository) DeleteOldPipelines(ctx context.Context, a
 	if err := r.client.List(ctx, &list, client.MatchingLabels{labelAppID: applicationID, labelPreview: strconv.FormatBool(isPreview)}); err != nil {
 		return fmt.Errorf("list deployment pipelines: %w", err)
 	}
-	type itemWithTime struct {
-		cr   maxicloudv1alpha1.DeploymentPipeline
-		time time.Time
-	}
 	items := filterByPreview(list, isPreview)
 	if len(items) <= maxHistory {
 		return nil
@@ -221,8 +217,8 @@ var tokenPattern = regexp.MustCompile(`x-access-token:[^@]+@`)
 func maskLogs(logStream io.ReadCloser) io.ReadCloser {
 	pr, pw := io.Pipe()
 	go func() {
-		defer logStream.Close()
-		defer pw.Close()
+		defer func() { _ = logStream.Close() }()
+		defer func() { _ = pw.Close() }()
 
 		reader := bufio.NewReader(logStream)
 		for {

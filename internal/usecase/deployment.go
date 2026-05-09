@@ -239,7 +239,7 @@ func (s *deploymentService) watchBuildLogStream(ctx context.Context, deploymentI
 		sendDeploymentLogChunk(ctx, ch, "failed to retrieve logs")
 		return
 	}
-	defer stream.Close()
+	defer func() { _ = stream.Close() }()
 
 	scanner := bufio.NewScanner(stream)
 	for scanner.Scan() {

@@ -108,7 +108,7 @@ func (h *GitHubHandler) Webhook(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func toDeploymentEvent(event interface{}) (*domain.DeploymentEvent, bool) {
+func toDeploymentEvent(event any) (*domain.DeploymentEvent, bool) {
 	switch e := event.(type) {
 	case *gh.PushEvent:
 		if e.GetDeleted() {

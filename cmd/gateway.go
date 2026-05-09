@@ -61,7 +61,7 @@ func runGateway(cmd *cobra.Command, args []string) error {
 	prjRepo := k8s.NewProjectRepository(k8sClient)
 	deployRepo := postgres.NewDeploymentRepository()
 	deployPipelineRepo := k8s.NewDeploymentPipelineRepository(k8sClient, clientset)
-	srcRepo := github.NewClient(cfg.GitHubAppID, []byte(privateKey), cfg.InstallationID)
+	srcRepo := github.NewClient(cfg.GitHubAppID, privateKey, cfg.InstallationID)
 
 	deploySvc := usecase.NewDeploymentService(deployRepo, deployPipelineRepo, appRepo)
 	prjSvc := usecase.NewProjectUsecase(prjRepo)

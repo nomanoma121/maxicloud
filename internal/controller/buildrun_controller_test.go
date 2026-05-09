@@ -65,7 +65,7 @@ func (f *fakeGitHubClient) UpdateDeploymentSummary(_ context.Context, _ domain.U
 	return nil
 }
 
-func newTestReconciler(maxHistory int) *BuildRunReconciler {
+func newTestReconciler() *BuildRunReconciler {
 	return &BuildRunReconciler{
 		Client:       k8sClient,
 		Scheme:       k8sClient.Scheme(),
@@ -112,7 +112,7 @@ var _ = Describe("BuildRun Controller", func() {
 		})
 
 		It("ReconcileでJobが作成される", func() {
-			r := newTestReconciler(3)
+			r := newTestReconciler()
 			_, err := r.Reconcile(ctx, reconcile.Request{
 				NamespacedName: types.NamespacedName{Name: name, Namespace: ns},
 			})
@@ -123,8 +123,8 @@ var _ = Describe("BuildRun Controller", func() {
 		})
 
 		It("2回Reconcileしても重複してJobが作られない", func() {
-			r := newTestReconciler(3)
-			for i := 0; i < 2; i++ {
+			r := newTestReconciler()
+			for range 2 {
 				_, err := r.Reconcile(ctx, reconcile.Request{
 					NamespacedName: types.NamespacedName{Name: name, Namespace: ns},
 				})
@@ -140,7 +140,7 @@ var _ = Describe("BuildRun Controller", func() {
 		})
 
 		It("Secretが作成される", func() {
-			r := newTestReconciler(3)
+			r := newTestReconciler()
 			_, err := r.Reconcile(ctx, reconcile.Request{
 				NamespacedName: types.NamespacedName{Name: name, Namespace: ns},
 			})
@@ -154,8 +154,6 @@ var _ = Describe("BuildRun Controller", func() {
 	})
 
 	Context("古いJobの削除", func() {
-		const baseName = "buildrun-gc"
-
 		AfterEach(func() {
 			var jobList batchv1.JobList
 			_ = k8sClient.List(ctx, &jobList, client.InNamespace(ns))
@@ -167,7 +165,7 @@ var _ = Describe("BuildRun Controller", func() {
 
 	Context("BuildRunが存在しない場合", func() {
 		It("NotFoundは無視してエラーにならない", func() {
-			r := newTestReconciler(3)
+			r := newTestReconciler()
 			_, err := r.Reconcile(ctx, reconcile.Request{
 				NamespacedName: types.NamespacedName{Name: "nonexistent", Namespace: ns},
 			})

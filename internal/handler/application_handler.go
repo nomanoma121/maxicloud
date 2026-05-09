@@ -90,9 +90,9 @@ func (h *ApplicationHandler) DeleteApplication(ctx context.Context, req *v1.Dele
 }
 
 func toProtoApplication(a *domain.Application) *v1.Application {
-	var domain *v1.Domain
+	var protoDomain *v1.Domain
 	if a.Condition.Domain != nil {
-		domain = &v1.Domain{
+		protoDomain = &v1.Domain{
 			Subdomain:  a.Condition.Domain.Subdomain,
 			RootDomain: a.Condition.Domain.RootDomain,
 		}
@@ -111,7 +111,7 @@ func toProtoApplication(a *domain.Application) *v1.Application {
 		},
 		Condition: &v1.ApplicationCondition{
 			Status: toProtoAppStatus(a.Condition.Status),
-			Domain: domain,
+			Domain: protoDomain,
 		},
 		CreatedAt: timestamppb.New(a.CreatedAt),
 		UpdatedAt: timestamppb.New(a.UpdatedAt),
