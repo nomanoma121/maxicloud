@@ -7,7 +7,8 @@
     "dev": "react-router dev",
     "build": "react-router build",
     "typecheck": "react-router typegen && tsc",
-    "check": "pnpm run typecheck"
+    "fix": "biome check --write ./app",
+    "check": "biome check ./app && pnpm run typecheck"
   },
   "dependencies": {
     "@bufbuild/protobuf": "^2.12.0",
@@ -26,6 +27,7 @@
     "valibot": "1.2.0"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.4.15",
     "@bufbuild/buf": "^1.69.0",
     "@bufbuild/protoc-gen-es": "^2.12.0",
     "@pandacss/dev": "^1.8.2",
