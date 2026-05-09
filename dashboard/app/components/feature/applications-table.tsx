@@ -11,7 +11,7 @@ type ApplicationRowItem = {
   projectName: string;
   ownerName: string;
   status: ApplicationStatus;
-  url: string;
+  url?: string;
   updatedAt: string;
 };
 
@@ -50,7 +50,7 @@ export const ApplicationsTable = ({ rows }: ApplicationsTableProps) => {
             <Table.Td>{row.updatedAt}</Table.Td>
             <Table.Td>
               {row.url ? (
-                <a href={row.url} target="_blank" rel="noopener noreferrer" className={css({ color: "blue.700", fontSize: "sm" })}>
+                <a href={row.url} target="_blank" rel="noopener noreferrer" className={css({ color: "green.700", fontSize: "sm" })}>
                   {row.url}
                 </a>
               ) : (
