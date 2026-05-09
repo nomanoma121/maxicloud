@@ -10,10 +10,10 @@ import (
 type DeploymentStatus string
 
 const (
-	DeploymentStatusQueued    DeploymentStatus = "QUEUED"
+	DeploymentStatusQueued     DeploymentStatus = "QUEUED"
 	DeploymentStatusInProgress DeploymentStatus = "IN_PROGRESS"
-	DeploymentStatusSucceeded DeploymentStatus = "SUCCESS"
-	DeploymentStatusFailed    DeploymentStatus = "FAILED"
+	DeploymentStatusSucceeded  DeploymentStatus = "SUCCESS"
+	DeploymentStatusFailed     DeploymentStatus = "FAILED"
 )
 
 type Deployment struct {

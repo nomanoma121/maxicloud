@@ -129,7 +129,7 @@ func nsToProject(ns *corev1.Namespace) (*domain.Project, error) {
 	return &domain.Project{
 		ID:          projectIDFromNamespace(ns.Name),
 		Name:        ns.Labels[ProjectNameLabelKey],
-		OwnerID: ns.Labels[OwnerUserIDLabelKey],
+		OwnerID:     ns.Labels[OwnerUserIDLabelKey],
 		Description: ns.Annotations[ProjectDescriptionAnnotationKey],
 		CreatedAt:   createdAt,
 		UpdatedAt:   updatedAt,

@@ -206,16 +206,16 @@ func (r *ApplicationReconciler) reconcileIngress(ctx context.Context, applicatio
 func (r *ApplicationReconciler) updateStatus(ctx context.Context, app *maxicloudv1alpha1.Application, ready bool) error {
 	if ready {
 		meta.SetStatusCondition(&app.Status.Conditions, metav1.Condition{
-			Type:   "Ready",
-			Status: metav1.ConditionTrue,
-			Reason: "ApplicationReady",
+			Type:    "Ready",
+			Status:  metav1.ConditionTrue,
+			Reason:  "ApplicationReady",
 			Message: "Application is ready",
 		})
 	} else {
 		meta.SetStatusCondition(&app.Status.Conditions, metav1.Condition{
-			Type:   "Ready",
-			Status: metav1.ConditionFalse,
-			Reason: "ApplicationNotReady",
+			Type:    "Ready",
+			Status:  metav1.ConditionFalse,
+			Reason:  "ApplicationNotReady",
 			Message: "Application is not ready",
 		})
 	}

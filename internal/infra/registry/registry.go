@@ -15,7 +15,7 @@ type Registry interface {
 type Provider string
 
 const (
-	ProviderGHCR  Provider = "ghcr"
+	ProviderGHCR          Provider = "ghcr"
 	ProviderLocalRegistry Provider = "local_registry"
 )
 
