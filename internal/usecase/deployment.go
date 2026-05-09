@@ -127,9 +127,9 @@ func (s *deploymentService) RetryDeployment(ctx context.Context, deploymentID st
 func (s *deploymentService) GetDeployment(ctx context.Context, deploymentID string) (*domain.Deployment, error) {
 	deploy, err := s.deployRepo.GetDeployment(ctx, deploymentID)
 	if err != nil {
-		if isNotFoundError(err) {
+	if isNotFoundError(err) {
 			return nil, nil
-		}
+		}	
 		return nil, err
 	}
 	return deploy, nil
@@ -183,6 +183,7 @@ func (s *deploymentService) handleRepoDeploymentEvent(ctx context.Context, event
 	return nil
 }
 
+// TODO: このコードやばすぎるので修正する
 func isNotFoundError(err error) bool {
 	return err != nil && strings.Contains(strings.ToLower(err.Error()), "not found")
 }

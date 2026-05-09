@@ -25,8 +25,8 @@ export const BuildSection = () => {
       >
         <ModeButton
           active={dockerfileSource === CREATE_APPLICATION_DOCKERFILE_SOURCE.PATH}
-          title="Specify Path"
-          description="検知済みPathを基準に使う"
+          title="Dockerfile Path"
+          description="リポジトリ内のDockerfileのパスを指定"
           onClick={() =>
             setValue("dockerfileSource", CREATE_APPLICATION_DOCKERFILE_SOURCE.PATH, { shouldDirty: true })
           }

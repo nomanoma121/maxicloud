@@ -100,7 +100,7 @@ export const ExposeSection = () => {
                 mdDown: { gridTemplateColumns: "1fr" },
               })}
             >
-              <Form.Field.WithLabel label="Subdomain">
+              <Form.Field.WithLabel label="サブドメイン">
                 {(id) => (
                   <Form.Input
                     id={id}
@@ -112,7 +112,7 @@ export const ExposeSection = () => {
                   />
                 )}
               </Form.Field.WithLabel>
-              <Form.Field.WithLabel label="Zone">
+              <Form.Field.WithLabel label="ルートドメイン">
                 {(id) => (
                   <>
                     <Form.Select
