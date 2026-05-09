@@ -54,6 +54,12 @@ buf generate
 make generate
 # Kubebuilderのマーカを変更したとき
 make manifests
+# Goのコードを変更したとき
+make docker-build docker-push
+# イメージをビルドしてPushした後、変更を反映させるためのコマンド
+kubectl rollout restart deployment/maxicloud-controller-manager maxicloud-gateway -n maxicloud-system
+# 上全てをまとめてやるコマンド
+make release
 ```
 
 ### ダッシュボード

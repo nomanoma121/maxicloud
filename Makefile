@@ -171,6 +171,15 @@ deploy: manifests kustomize ## Deploy controller to the K8s cluster specified in
 .PHONY: undeploy
 undeploy: kustomize ## Undeploy controller from the K8s cluster specified in ~/.kube/config. Call with ignore-not-found=true to ignore resource not found errors during deletion.
 	"$(KUSTOMIZE)" build config/overlays/dev | "$(KUBECTL)" delete --ignore-not-found=$(ignore-not-found) -f -
+
+buf-generate:
+	buf generate
+
+.PHONY: release
+# make manifest, generate docker-build docker-push, deploy kubectl rollout restart までやるやつ
+release: manifests generate deploy buf-generate docker-build docker-push
+	"$(KUBECTL)" rollout restart deployment maxicloud-controller-manager maxicloud-gateway -n maxicloud-system
+
 ##@ Dependencies
 
 ## Location to install dependencies to
