@@ -3,30 +3,34 @@ import type { Application } from "~/repository/application";
 import { useApplicationsData } from "~/routes/applications/internal/hooks/use-applications-data";
 
 export const useApplicationsListView = () => {
-  const [keyword, setKeyword] = useState("");
-  const { projectByID, applications, userByID } = useApplicationsData();
+	const [keyword, setKeyword] = useState("");
+	const { projectByID, applications, userByID } = useApplicationsData();
 
-  const filteredApplications = useMemo(() => {
-    const normalized = keyword.trim().toLowerCase();
-    if (!normalized) {
-      return applications;
-    }
+	const filteredApplications = useMemo(() => {
+		const normalized = keyword.trim().toLowerCase();
+		if (!normalized) {
+			return applications;
+		}
 
-    return applications.filter((application) =>
-      [application.name, application.repository, projectByID[application.projectId]?.name ?? ""]
-        .join(" ")
-        .toLowerCase()
-        .includes(normalized),
-    );
-  }, [keyword, projectByID, applications]);
+		return applications.filter((application) =>
+			[
+				application.name,
+				application.repository,
+				projectByID[application.projectId]?.name ?? "",
+			]
+				.join(" ")
+				.toLowerCase()
+				.includes(normalized),
+		);
+	}, [keyword, projectByID, applications]);
 
-  return {
-    keyword,
-    setKeyword,
-    filteredApplications,
-    projectByID,
-    userByID,
-  };
+	return {
+		keyword,
+		setKeyword,
+		filteredApplications,
+		projectByID,
+		userByID,
+	};
 };
 
 export type ApplicationsListItem = Application;

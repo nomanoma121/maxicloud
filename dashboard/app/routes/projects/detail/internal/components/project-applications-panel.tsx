@@ -6,59 +6,59 @@ import type { Application } from "~/repository/application";
 import type { UserAccount } from "~/repository/user";
 
 type ProjectApplicationsPanelProps = {
-  projectId: string;
-  projectName: string;
-  applications: Application[];
-  userByID: Record<string, UserAccount | undefined>;
+	projectId: string;
+	projectName: string;
+	applications: Application[];
+	userByID: Record<string, UserAccount | undefined>;
 };
 
 export const ProjectApplicationsPanel = ({
-  projectId,
-  projectName,
-  applications,
-  userByID,
+	projectId,
+	projectName,
+	applications,
+	userByID,
 }: ProjectApplicationsPanelProps) => {
-  const rows = applications.map((a) => ({
-    id: a.id,
-    name: a.name,
-    projectId: a.projectId,
-    projectName,
-    ownerName: userByID[a.ownerId]?.displayName ?? "-",
-    status: a.status,
-    url: a.url,
-    updatedAt: a.updatedAt,
-  }));
+	const rows = applications.map((a) => ({
+		id: a.id,
+		name: a.name,
+		projectId: a.projectId,
+		projectName,
+		ownerName: userByID[a.ownerId]?.displayName ?? "-",
+		status: a.status,
+		url: a.url,
+		updatedAt: a.updatedAt,
+	}));
 
-  return (
-    <Panel
-      title="Applications"
-      subtitle="このProjectに紐づくApplication一覧"
-      rightSlot={(
-        <Link
-          to={`/applications/new?projectId=${projectId}`}
-          className={css({
-            display: "inline-flex",
-            alignItems: "center",
-            justifyContent: "center",
-            textDecoration: "none",
-            border: "1px solid",
-            borderColor: "gray.400",
-            color: "gray.600",
-            borderRadius: 8,
-            minWidth: "80px",
-            fontSize: "sm",
-            fontWeight: 600,
-            padding: "token(spacing.1) token(spacing.2)",
-            _hover: {
-              backgroundColor: "rgba(0, 0, 0, 0.05)",
-            },
-          })}
-        >
-          New Application
-        </Link>
-      )}
-    >
-      <ApplicationsTable rows={rows} />
-    </Panel>
-  );
+	return (
+		<Panel
+			title="Applications"
+			subtitle="このProjectに紐づくApplication一覧"
+			rightSlot={
+				<Link
+					to={`/applications/new?projectId=${projectId}`}
+					className={css({
+						display: "inline-flex",
+						alignItems: "center",
+						justifyContent: "center",
+						textDecoration: "none",
+						border: "1px solid",
+						borderColor: "gray.400",
+						color: "gray.600",
+						borderRadius: 8,
+						minWidth: "80px",
+						fontSize: "sm",
+						fontWeight: 600,
+						padding: "token(spacing.1) token(spacing.2)",
+						_hover: {
+							backgroundColor: "rgba(0, 0, 0, 0.05)",
+						},
+					})}
+				>
+					New Application
+				</Link>
+			}
+		>
+			<ApplicationsTable rows={rows} />
+		</Panel>
+	);
 };

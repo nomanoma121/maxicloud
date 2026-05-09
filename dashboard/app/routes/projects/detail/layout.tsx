@@ -9,34 +9,34 @@ import { useProjectDetailView } from "./internal/hooks/use-project-detail-view";
 type BaseDetail = ReturnType<typeof useProjectDetailView>;
 
 export type ProjectDetailContext = BaseDetail & {
-  project: NonNullable<BaseDetail["project"]>;
-  projectId: string;
+	project: NonNullable<BaseDetail["project"]>;
+	projectId: string;
 };
 
 export default function ProjectDetailLayout() {
-  const { projectId = "" } = useParams();
-  const detail = useProjectDetailView(projectId);
+	const { projectId = "" } = useParams();
+	const detail = useProjectDetailView(projectId);
 
-  if (!detail.project) {
-    return <ProjectNotFoundState />;
-  }
+	if (!detail.project) {
+		return <ProjectNotFoundState />;
+	}
 
-  return (
-    <div className={css({ display: "grid", gap: 4 })}>
-      <Breadcrumb
-        items={[
-          { label: "Dashboard", href: "/" },
-          { label: "Projects", href: "/projects", icon: <Folder size={14} /> },
-          { label: detail.project.name },
-        ]}
-      />
+	return (
+		<div className={css({ display: "grid", gap: 4 })}>
+			<Breadcrumb
+				items={[
+					{ label: "Dashboard", href: "/" },
+					{ label: "Projects", href: "/projects", icon: <Folder size={14} /> },
+					{ label: detail.project.name },
+				]}
+			/>
 
-      <DashboardHeader
-        title={detail.project.name}
-        subtitle={detail.project.description}
-      />
+			<DashboardHeader
+				title={detail.project.name}
+				subtitle={detail.project.description}
+			/>
 
-      <Outlet context={{ ...detail, projectId }} />
-    </div>
-  );
+			<Outlet context={{ ...detail, projectId }} />
+		</div>
+	);
 }

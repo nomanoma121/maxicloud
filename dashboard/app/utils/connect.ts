@@ -9,15 +9,15 @@ import { ProjectService } from "~/gen/maxicloud/v1/project_pb";
 import { env } from "~/utils/env";
 
 const transport = createConnectTransport({
-  baseUrl: env("BASE_URL"),
-  useBinaryFormat: false,
+	baseUrl: env("BASE_URL"),
+	useBinaryFormat: false,
 });
 
 export const connectClient = {
-  project: createClient(ProjectService, transport),
-  application: createClient(ApplicationService, transport),
-  deployment: createClient(DeploymentService, transport),
-  domain: createClient(DomainService, transport),
-  github: createClient(GitHubService, transport),
-  auth: createClient(AuthService, transport),
+	project: createClient(ProjectService, transport),
+	application: createClient(ApplicationService, transport),
+	deployment: createClient(DeploymentService, transport),
+	domain: createClient(DomainService, transport),
+	github: createClient(GitHubService, transport),
+	auth: createClient(AuthService, transport),
 };

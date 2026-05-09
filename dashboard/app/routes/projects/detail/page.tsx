@@ -1,51 +1,57 @@
 import { useOutletContext } from "react-router";
 import { css } from "styled-system/css";
 import { Button } from "~/components/ui/button";
-import { useDeleteProject } from "./internal/hooks/use-delete-project";
 import { ProjectApplicationsPanel } from "./internal/components/project-applications-panel";
 import { ProjectDeploymentsPanel } from "./internal/components/project-deployments-panel";
 import { ProjectSummaryPanel } from "./internal/components/project-summary-panel";
+import { useDeleteProject } from "./internal/hooks/use-delete-project";
 import type { ProjectDetailContext } from "./layout";
 
 export default function ProjectDetailPage() {
-  const { mutateAsync: deleteProject, isPending } = useDeleteProject();
-  const {
-    project,
-    ownerName,
-    userByID,
-    projectApplications,
-    applicationByID,
-    projectByID,
-    projectDeployments,
-  } = useOutletContext<ProjectDetailContext>();
+	const { mutateAsync: deleteProject, isPending } = useDeleteProject();
+	const {
+		project,
+		ownerName,
+		userByID,
+		projectApplications,
+		applicationByID,
+		projectByID,
+		projectDeployments,
+	} = useOutletContext<ProjectDetailContext>();
 
-  return (
-    <>
-      <div className={css({ display: "flex", justifyContent: "flex-end" })}>
-        <Button type="button" variant="danger" size="sm" onClick={() => deleteProject(project.id)} disabled={isPending}>
-          {isPending ? "Deleting..." : "Delete Project"}
-        </Button>
-      </div>
+	return (
+		<>
+			<div className={css({ display: "flex", justifyContent: "flex-end" })}>
+				<Button
+					type="button"
+					variant="danger"
+					size="sm"
+					onClick={() => deleteProject(project.id)}
+					disabled={isPending}
+				>
+					{isPending ? "Deleting..." : "Delete Project"}
+				</Button>
+			</div>
 
-      <ProjectSummaryPanel
-        ownerName={ownerName}
-        applicationCount={projectApplications.length}
-        updatedAt={project.updatedAt}
-      />
+			<ProjectSummaryPanel
+				ownerName={ownerName}
+				applicationCount={projectApplications.length}
+				updatedAt={project.updatedAt}
+			/>
 
-      <ProjectApplicationsPanel
-        projectId={project.id}
-        projectName={project.name}
-        applications={projectApplications}
-        userByID={userByID}
-      />
+			<ProjectApplicationsPanel
+				projectId={project.id}
+				projectName={project.name}
+				applications={projectApplications}
+				userByID={userByID}
+			/>
 
-      <ProjectDeploymentsPanel
-        deployments={projectDeployments}
-        applicationByID={applicationByID}
-        projectByID={projectByID}
-        userByID={userByID}
-      />
-    </>
-  );
+			<ProjectDeploymentsPanel
+				deployments={projectDeployments}
+				applicationByID={applicationByID}
+				projectByID={projectByID}
+				userByID={userByID}
+			/>
+		</>
+	);
 }

@@ -5,22 +5,22 @@ import { ProjectsToolbar } from "~/routes/projects/internal/components/projects-
 import { useProjectsListView } from "~/routes/projects/internal/hooks/use-projects-list-view";
 
 export default function ProjectsPage() {
-  const navigate = useNavigate();
-  const { keyword, setKeyword, filteredProjects, projectCountByID, userByID } =
-    useProjectsListView();
+	const navigate = useNavigate();
+	const { keyword, setKeyword, filteredProjects, projectCountByID, userByID } =
+		useProjectsListView();
 
-  return (
-    <Panel>
-      <ProjectsToolbar
-        keyword={keyword}
-        onKeywordChange={setKeyword}
-        onCreateProject={() => navigate("/projects/new")}
-      />
-      <ProjectsTable
-        projects={filteredProjects}
-        projectCountByID={projectCountByID}
-        userByID={userByID}
-      />
-    </Panel>
-  );
+	return (
+		<Panel>
+			<ProjectsToolbar
+				keyword={keyword}
+				onKeywordChange={setKeyword}
+				onCreateProject={() => navigate("/projects/new")}
+			/>
+			<ProjectsTable
+				projects={filteredProjects}
+				projectCountByID={projectCountByID}
+				userByID={userByID}
+			/>
+		</Panel>
+	);
 }

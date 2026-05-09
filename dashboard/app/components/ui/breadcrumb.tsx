@@ -33,7 +33,7 @@ export const Breadcrumb = ({ items, className, ...props }: BreadcrumbProps) => {
 
 				return (
 					<div
-						key={`${item.label}-${index}`}
+						key={item.href ?? item.label}
 						className={css({
 							display: "flex",
 							alignItems: "center",

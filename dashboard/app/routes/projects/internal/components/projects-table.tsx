@@ -3,54 +3,58 @@ import { css } from "styled-system/css";
 import { Table } from "~/components/ui/table";
 import type { UserAccount } from "~/repository/user";
 import type {
-  ProjectCountByID,
-  ProjectsListItem,
+	ProjectCountByID,
+	ProjectsListItem,
 } from "~/routes/projects/internal/hooks/use-projects-list-view";
 
 type ProjectsTableProps = {
-  projects: ProjectsListItem[];
-  projectCountByID: ProjectCountByID;
-  userByID: Record<string, UserAccount | undefined>;
+	projects: ProjectsListItem[];
+	projectCountByID: ProjectCountByID;
+	userByID: Record<string, UserAccount | undefined>;
 };
 
 export const ProjectsTable = ({
-  projects,
-  projectCountByID,
-  userByID,
+	projects,
+	projectCountByID,
+	userByID,
 }: ProjectsTableProps) => {
-  return (
-    <Table.Root>
-      <thead>
-        <Table.Tr>
-          <Table.Th>プロジェクト</Table.Th>
-          <Table.Th>グループ</Table.Th>
-          <Table.Th>アプリケーション</Table.Th>
-          <Table.Th>最終更新</Table.Th>
-          <Table.Th>詳細</Table.Th>
-        </Table.Tr>
-      </thead>
-      <tbody>
-        {projects.map((project) => {
-          const count = projectCountByID[project.id];
+	return (
+		<Table.Root>
+			<thead>
+				<Table.Tr>
+					<Table.Th>プロジェクト</Table.Th>
+					<Table.Th>グループ</Table.Th>
+					<Table.Th>アプリケーション</Table.Th>
+					<Table.Th>最終更新</Table.Th>
+					<Table.Th>詳細</Table.Th>
+				</Table.Tr>
+			</thead>
+			<tbody>
+				{projects.map((project) => {
+					const count = projectCountByID[project.id];
 
-          return (
-            <Table.Tr key={project.id}>
-              <Table.Td>{project.name}</Table.Td>
-              <Table.Td>{userByID[project.ownerId]?.displayName}</Table.Td>
-              <Table.Td>{count?.total ?? 0}</Table.Td>
-              <Table.Td>{project.updatedAt}</Table.Td>
-              <Table.Td>
-                <Link
-                  to={`/projects/${project.id}`}
-                  className={css({ color: "green.700", fontSize: "sm", textDecoration: "none" })}
-                >
-                  詳細
-                </Link>
-              </Table.Td>
-            </Table.Tr>
-          );
-        })}
-      </tbody>
-    </Table.Root>
-  );
+					return (
+						<Table.Tr key={project.id}>
+							<Table.Td>{project.name}</Table.Td>
+							<Table.Td>{userByID[project.ownerId]?.displayName}</Table.Td>
+							<Table.Td>{count?.total ?? 0}</Table.Td>
+							<Table.Td>{project.updatedAt}</Table.Td>
+							<Table.Td>
+								<Link
+									to={`/projects/${project.id}`}
+									className={css({
+										color: "green.700",
+										fontSize: "sm",
+										textDecoration: "none",
+									})}
+								>
+									詳細
+								</Link>
+							</Table.Td>
+						</Table.Tr>
+					);
+				})}
+			</tbody>
+		</Table.Root>
+	);
 };

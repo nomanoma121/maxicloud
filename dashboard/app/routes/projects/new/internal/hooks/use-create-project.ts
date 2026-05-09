@@ -4,22 +4,25 @@ import { useToast } from "~/hooks/use-toast";
 import type { CreateProjectInput } from "~/repository/project";
 
 export const useCreateProject = () => {
-  const { projectRepository } = useRepository();
-  const queryClient = useQueryClient();
-  const { pushToast } = useToast();
+	const { projectRepository } = useRepository();
+	const queryClient = useQueryClient();
+	const { pushToast } = useToast();
 
-  return useMutation({
-    mutationFn: (input: CreateProjectInput) => projectRepository.createProject(input),
-    onSuccess: () => {
-      pushToast({ type: "success", title: "Project created" });
-      queryClient.invalidateQueries({ queryKey: projectRepository.listProjects$$key() });
-    },
-    onError: (error) => {
-      pushToast({
-        type: "error",
-        title: "Failed to create project",
-        description: error instanceof Error ? error.message : "unknown error",
-      });
-    },
-  });
+	return useMutation({
+		mutationFn: (input: CreateProjectInput) =>
+			projectRepository.createProject(input),
+		onSuccess: () => {
+			pushToast({ type: "success", title: "Project created" });
+			queryClient.invalidateQueries({
+				queryKey: projectRepository.listProjects$$key(),
+			});
+		},
+		onError: (error) => {
+			pushToast({
+				type: "error",
+				title: "Failed to create project",
+				description: error instanceof Error ? error.message : "unknown error",
+			});
+		},
+	});
 };

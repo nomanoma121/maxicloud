@@ -6,26 +6,26 @@ import { Sidebar } from "~/components/layout/sidebar";
 import { useSession } from "~/hooks/use-session";
 
 export default function DashboardLayout() {
-  const { isReady } = useSession();
+	const { isReady } = useSession();
 
-  if (!isReady) {
-    return null;
-  }
+	if (!isReady) {
+		return null;
+	}
 
-  return (
-    <DashboardShell>
-      <div
-        className={css({
-          display: "flex",
-          height: "100%",
-          minHeight: 0,
-        })}
-      >
-        <Sidebar />
-        <DashboardMain>
-          <Outlet />
-        </DashboardMain>
-      </div>
-    </DashboardShell>
-  );
+	return (
+		<DashboardShell>
+			<div
+				className={css({
+					display: "flex",
+					height: "100%",
+					minHeight: 0,
+				})}
+			>
+				<Sidebar />
+				<DashboardMain>
+					<Outlet />
+				</DashboardMain>
+			</div>
+		</DashboardShell>
+	);
 }

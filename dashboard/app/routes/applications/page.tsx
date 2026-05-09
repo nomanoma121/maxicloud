@@ -1,39 +1,33 @@
 import { useNavigate } from "react-router";
-import { Panel } from "~/components/ui/panel";
-
 import { ApplicationsTable } from "~/components/feature/applications-table";
+import { Panel } from "~/components/ui/panel";
 import { ApplicationsToolbar } from "~/routes/applications/internal/components/applications-toolbar";
 import { useApplicationsListView } from "~/routes/applications/internal/hooks/use-applications-list-view";
 
 export default function ApplicationsPage() {
-  const navigate = useNavigate();
-  const {
-    keyword,
-    setKeyword,
-    filteredApplications,
-    projectByID,
-    userByID,
-  } = useApplicationsListView();
+	const navigate = useNavigate();
+	const { keyword, setKeyword, filteredApplications, projectByID, userByID } =
+		useApplicationsListView();
 
-  const rows = filteredApplications.map((a) => ({
-    id: a.id,
-    name: a.name,
-    projectId: a.projectId,
-    projectName: projectByID[a.projectId]?.name ?? "-",
-    ownerName: userByID[a.ownerId]?.displayName ?? "-",
-    status: a.status,
-    url: a.url,
-    updatedAt: a.updatedAt,
-  }));
+	const rows = filteredApplications.map((a) => ({
+		id: a.id,
+		name: a.name,
+		projectId: a.projectId,
+		projectName: projectByID[a.projectId]?.name ?? "-",
+		ownerName: userByID[a.ownerId]?.displayName ?? "-",
+		status: a.status,
+		url: a.url,
+		updatedAt: a.updatedAt,
+	}));
 
-  return (
-    <Panel>
-      <ApplicationsToolbar
-        keyword={keyword}
-        onKeywordChange={setKeyword}
-        onCreateApplication={() => navigate("/applications/new")}
-      />
-      <ApplicationsTable rows={rows} />
-    </Panel>
-  );
+	return (
+		<Panel>
+			<ApplicationsToolbar
+				keyword={keyword}
+				onKeywordChange={setKeyword}
+				onCreateApplication={() => navigate("/applications/new")}
+			/>
+			<ApplicationsTable rows={rows} />
+		</Panel>
+	);
 }
