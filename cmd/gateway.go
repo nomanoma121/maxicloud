@@ -108,7 +108,6 @@ func runGateway(cmd *cobra.Command, args []string) error {
 	r.Mount(path, h)
 
 	// GitHub App 関連のエンドポイント
-	r.Get("/github/install", ghHandler.Install)
 	r.Post("/github/webhook", ghHandler.Webhook)
 	r.Get("/github/callback", ghHandler.Callback)
 
