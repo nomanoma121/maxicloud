@@ -34,13 +34,20 @@ type DeploymentLogChunkEvent struct {
 	Lines []string
 }
 
+type DeploymentWatchEvent interface {
+	isDeploymentWatchEvent()
+}
+
+func (DeploymentStatusChangedEvent) isDeploymentWatchEvent() {}
+func (DeploymentLogChunkEvent) isDeploymentWatchEvent()      {}
+
 type DeploymentService interface {
 	CreateDeployment(ctx context.Context, params CreateDeploymentParams) (string, error)
 	RetryDeployment(ctx context.Context, deploymentID string) (*domain.Deployment, error)
 	GetDeployment(ctx context.Context, deploymentID string) (*domain.Deployment, error)
 	ListDeployments(ctx context.Context, applicationID string) ([]domain.Deployment, error)
 	HandleGitHubEvent(ctx context.Context, event domain.DeploymentEvent) error
-	WatchDeployment(ctx context.Context, deploymentID string) (<-chan any, error)
+	WatchDeployment(ctx context.Context, deploymentID string) (<-chan DeploymentWatchEvent, error)
 }
 
 func NewDeploymentService(deployRepo domain.DeploymentRepository, pipelineRepo domain.DeploymentPipelineRepository, appRepo domain.ApplicationRepository) *deploymentService {
@@ -192,7 +199,7 @@ func isTerminalStatus(status domain.DeploymentStatus) bool {
 	return status == domain.DeploymentStatusSucceeded || status == domain.DeploymentStatusFailed
 }
 
-func (s *deploymentService) WatchDeployment(ctx context.Context, deploymentID string) (<-chan any, error) {
+func (s *deploymentService) WatchDeployment(ctx context.Context, deploymentID string) (<-chan DeploymentWatchEvent, error) {
 	deploy, err := s.GetDeployment(ctx, deploymentID)
 	if err != nil {
 		return nil, err
@@ -201,7 +208,7 @@ func (s *deploymentService) WatchDeployment(ctx context.Context, deploymentID st
 		return nil, domain.ValidationError{Message: "deployment not found"}
 	}
 
-	ch := make(chan any, 10)
+	ch := make(chan DeploymentWatchEvent, 10)
 	go func() {
 		var wg sync.WaitGroup
 		defer func() {
@@ -233,7 +240,7 @@ func (s *deploymentService) WatchDeployment(ctx context.Context, deploymentID st
 	return ch, nil
 }
 
-func (s *deploymentService) watchBuildLogStream(ctx context.Context, deploymentID string, ch chan<- any) {
+func (s *deploymentService) watchBuildLogStream(ctx context.Context, deploymentID string, ch chan<- DeploymentWatchEvent) {
 	stream, err := s.pipelineRepo.WatchBuildLogs(ctx, deploymentID)
 	if err != nil {
 		sendDeploymentLogChunk(ctx, ch, "failed to retrieve logs")
@@ -251,7 +258,7 @@ func (s *deploymentService) watchBuildLogStream(ctx context.Context, deploymentI
 	}
 }
 
-func sendDeploymentLogChunk(ctx context.Context, ch chan<- any, line string) {
+func sendDeploymentLogChunk(ctx context.Context, ch chan<- DeploymentWatchEvent, line string) {
 	select {
 	case <-ctx.Done():
 	case ch <- DeploymentLogChunkEvent{Lines: []string{line}}:
@@ -262,7 +269,7 @@ func (s *deploymentService) watchDeploymentStatusLoop(
 	ctx context.Context,
 	deploymentID string,
 	lastStatus domain.DeploymentStatus,
-	ch chan<- any,
+	ch chan<- DeploymentWatchEvent,
 ) {
 	ticker := time.NewTicker(1 * time.Second)
 	defer ticker.Stop()
