@@ -49,10 +49,6 @@ func NewGitHubHandler(deploySvc usecase.DeploymentService, srcSvc usecase.Source
 	}
 }
 
-func (h *GitHubHandler) Install(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, fmt.Sprintf("https://github.com/apps/%s/installations/new", h.config.GitHubAppName), http.StatusFound)
-}
-
 func (h *GitHubHandler) Callback(w http.ResponseWriter, r *http.Request) {
 	if code := r.URL.Query().Get("code"); code != "" {
 		if _, err := h.oauthCfg.Exchange(r.Context(), code); err != nil {
