@@ -1,9 +1,7 @@
 import { Code, ConnectError } from "@connectrpc/connect";
 import { DEPLOYMENT_STATUS, type ValueOf } from "~/constants";
-import {
-	type Deployment as ProtoDeployment,
-	DeploymentStatus as ProtoDeploymentStatus,
-} from "~/gen/maxicloud/v1/deployment_pb";
+import type { Deployment as ProtoDeployment } from "~/gen/maxicloud/v1/deployment_pb";
+import { DeploymentStatus as ProtoDeploymentStatus } from "~/gen/maxicloud/v1/deployment_pb";
 import { connectClient } from "~/utils/connect";
 import { formatDuration, formatTimestamp } from "~/utils/date";
 
@@ -35,7 +33,9 @@ export interface IDeploymentRepository {
 	getDeployment(id: string): Promise<Deployment | undefined>;
 }
 
-const mapStatus = (status: ProtoDeploymentStatus): Deployment["status"] => {
+export const mapDeploymentStatus = (
+	status: ProtoDeploymentStatus,
+): DeploymentStatus => {
 	switch (status) {
 		case ProtoDeploymentStatus.SUCCESS:
 			return DEPLOYMENT_STATUS.SUCCESS;
@@ -67,7 +67,7 @@ const toDeployment = (deployment: ProtoDeployment): Deployment => {
 			authorName: deployment.commit.authorName,
 			timestamp: formatTimestamp(deployment.commit.timestamp),
 		},
-		status: mapStatus(deployment.status),
+		status: mapDeploymentStatus(deployment.status),
 		startedAt: formatTimestamp(deployment.startedAt),
 	};
 

@@ -9,7 +9,7 @@ export type UserAccount = {
 	displayName: string;
 	email: string;
 	status: UserStatus;
-	joinedAt: string;
+	joinedAt?: string;
 };
 
 export interface IUserRepository {
@@ -25,7 +25,6 @@ const fallbackUsers: UserAccount[] = [
 		displayName: "Maximum-Test",
 		email: "test@maximum.vc",
 		status: USER_STATUS.ACTIVE,
-		joinedAt: "-",
 	},
 ];
 
@@ -34,14 +33,14 @@ const toUser = (user: {
 	displayId: string;
 	displayName: string;
 	email: string;
-	joinedAt: string;
+	joinedAt?: string;
 }): UserAccount => ({
 	id: user.id,
 	displayId: user.displayId,
 	displayName: user.displayName,
 	email: user.email,
 	status: USER_STATUS.ACTIVE,
-	joinedAt: user.joinedAt || "-",
+	joinedAt: user.joinedAt,
 });
 
 export class UserRepository implements IUserRepository {

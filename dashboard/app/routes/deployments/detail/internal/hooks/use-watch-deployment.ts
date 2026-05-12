@@ -1,23 +1,12 @@
 import { timestampDate } from "@bufbuild/protobuf/wkt";
 import { useEffect, useMemo, useState } from "react";
 import { DEPLOYMENT_STATUS } from "~/constants";
-import { DeploymentStatus as ProtoDeploymentStatus } from "~/gen/maxicloud/v1/deployment_pb";
-import type { DeploymentStatus } from "~/repository/deployment";
+import {
+	type DeploymentStatus,
+	mapDeploymentStatus,
+} from "~/repository/deployment";
 import { connectClient } from "~/utils/connect";
 import { formatElapsedSeconds } from "~/utils/date";
-
-const mapStatus = (status: ProtoDeploymentStatus): DeploymentStatus => {
-	switch (status) {
-		case ProtoDeploymentStatus.SUCCESS:
-			return DEPLOYMENT_STATUS.SUCCESS;
-		case ProtoDeploymentStatus.IN_PROGRESS:
-			return DEPLOYMENT_STATUS.IN_PROGRESS;
-		case ProtoDeploymentStatus.FAILED:
-			return DEPLOYMENT_STATUS.FAILED;
-		default:
-			return DEPLOYMENT_STATUS.IN_PROGRESS;
-	}
-};
 
 type WatchState = {
 	status: DeploymentStatus | null;
@@ -50,7 +39,7 @@ export const useWatchDeployment = (deploymentId: string) => {
 						setNowTick(0);
 						setState((prev) => ({
 							...prev,
-							status: mapStatus(e.value.status),
+							status: mapDeploymentStatus(e.value.status),
 							elapsedSeconds: Number(e.value.elapsedSeconds),
 							finishedAt: e.value.finishedAt
 								? timestampDate(e.value.finishedAt)

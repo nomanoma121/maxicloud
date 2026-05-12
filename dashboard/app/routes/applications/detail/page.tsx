@@ -78,7 +78,7 @@ export default function ApplicationDetailPage() {
 					<SummaryRow label="最終更新" value={application.updatedAt} />
 					<SummaryRow
 						label="URL"
-						value={application.url}
+						value={application.url ?? "-"}
 						href={application.url}
 					/>
 				</dl>

@@ -24,7 +24,7 @@ export type Application = {
 	repository: string;
 	branch: string;
 	status: ApplicationStatus;
-	url: string;
+	url?: string;
 	updatedAt: string;
 	ownerId: string;
 };
@@ -65,7 +65,9 @@ export interface IApplicationRepository {
 	deleteApplication(id: string): Promise<void>;
 }
 
-const mapStatus = (status: ProtoApplicationStatus): Application["status"] => {
+const mapApplicationStatus = (
+	status: ProtoApplicationStatus,
+): ApplicationStatus => {
 	switch (status) {
 		case ProtoApplicationStatus.RUNNING:
 			return APPLICATION_STATUS.RUNNING;
@@ -76,13 +78,6 @@ const mapStatus = (status: ProtoApplicationStatus): Application["status"] => {
 		default:
 			return APPLICATION_STATUS.UNAVAILABLE;
 	}
-};
-
-const parseRepository = (owner = "", name = "") => {
-	if (owner && name) {
-		return `${owner}/${name}`;
-	}
-	return "-";
 };
 
 const toApplication = (application: ProtoApplication): Application => {
@@ -96,21 +91,17 @@ const toApplication = (application: ProtoApplication): Application => {
 			`Invalid application data received for ID: ${application.id}`,
 		);
 	}
-	const repository = parseRepository(
-		application.source?.repository?.owner,
-		application.source?.repository?.name,
-	);
 	return {
 		id: application.id,
 		projectId: application.projectId,
 		name: application.name,
-		repository,
+		repository: `${application.source.repository.owner}/${application.source.repository.name}`,
 		branch: application.source.branch,
-		status: mapStatus(application.condition.status),
+		status: mapApplicationStatus(application.condition.status),
 		// TODO: 後でここなおす
 		url: application.condition?.domain
 			? `http://${application.condition.domain.subdomain}.${application.condition.domain.rootDomain}:8080`
-			: "-",
+			: undefined,
 		updatedAt: formatTimestamp(application.updatedAt),
 		ownerId: application.ownerUserId,
 	};
